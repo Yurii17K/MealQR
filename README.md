@@ -3,7 +3,7 @@
 ## Git flow
 For each feature create a new branch from **dev** branch with a name **feature-{feature-name}**
 
-##🛠 Backend Endpoints
+## 🛠 Backend Endpoints
 
 ### 🔐 Users:
 - Create a customer:
