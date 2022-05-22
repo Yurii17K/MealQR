@@ -25,7 +25,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
     void deleteAllByUserEmail(String userEmail);
 
     @Transactional
-    void deleteByUserEmailAndAndDishId(String userEmail, Integer dishID);
+    void deleteByUserEmailAndDishId(String userEmail, Integer dishID);
 
     @Transactional
     @Query(value = "SELECT count(*) FROM change_dish_quantity_in_customer_cart(:user_email_param, :dish_id_param, :quantity_param)",

@@ -1,6 +1,7 @@
 package com.example.mealqr.repositories;
 
 import com.example.mealqr.pojos.User;
+import com.example.mealqr.security.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +13,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findUserByEmail(String userEmail);
 
-    List<User> findAllByRole(String role);
+    List<User> findAllByRole(Roles role);
 }

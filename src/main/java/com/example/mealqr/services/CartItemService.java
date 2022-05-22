@@ -86,7 +86,7 @@ public class CartItemService {
             return Tuple.of(false, "Such dish does not exist");
         }
 
-        cartItemRepository.deleteByUserEmailAndAndDishId(userEmail, optionalDish.get().getID());
+        cartItemRepository.deleteByUserEmailAndDishId(userEmail, optionalDish.get().getID());
         return Tuple.of(true, "Removed " + dishName + " of " + restaurantName + " from customer cart");
     }
 }

@@ -1,11 +1,11 @@
 package com.example.mealqr.services;
 
-import com.example.mealqr.pojos.Dish;
-import com.example.mealqr.pojos.DishComment;
-import com.example.mealqr.pojos.DishRating;
+import com.example.mealqr.pojos.*;
 import com.example.mealqr.repositories.DishCommentRepository;
 import com.example.mealqr.repositories.DishRatingRepository;
 import com.example.mealqr.repositories.DishRepository;
+import com.example.mealqr.repositories.UserRepository;
+import com.example.mealqr.security.Roles;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,7 @@ public class DishOpinionService {
     private final DishCommentRepository dishCommentRepository;
     private final DishRatingRepository dishRatingRepository;
     private final DishRepository dishRepository;
+    private UserRepository userRepository;
 
     public Map<Dish, Tuple2<Double, List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
             @NotBlank String restaurantName) {
@@ -37,13 +40,6 @@ public class DishOpinionService {
                 )));
     }
 
-//    public Map<String, Map<Integer, Double>> getAllDishRatingsInRestaurant(
-//            @NotBlank String userEmail, @NotBlank String restaurantName) {
-//        List<Tuple2<Integer, Integer>> dishIdAndRatingList = dishRatingRepository.findAllByRestaurant(restaurantName);
-//
-//        return Map.of(userEmail, dishIdAndRatingList.stream().collect(Collectors.toMap(x -> x._1, x -> x._2.doubleValue())));
-//    }
-
     public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
                                                       @NotBlank String restaurantName, @NotBlank String comment) {
         Optional<Dish> optionalDish = dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName);
@@ -54,7 +50,7 @@ public class DishOpinionService {
         }
 
         Optional<DishComment> optionalDishComment =
-                dishCommentRepository.findByDishIDAndUserEmail(optionalDish.get().getID(), userEmail);
+                dishCommentRepository.findByDishIdAndUserEmail(optionalDish.get().getID(), userEmail);
 
         DishComment dishComment = DishComment.builder()
                 .dishId(optionalDish.get().getID())
@@ -83,7 +79,7 @@ public class DishOpinionService {
         }
 
         Optional<DishRating> optionalDishRating =
-                dishRatingRepository.findByDishIDAndUserEmail(optionalDish.get().getID(), userEmail);
+                dishRatingRepository.findByDishIdAndUserEmail(optionalDish.get().getID(), userEmail);
 
         DishRating dishRating = DishRating.builder()
                 .dishId(optionalDish.get().getID())
@@ -104,7 +100,7 @@ public class DishOpinionService {
 
     private List<String> getDishComments(@NotNull Integer dishID) {
         return dishCommentRepository
-                .findAllByDishID(dishID)
+                .findAllByDishId(dishID)
                 .stream()
                 .map(DishComment::getComment)
                 .collect(Collectors.toList());
@@ -112,7 +108,7 @@ public class DishOpinionService {
 
     private double getDishAverageRating(@NotNull Integer dishID) {
         return dishRatingRepository
-                .findAllByDishID(dishID)
+                .findAllByDishId(dishID)
                 .stream()
                 .mapToInt(DishRating::getRating)
                 .average().getAsDouble();

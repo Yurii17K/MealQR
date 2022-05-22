@@ -15,12 +15,6 @@ import java.util.Optional;
 @Repository
 public interface DishCommentRepository extends JpaRepository<DishComment, Integer> {
 
-    @Query(value = "select * from dish_comments " +
-            "where dish_id = :dish_id", nativeQuery = true)
-    List<DishComment> findAllByDishID(@Param("dish_id") Integer dishID);
+    List<DishComment> findAllByDishId(Integer dishID);
 
-    @Query(value = "select * from dish_comments " +
-            "where dish_id = :dish_id AND customer_email = :user_email", nativeQuery = true)
-    Optional<DishComment> findByDishIDAndUserEmail(
-            @Param("dish_id") Integer dishID,
-            @Param("user_email") String userEmail);}
+    Optional<DishComment> findByDishIdAndUserEmail(Integer dishID, String userEmail);}
