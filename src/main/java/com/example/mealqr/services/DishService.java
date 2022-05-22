@@ -4,14 +4,13 @@ import com.example.mealqr.pojos.Dish;
 import com.example.mealqr.repositories.DishRepository;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.Tuple3;
-import io.vavr.control.Either;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -21,26 +20,9 @@ import java.util.stream.Collectors;
 public class DishService {
 
     private final DishRepository dishRepository;
-    private final DishOpinionService dishOpinionService;
 
     public List<Dish> getAllDishesInRestaurant(@NotBlank String restaurantName) {
         return dishRepository.findAllByRestaurantName(restaurantName);
-    }
-
-    public Tuple3<List<Dish>, List<Double>, List<List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
-            @NotBlank String restaurantName
-    ) {
-        List<Dish> dishList = dishRepository.findAllByRestaurantName(restaurantName);
-
-        return Tuple.of(
-                dishList,
-                dishList.stream()
-                        .map(dish -> dishOpinionService.getDishAverageRating(dish.getDishName(), dish.getRestaurantName()))
-                        .collect(Collectors.toUnmodifiableList()),
-                dishList.stream()
-                        .map(dish -> dishOpinionService.getDishComments(dish.getDishName(), dish.getRestaurantName()))
-                        .collect(Collectors.toUnmodifiableList())
-        );
     }
 
     public Tuple2<Boolean, String> addDishToRestaurantOffer(@NotNull Dish dishToAdd) {

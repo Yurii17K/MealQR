@@ -20,11 +20,11 @@ public class Dish {
     private Integer ID;
 
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String dishName;
 
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String restaurantName;
 
     @NotNull

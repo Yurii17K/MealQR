@@ -1,10 +1,9 @@
 package com.example.mealqr.controllers;
 
 import com.example.mealqr.pojos.Dish;
-import com.example.mealqr.security.Roles;
+import com.example.mealqr.services.DishOpinionService;
 import com.example.mealqr.services.DishService;
 import io.vavr.Tuple2;
-import io.vavr.Tuple3;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dishes")
@@ -20,6 +20,7 @@ import java.util.List;
 public class DishController {
 
     private final DishService dishService;
+    private final DishOpinionService dishOpinionService;
 
     @GetMapping
     public ResponseEntity<List<Dish>> getAllDishesInRestaurant(
@@ -30,11 +31,11 @@ public class DishController {
     }
 
     @GetMapping("/opinions")
-    public ResponseEntity<Tuple3<List<Dish>, List<Double>, List<List<String>>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
+    public ResponseEntity<Map<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
             @RequestParam String restaurantName
     ) {
         return ResponseEntity.ok()
-                .body(dishService.getAllDishesInRestaurantWithAverageRatingsAndComments(restaurantName));
+                .body(dishOpinionService.getAllDishesInRestaurantWithAverageRatingsAndComments(restaurantName));
     }
 
     @GetMapping("/random")

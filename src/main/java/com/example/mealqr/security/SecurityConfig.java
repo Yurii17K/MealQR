@@ -55,19 +55,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // security endpoints config (disable for testing, enable above)
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/cart-items").hasAuthority(Roles.CUSTOMER.name());
-
-        http.csrf().disable()
-                .authorizeRequests()
-                        .antMatchers("/dishes/restaurant").hasAuthority(Roles.RESTAURANT_EMPLOYEE.name());
-
-        http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/opinions").hasAuthority(Roles.CUSTOMER.name());
-
-        http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/qr").hasAuthority(Roles.CUSTOMER.name());
+                .antMatchers("/cart-items", "/cart-items/**")
+                   .hasAuthority(Roles.CUSTOMER.name())
+                .antMatchers("/dishes/restaurant")
+                   .hasAuthority(Roles.RESTAURANT_EMPLOYEE.name())
+                .antMatchers("/opinions/**")
+                    .hasAuthority(Roles.CUSTOMER.name())
+                .antMatchers("/qr")
+                    .hasAuthority(Roles.CUSTOMER.name())
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);;
 
         // filter config
         http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class);

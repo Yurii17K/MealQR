@@ -6,7 +6,6 @@ import com.example.mealqr.pojos.DishRating;
 import com.example.mealqr.repositories.DishCommentRepository;
 import com.example.mealqr.repositories.DishRatingRepository;
 import com.example.mealqr.repositories.DishRepository;
-import com.example.mealqr.repositories.UserRepository;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,24 @@ public class DishOpinionService {
     private final DishCommentRepository dishCommentRepository;
     private final DishRatingRepository dishRatingRepository;
     private final DishRepository dishRepository;
+
+    public Map<Dish, Tuple2<Double, List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
+            @NotBlank String restaurantName) {
+        List<Dish> dishList = dishRepository.findAllByRestaurantName(restaurantName);
+
+        return dishList.stream()
+                .collect(Collectors.toMap(dish -> dish, dish -> Tuple.of(
+                        getDishAverageRating(dish.getID()),
+                        getDishComments(dish.getID())
+                )));
+    }
+
+//    public Map<String, Map<Integer, Double>> getAllDishRatingsInRestaurant(
+//            @NotBlank String userEmail, @NotBlank String restaurantName) {
+//        List<Tuple2<Integer, Integer>> dishIdAndRatingList = dishRatingRepository.findAllByRestaurant(restaurantName);
+//
+//        return Map.of(userEmail, dishIdAndRatingList.stream().collect(Collectors.toMap(x -> x._1, x -> x._2.doubleValue())));
+//    }
 
     public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
                                                       @NotBlank String restaurantName, @NotBlank String comment) {
@@ -39,7 +57,7 @@ public class DishOpinionService {
                 dishCommentRepository.findByDishIDAndUserEmail(optionalDish.get().getID(), userEmail);
 
         DishComment dishComment = DishComment.builder()
-                .dishID(optionalDish.get().getID())
+                .dishId(optionalDish.get().getID())
                 .userEmail(userEmail)
                 .comment(comment)
                 .build();
@@ -48,10 +66,7 @@ public class DishOpinionService {
         if (optionalDishComment.isEmpty()) {
             dishCommentRepository.save(dishComment);
         } else { // if the comment is present -> update it
-            dishComment = DishComment
-                    .builder()
-                    .dishID(optionalDish.get().getID())
-                    .build();
+            dishComment.setID(optionalDishComment.get().getID());
             dishCommentRepository.save(dishComment);
         }
 
@@ -71,7 +86,7 @@ public class DishOpinionService {
                 dishRatingRepository.findByDishIDAndUserEmail(optionalDish.get().getID(), userEmail);
 
         DishRating dishRating = DishRating.builder()
-                .dishID(optionalDish.get().getID())
+                .dishId(optionalDish.get().getID())
                 .userEmail(userEmail)
                 .rating(rating)
                 .build();
@@ -80,30 +95,24 @@ public class DishOpinionService {
         if (optionalDishRating.isEmpty()) {
             dishRatingRepository.save(dishRating);
         } else { // if the rating is present -> update it
-            dishRating = DishRating
-                    .builder()
-                    .dishID(optionalDish.get().getID())
-                    .build();
+            dishRating.setID(optionalDishRating.get().getID());
             dishRatingRepository.save(dishRating);
         }
 
         return Tuple.of(true, "Added rating to dish " + dishName + " from " + restaurantName);
     }
 
-    public List<String> getDishComments(@NotBlank String dishName, @NotBlank String restaurantName) {
-        Optional<Dish> optionalDish = dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName);
-
+    private List<String> getDishComments(@NotNull Integer dishID) {
         return dishCommentRepository
-                .findAllByDishID(optionalDish.get().getID())
+                .findAllByDishID(dishID)
                 .stream()
                 .map(DishComment::getComment)
                 .collect(Collectors.toList());
     }
 
-    public double getDishAverageRating(@NotBlank String dishName, @NotBlank String restaurantName) {
-        Optional<Dish> optionalDish = dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName);
+    private double getDishAverageRating(@NotNull Integer dishID) {
         return dishRatingRepository
-                .findAllByDishID(optionalDish.get().getID())
+                .findAllByDishID(dishID)
                 .stream()
                 .mapToInt(DishRating::getRating)
                 .average().getAsDouble();

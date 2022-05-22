@@ -22,7 +22,7 @@ public class RestaurantEmployee {
     private String userEmail;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String restaurantName;
 
 }
