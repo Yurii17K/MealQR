@@ -5,7 +5,7 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 
 ##🛠 Backend Endpoints
 
-###🔐 Users:
+### 🔐 Users:
 - Create a customer:
   - **POST** `{host}/users/customer?userName={value}&userLastName={value}&userCity={value}&allergies={value}&userEmail={value}&userPass={value}`
 - Create a restaurant employee:
@@ -15,7 +15,7 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Update customer allergies:
   - **POST** `{host}/users/customer/alergies?userEmail={value}&allergies={value}`
 
-###🛒 Cart items:
+### 🛒 Cart items:
 - Get the list of cart items in customer cart: 
   - **GET** `{host}/cart-items?userEmail={value}`
 - Get the cost of cart items in customer cart: 
@@ -29,7 +29,7 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Clear customer cart: 
   - **DELETE**`{host}/cart-items/clear?userEmail={value}`
 
-###🍲 Dishes:
+### 🍲 Dishes:
 - Get all dishes in restaurant:
   - **GET** `{host}/dishes?restaurantName={value}`
 - Get all dishes in restaurant with comments and average ratings for each dish:
@@ -45,7 +45,7 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Remove dish from restaurant offer:
   - **DELETE** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}`
 
-###💬 Comments and ratings:
+### 💬 Comments and ratings:
 - Add comment to dish:
   - **POST** `{host}/opinions/comments?userEmail={value}&dishName={value}&restaurantName={value}&comment={value}`
 - Add rating to dish:
@@ -55,6 +55,6 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Update dish rating:
   - **PATCH** `{host}/opinions/ratings?userEmail={value}&dishName={value}&restaurantName={value}&rating={value}`
 
-###📓 QR:
+### 📓 QR:
 - Generate data for QR code from customer cart:
   - **GET** `{host}/qr?userEmail={value}`
