@@ -1,57 +1,59 @@
 package com.example.mealqr.pojos;
 
-import com.example.mealqr.security.Role;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.example.mealqr.security.Roles;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 
 @Getter
-@SuperBuilder
+@Builder
 @Entity(name = "Users")
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false)
     private Integer ID;
     
     @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String lastName;
 
     @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String city;
 
-    @Email(message = "Email should be valid")
+    @Email(message = "Email should be valid", regexp =
+    ".*@.*\\..*")
+    @Size(max = 100)
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    @Setter
     @NotBlank
     @Size(min = 8)
+    @Column(nullable = false)
     private String pass;
 
-    @NotBlank
-    private Role role;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Roles role;
 
-    public User(Integer ID, String name, String lastName, String city, String email, String pass, Role role) {
-        this.ID = ID;
-        this.name = name;
-        this.lastName = lastName;
-        this.city = city;
-        this.email = email;
-        this.pass = pass;
-        this.role = role;
-    }
 }
 
 

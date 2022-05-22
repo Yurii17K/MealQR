@@ -5,30 +5,33 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.*;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "CartItems")
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false)
     private Integer ID;
 
     @Email(message = "Email should be valid")
-    private String customerEmail;
+    @Column(nullable = false)
+    private String userEmail;
 
-    @NotBlank
-    private String dishName;
+    @NotNull
+    @Column(nullable = false)
+    private Integer dishId;
 
+    @NotNull
     @Min(1)
+    @Column(nullable = false)
     private int dishQuantity;
 
-    @NotBlank
+    @NotNull
+    @Column(nullable = false)
     private double cartItemCost;
 
 }

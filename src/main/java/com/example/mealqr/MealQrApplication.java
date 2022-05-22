@@ -1,14 +1,15 @@
 package com.example.mealqr;
 
-import com.example.mealqr.pojos.Customer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class MealQrApplication {
 
     public static void main(String[] args) {
-//        SpringApplication.run(MealQrApplication.class, args);
+        SpringApplication.run(MealQrApplication.class, args);
+
 
     }
 

@@ -1,5 +1,5 @@
 package com.example.mealqr.security;
 
-public enum Role {
+public enum Roles {
     CUSTOMER, RESTAURANT_EMPLOYEE
 }

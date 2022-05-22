@@ -9,17 +9,19 @@ import java.util.Arrays;
 @Builder
 public class QRData {
 
-    private final String customerMail;
+    private final String userEmail;
     private final String[] dishes;
     private final int[] dishQuantities;
-    private final double[] itemPrices;
+    private final double[] itemCosts;
     private final double sum;
 
-    public QRData(String customerMail, String[] dishes, double[] itemPrices, double sum, int[] dishQuantities) {
-        this.customerMail = customerMail;
-        this.dishes = dishes;
-        this.dishQuantities = dishQuantities;
-        this.itemPrices = itemPrices;
-        this.sum = Arrays.stream(itemPrices).sum();
+    // customization of Builder
+    public static abstract class CustomQRDataBuilder extends QRDataBuilder{
+
+        @Override
+        public QRData build() {
+            super.sum = Arrays.stream(super.itemCosts).sum();
+            return super.build();
+        }
     }
 }
