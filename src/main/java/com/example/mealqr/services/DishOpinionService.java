@@ -39,6 +39,12 @@ public class DishOpinionService {
                 )));
     }
 
+    public List<Dish> getAllDishesInRestaurantConsideringUserAllergies(@NotBlank String userEmail, @NotBlank String restaurantName) {
+        
+        
+        return null; // list of dishes without dishes that might kill our user
+    }
+
     public List<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
                                                                      @NotBlank String restaurantName) {
 
