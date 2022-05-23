@@ -1,6 +1,7 @@
 package com.example.mealqr.services;
 
 import com.example.mealqr.pojos.*;
+import com.example.mealqr.preferenceAnalysis.SlopeOne;
 import com.example.mealqr.repositories.DishCommentRepository;
 import com.example.mealqr.repositories.DishRatingRepository;
 import com.example.mealqr.repositories.DishRepository;
@@ -13,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,7 +25,8 @@ public class DishOpinionService {
     private final DishCommentRepository dishCommentRepository;
     private final DishRatingRepository dishRatingRepository;
     private final DishRepository dishRepository;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final SlopeOne slopeOne;
 
     public Map<Dish, Tuple2<Double, List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
             @NotBlank String restaurantName) {
@@ -38,6 +37,24 @@ public class DishOpinionService {
                         getDishAverageRating(dish.getID()),
                         getDishComments(dish.getID())
                 )));
+    }
+
+    public List<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
+                                                                     @NotBlank String restaurantName) {
+
+        Map<Integer, Dish> dishesWithIdsInRestaurant = dishRepository.findAllByRestaurantName(restaurantName)
+                .stream()
+                .collect(Collectors.toMap(
+                        Dish::getID,
+                        Function.identity()
+                ));
+
+        // results of user preference analysis
+        return slopeOne.slopeOne(userEmail, getDataForPreferenceAnalysis(restaurantName))
+                        .entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
+                        .map(integerDoubleEntry -> dishesWithIdsInRestaurant.get(integerDoubleEntry.getKey()))// map dishIds to Dish objects
+                        .collect(LinkedList::new, LinkedList::add, LinkedList::addAll); // collect to a linked list to preserve sorted order
     }
 
     public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
@@ -96,6 +113,38 @@ public class DishOpinionService {
         }
 
         return Tuple.of(true, "Added rating to dish " + dishName + " from " + restaurantName);
+    }
+
+    private Map<String, Map<Integer, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantName) {
+        List<Integer> dishIdsInRestaurant = dishRepository.findAllByRestaurantName(restaurantName).stream().map(Dish::getID).sorted().collect(Collectors.toList());
+        List<String> customerEmails = userRepository.findAllByRole(Roles.CUSTOMER).stream().map(User::getEmail).collect(Collectors.toList());
+
+        return customerEmails.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        email -> {
+
+                            Map<Integer, Double> dishIdsAndRatingListForUser =
+                                    dishRatingRepository
+                                            .findAllByRestaurantNameAndUserEmail(email, restaurantName)
+                                            .stream()
+                                            .collect(Collectors.toMap(
+                                                    DishRating::getDishId,
+                                                    d -> (double) d.getRating()
+                                            ));
+
+
+                            if (dishIdsInRestaurant.size() != dishIdsAndRatingListForUser.size()) {
+                                for (int i = dishIdsAndRatingListForUser.size(); i < dishIdsInRestaurant.size(); i++) {
+                                    dishIdsAndRatingListForUser.put(dishIdsInRestaurant.get(i),
+                                            Math.random() * 5);
+                                }
+                            }
+
+                            return dishIdsAndRatingListForUser;
+                        }
+                ));
+
     }
 
     private List<String> getDishComments(@NotNull Integer dishID) {

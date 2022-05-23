@@ -19,5 +19,11 @@ public interface DishRatingRepository extends JpaRepository<DishRating, Integer>
 
     Optional<DishRating> findByDishIdAndUserEmail(Integer dishID, String userEmail);
 
-    
+    @Query(value = "select distinct dr.id, dr.dish_id, dr.user_email, dr.rating from dish_ratings as dr " +
+            "join dishes as d on d.id = dr.dish_id " +
+            "where dr.user_email = :user_email and d.restaurant_name = :restaurant_name " +
+            "order by dr.dish_id", nativeQuery = true)
+    List<DishRating> findAllByRestaurantNameAndUserEmail(
+            @Param("user_email") String userEmail,
+            @Param("restaurant_name") String restaurantName);
 }

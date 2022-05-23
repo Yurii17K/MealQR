@@ -38,6 +38,16 @@ public class DishController {
                 .body(dishOpinionService.getAllDishesInRestaurantWithAverageRatingsAndComments(restaurantName));
     }
 
+    @PreAuthorize("hasAuthority(#userEmail)")
+    @GetMapping("/preferences")
+    public ResponseEntity<List<Dish>> getAllDishesInRestaurantSortedByUserPreference(
+            @RequestParam String userEmail,
+            @RequestParam String restaurantName
+    ) {
+        return ResponseEntity.ok()
+                .body(dishOpinionService.getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantName));
+    }
+
     @GetMapping("/random")
     public ResponseEntity<Dish> getRandomDish() {
         return ResponseEntity.ok()
