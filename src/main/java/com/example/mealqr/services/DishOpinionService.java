@@ -2,10 +2,7 @@ package com.example.mealqr.services;
 
 import com.example.mealqr.pojos.*;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
-import com.example.mealqr.repositories.DishCommentRepository;
-import com.example.mealqr.repositories.DishRatingRepository;
-import com.example.mealqr.repositories.DishRepository;
-import com.example.mealqr.repositories.UserRepository;
+import com.example.mealqr.repositories.*;
 import com.example.mealqr.security.Roles;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -26,6 +23,7 @@ public class DishOpinionService {
     private final DishRatingRepository dishRatingRepository;
     private final DishRepository dishRepository;
     private final UserRepository userRepository;
+    private final CustomerAllergyRepository customerAllergyRepository;
     private final SlopeOne slopeOne;
 
     public Map<Dish, Tuple2<Double, List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
@@ -40,9 +38,11 @@ public class DishOpinionService {
     }
 
     public List<Dish> getAllDishesInRestaurantConsideringUserAllergies(@NotBlank String userEmail, @NotBlank String restaurantName) {
-        
-        
-        return null; // list of dishes without dishes that might kill our user
+        return dishRepository.findAllByRestaurantName(restaurantName)
+                .stream()
+                .filter(dish -> !(checkIfUserHasAllergyToDish(userEmail, dish)))
+                .collect(Collectors.toList());
+
     }
 
     public List<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
@@ -167,5 +167,24 @@ public class DishOpinionService {
                 .stream()
                 .mapToInt(DishRating::getRating)
                 .average().getAsDouble();
+    }
+
+    public boolean checkIfUserHasAllergyToDish(@NotNull String userEmail, @NotNull Dish dish){
+        Optional<CustomerAllergy> allergies = customerAllergyRepository.findByUserEmail(userEmail);
+        if(allergies.isEmpty()){
+            return false;
+        }else{
+            String allergyString = allergies.get().getAllergies();
+            allergyString = allergyString.toLowerCase();
+            String dishDescription = dish.getDishDescription().toLowerCase();
+            String[] parts = allergyString.split(",");
+
+            for (String part : parts){
+                if(dishDescription.contains(part)){
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
