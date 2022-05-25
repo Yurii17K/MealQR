@@ -39,8 +39,7 @@ public class User {
 
     @Email(message = "Email should be valid", regexp =
     ".*@.*\\..*")
-    @Size(max = 100)
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Setter

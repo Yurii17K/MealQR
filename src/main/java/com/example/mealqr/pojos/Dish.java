@@ -36,7 +36,6 @@ public class Dish {
     private double dishPrice;
 
     @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String dishDescription;
 }

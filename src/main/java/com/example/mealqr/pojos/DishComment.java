@@ -16,7 +16,6 @@ import javax.validation.constraints.*;
 public class DishComment extends DishOpinion{
 
     @NotNull
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     private String comment;
 }
