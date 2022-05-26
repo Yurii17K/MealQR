@@ -37,12 +37,12 @@ public class DishOpinionService {
                 )));
     }
 
-    public List<Dish> getAllDishesInRestaurantConsideringUserAllergies(@NotBlank String userEmail, @NotBlank String restaurantName) {
+    public List<Dish> getAllDishesInRestaurantConsideringUserAllergies(@NotBlank String userEmail,
+                                                                       @NotBlank String restaurantName) {
         return dishRepository.findAllByRestaurantName(restaurantName)
                 .stream()
-                .filter(dish -> !(checkIfUserHasAllergyToDish(userEmail, dish)))
+                .filter(dish -> !isUserAllergicToDish(userEmail, dish))
                 .collect(Collectors.toList());
-
     }
 
     public List<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
@@ -169,22 +169,21 @@ public class DishOpinionService {
                 .average().getAsDouble();
     }
 
-    public boolean checkIfUserHasAllergyToDish(@NotNull String userEmail, @NotNull Dish dish){
-        Optional<CustomerAllergy> allergies = customerAllergyRepository.findByUserEmail(userEmail);
-        if(allergies.isEmpty()){
-            return false;
-        }else{
-            String allergyString = allergies.get().getAllergies();
-            allergyString = allergyString.toLowerCase();
-            String dishDescription = dish.getDishDescription().toLowerCase();
-            String[] parts = allergyString.split(",");
+    private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
+        Optional<CustomerAllergy> userAllergiesOptional = customerAllergyRepository.findByUserEmail(userEmail);
 
-            for (String part : parts){
-                if(dishDescription.contains(part)){
+        if (userAllergiesOptional.isPresent()) {
+            String[] userAllergies = userAllergiesOptional.get().getAllergies().toLowerCase().split("(, )|,");
+
+            String dishDescription = dish.getDishDescription().toLowerCase();
+
+            for (String userAllergy : userAllergies) {
+                if (dishDescription.contains(userAllergy)) {
                     return true;
                 }
             }
-            return false;
         }
+
+        return false;
     }
 }
