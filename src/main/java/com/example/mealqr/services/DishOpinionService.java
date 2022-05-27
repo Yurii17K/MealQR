@@ -26,41 +26,15 @@ public class DishOpinionService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final SlopeOne slopeOne;
 
-    public Map<Dish, Tuple2<Double, List<String>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
-            @NotBlank String restaurantName) {
-        List<Dish> dishList = dishRepository.findAllByRestaurantName(restaurantName);
+    // todo: return dish object instead of a reference
+    public List<Tuple2<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantConfiguredForUser(
+            @NotBlank String userEmail, @NotBlank String restaurantName) {
 
-        return dishList.stream()
-                .collect(Collectors.toMap(dish -> dish, dish -> Tuple.of(
-                        getDishAverageRating(dish.getID()),
-                        getDishComments(dish.getID())
-                )));
-    }
-
-    public List<Dish> getAllDishesInRestaurantConsideringUserAllergies(@NotBlank String userEmail,
-                                                                       @NotBlank String restaurantName) {
-        return dishRepository.findAllByRestaurantName(restaurantName)
+        return getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantName) // analyse user preferences
                 .stream()
-                .filter(dish -> !isUserAllergicToDish(userEmail, dish))
-                .collect(Collectors.toList());
-    }
-
-    public List<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
-                                                                     @NotBlank String restaurantName) {
-
-        Map<Integer, Dish> dishesWithIdsInRestaurant = dishRepository.findAllByRestaurantName(restaurantName)
-                .stream()
-                .collect(Collectors.toMap(
-                        Dish::getID,
-                        Function.identity()
-                ));
-
-        // results of user preference analysis
-        return slopeOne.slopeOne(userEmail, getDataForPreferenceAnalysis(restaurantName))
-                        .entrySet().stream()
-                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
-                        .map(integerDoubleEntry -> dishesWithIdsInRestaurant.get(integerDoubleEntry.getKey()))// map dishIds to Dish objects
-                        .collect(LinkedList::new, LinkedList::add, LinkedList::addAll); // collect to a linked list to preserve sorted order
+                .filter(dish -> !isUserAllergicToDish(userEmail, dish)) // remove allergies
+                .map(dish -> Tuple.of(dish, Tuple.of(getDishAverageRating(dish.getID()), getDishComments(dish.getID()))))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
@@ -121,9 +95,30 @@ public class DishOpinionService {
         return Tuple.of(true, "Added rating to dish " + dishName + " from " + restaurantName);
     }
 
+    private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
+        Optional<CustomerAllergy> userAllergiesOptional = customerAllergyRepository.findByUserEmail(userEmail);
+
+        if (userAllergiesOptional.isPresent()) {
+            String[] userAllergies = userAllergiesOptional.get().getAllergies().toLowerCase().split("(, )|,");
+
+            String dishDescription = dish.getDishDescription().toLowerCase();
+
+            for (String userAllergy : userAllergies) {
+                if (dishDescription.contains(userAllergy)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private Map<String, Map<Integer, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantName) {
         List<Integer> dishIdsInRestaurant = dishRepository.findAllByRestaurantName(restaurantName).stream().map(Dish::getID).sorted().collect(Collectors.toList());
-        List<String> customerEmails = userRepository.findAllByRole(Roles.CUSTOMER).stream().map(User::getEmail).collect(Collectors.toList());
+
+        // take only the customers that rated sth in the restaurant
+        List<String> customerEmails = userRepository.findAllCustomersWhoRatedAnythingInRestaurant(restaurantName)
+                .stream().distinct().collect(Collectors.toList());
 
         return customerEmails.stream()
                 .collect(Collectors.toMap(
@@ -132,7 +127,7 @@ public class DishOpinionService {
 
                             Map<Integer, Double> dishIdsAndRatingListForUser =
                                     dishRatingRepository
-                                            .findAllByRestaurantNameAndUserEmail(email, restaurantName)
+                                            .findAllByUserEmailAndRestaurantName(email, restaurantName)
                                             .stream()
                                             .collect(Collectors.toMap(
                                                     DishRating::getDishId,
@@ -153,6 +148,24 @@ public class DishOpinionService {
 
     }
 
+    private LinkedList<Dish> getAllDishesInRestaurantSortedByUserPreference(@NotBlank String userEmail,
+                                                                            @NotBlank String restaurantName) {
+
+        Map<Integer, Dish> dishesWithIdsInRestaurant = dishRepository.findAllByRestaurantName(restaurantName)
+                .stream()
+                .collect(Collectors.toMap(
+                        Dish::getID,
+                        Function.identity()
+                ));
+
+        // results of user preference analysis
+        return slopeOne.slopeOne(userEmail, getDataForPreferenceAnalysis(restaurantName))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
+                .map(integerDoubleEntry -> dishesWithIdsInRestaurant.get(integerDoubleEntry.getKey()))// map dishIds to Dish objects
+                .collect(Collectors.toCollection(LinkedList::new)); // collect to a linked list to preserve sorted order
+    }
+
     private List<String> getDishComments(@NotNull Integer dishID) {
         return dishCommentRepository
                 .findAllByDishId(dishID)
@@ -166,24 +179,6 @@ public class DishOpinionService {
                 .findAllByDishId(dishID)
                 .stream()
                 .mapToInt(DishRating::getRating)
-                .average().getAsDouble();
-    }
-
-    private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
-        Optional<CustomerAllergy> userAllergiesOptional = customerAllergyRepository.findByUserEmail(userEmail);
-
-        if (userAllergiesOptional.isPresent()) {
-            String[] userAllergies = userAllergiesOptional.get().getAllergies().toLowerCase().split("(, )|,");
-
-            String dishDescription = dish.getDishDescription().toLowerCase();
-
-            for (String userAllergy : userAllergies) {
-                if (dishDescription.contains(userAllergy)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+                .average().orElse(0.d);
     }
 }

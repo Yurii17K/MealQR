@@ -30,22 +30,14 @@ public class DishController {
                 .body(dishService.getAllDishesInRestaurant(restaurantName));
     }
 
-    @GetMapping("/opinions")
-    public ResponseEntity<Map<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantWithAverageRatingsAndComments(
-            @RequestParam String restaurantName
-    ) {
-        return ResponseEntity.ok()
-                .body(dishOpinionService.getAllDishesInRestaurantWithAverageRatingsAndComments(restaurantName));
-    }
-
     @PreAuthorize("hasAuthority(#userEmail)")
     @GetMapping("/preferences")
-    public ResponseEntity<List<Dish>> getAllDishesInRestaurantSortedByUserPreference(
+    public ResponseEntity<List<Tuple2<Dish, Tuple2<Double, List<String>>>>> getAllDishesInRestaurantSortedByUserPreference(
             @RequestParam String userEmail,
             @RequestParam String restaurantName
     ) {
         return ResponseEntity.ok()
-                .body(dishOpinionService.getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantName));
+                .body(dishOpinionService.getAllDishesInRestaurantConfiguredForUser(userEmail, restaurantName));
     }
 
     @GetMapping("/random")
@@ -67,14 +59,14 @@ public class DishController {
     public ResponseEntity<Tuple2<Boolean, String>> addDishToRestaurantOffer(
             @RequestParam String dishName,
             @RequestParam String restaurantName,
-            @RequestParam MultipartFile dishImg,
+            @RequestParam MultipartFile dishImgFile,
             @RequestParam Double dishPrice,
             @RequestParam String dishDescription
     ) throws IOException {
         Dish dishToAdd = Dish.builder()
                 .dishName(dishName)
                 .restaurantName(restaurantName)
-                .dishImg(dishImg.getBytes())
+                .dishImg(dishImgFile.getBytes())
                 .dishPrice(dishPrice)
                 .dishDescription(dishDescription)
                 .build();
@@ -88,14 +80,14 @@ public class DishController {
     public ResponseEntity<Tuple2<Boolean, String>> updateDishInRestaurantOffer(
             @RequestParam String dishName,
             @RequestParam String restaurantName,
-            @RequestParam MultipartFile dishImg,
+            @RequestParam MultipartFile dishImgFile,
             @RequestParam Double dishPrice,
             @RequestParam String dishDescription
     ) throws IOException {
         Dish dishWithNewData = Dish.builder()
                 .dishName(dishName)
                 .restaurantName(restaurantName)
-                .dishImg(dishImg.getBytes())
+                .dishImg(dishImgFile.getBytes())
                 .dishPrice(dishPrice)
                 .dishDescription(dishDescription)
                 .build();

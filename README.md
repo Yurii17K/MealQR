@@ -13,7 +13,7 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Sign in:
   - **POST** `{host}/users/login?userEmail={value}&userPass={value}`
 - Update customer allergies:
-  - **POST** `{host}/users/customer/alergies?userEmail={value}&allergies={value}`
+  - **PATCH** `{host}/users/customer/allergies?userEmail={value}&allergies={value}`
 
 ### 🛒 Cart items:
 - Get the list of cart items in customer cart: 
@@ -32,8 +32,8 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 ### 🍲 Dishes:
 - Get all dishes in restaurant:
   - **GET** `{host}/dishes?restaurantName={value}`
-- Get all dishes in restaurant with comments and average ratings for each dish:
-  - **GET** `{host}/dishes/opinions?restaurantName={value}`
+- Get all dishes in restaurant with comments and average ratings for each dish + suitable for the user (no allergies and preferences included):
+  - **GET** `{host}/dishes/preferences?userEmail={value}&restaurantName={value}`
 - Get random dish:
   - **GET** `{host}/dishes/random`
 - Get random dish in restaurant:

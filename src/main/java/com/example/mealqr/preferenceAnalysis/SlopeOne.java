@@ -99,7 +99,7 @@ public class SlopeOne {
             for (Integer j : e.getValue().keySet()) {
                 for (Integer k : diff.keySet()) {
                     try {
-                        double predictedValue = diff.get(k).get(j) + e.getValue().get(j).doubleValue();
+                        double predictedValue = diff.get(k).get(j) + e.getValue().get(j);
                         double finalValue = predictedValue * freq.get(k).get(j);
                         uPred.put(k, uPred.get(k) + finalValue);
                         uFreq.put(k, uFreq.get(k) + freq.get(k).get(j));
@@ -116,7 +116,7 @@ public class SlopeOne {
             }
             for (Integer j : inputData.values().stream().findFirst().get().keySet()) {
                 if (e.getValue().containsKey(j)) {
-                    clean.put(j, Double.valueOf(e.getValue().get(j)));
+                    clean.put(j, e.getValue().get(j));
                 } else if (!clean.containsKey(j)) {
                     clean.put(j, -1.0);
                 }
@@ -127,18 +127,18 @@ public class SlopeOne {
         return outputData.get(userEmail);
     }
 
-    private void printData(Map<String, Map<Integer, Double>> data) {
-        for (String userEmail : data.keySet()) {
-            System.out.println(userEmail + ":");
-            print(data.get(userEmail));
-        }
-    }
-
-    private void print(Map<Integer, Double> hashMap) {
-        NumberFormat formatter = new DecimalFormat("#0.000");
-        for (Integer j : hashMap.keySet()) {
-            System.out.println("Dish ID: " + j + " --> " + formatter.format(hashMap.get(j).doubleValue()));
-        }
-    }
+//    private void printData(Map<String, Map<Integer, Double>> data) {
+//        for (String userEmail : data.keySet()) {
+//            System.out.println(userEmail + ":");
+//            print(data.get(userEmail));
+//        }
+//    }
+//
+//    private void print(Map<Integer, Double> hashMap) {
+//        NumberFormat formatter = new DecimalFormat("#0.000");
+//        for (Integer j : hashMap.keySet()) {
+//            System.out.println("Dish ID: " + j + " --> " + formatter.format(hashMap.get(j).doubleValue()));
+//        }
+//    }
 
 }
