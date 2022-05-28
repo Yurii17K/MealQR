@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @PatchMapping("/customer/allergies")
-    @PreAuthorize("#userEmail")
+    @PreAuthorize("hasAuthority({#userEmail})")
     @Operation(summary = "changeCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> changeCustomerAllergies(
             @RequestParam String userEmail,

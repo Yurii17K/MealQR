@@ -24,11 +24,15 @@ public class DishOpinionService {
     private final DishRepository dishRepository;
     private final UserRepository userRepository;
     private final CustomerAllergyRepository customerAllergyRepository;
+    private final RestaurantEmployeeRepository restaurantEmployeeRepository;
     private final SlopeOne slopeOne;
 
-    // todo: return dish object instead of a reference
     public List<Tuple2<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantConfiguredForUser(
             @NotBlank String userEmail, @NotBlank String restaurantName) {
+
+        if (!restaurantEmployeeRepository.existsByRestaurantName(restaurantName)) {
+            return new ArrayList<>();
+        }
 
         return getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantName) // analyse user preferences
                 .stream()
@@ -58,12 +62,14 @@ public class DishOpinionService {
         // if the comment is not present -> add it
         if (optionalDishComment.isEmpty()) {
             dishCommentRepository.save(dishComment);
+            return Tuple.of(true, "Added comment to dish " + dishName + " from " + restaurantName);
+
         } else { // if the comment is present -> update it
             dishComment.setID(optionalDishComment.get().getID());
             dishCommentRepository.save(dishComment);
+            return Tuple.of(true, "Updated comment to dish " + dishName + " from " + restaurantName);
         }
 
-        return Tuple.of(true, "Added comment to dish " + dishName + " from " + restaurantName);
     }
 
     public Tuple2<Boolean, String> addOrUpdateRating(@NotBlank String userEmail, @NotBlank String dishName,
@@ -87,12 +93,15 @@ public class DishOpinionService {
         // if the rating is not present -> add it
         if (optionalDishRating.isEmpty()) {
             dishRatingRepository.save(dishRating);
+            return Tuple.of(true, "Added rating to dish " + dishName + " from " + restaurantName);
+
         } else { // if the rating is present -> update it
             dishRating.setID(optionalDishRating.get().getID());
             dishRatingRepository.save(dishRating);
+            return Tuple.of(true, "Updated rating to dish " + dishName + " from " + restaurantName);
+
         }
 
-        return Tuple.of(true, "Added rating to dish " + dishName + " from " + restaurantName);
     }
 
     private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
@@ -175,10 +184,10 @@ public class DishOpinionService {
     }
 
     private double getDishAverageRating(@NotNull Integer dishID) {
-        return dishRatingRepository
+        return Math.round(dishRatingRepository
                 .findAllByDishId(dishID)
                 .stream()
                 .mapToInt(DishRating::getRating)
-                .average().orElse(0.d);
+                .average().orElse(0.d) * 2) / 2.0;
     }
 }

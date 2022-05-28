@@ -46,9 +46,9 @@ public class DishController {
                 .body(dishService.getRandomDish());
     }
 
-    @GetMapping("/restaurant/random")
+    @GetMapping("/random/{restaurantName}")
     public ResponseEntity<Dish> getRandomDish(
-            @RequestParam String restaurantName
+            @PathVariable("restaurantName") String restaurantName
     ) {
         return ResponseEntity.ok()
                 .body(dishService.getRandomDishFromRestaurantOffer(restaurantName));
@@ -77,7 +77,7 @@ public class DishController {
     }
 
     @PreAuthorize("hasAuthority({#restaurantName})")
-    @PatchMapping("/restaurant")
+    @PutMapping("/restaurant")
     @Operation(summary = "updateDishInRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> updateDishInRestaurantOffer(
             @RequestParam String dishName,

@@ -16,10 +16,10 @@ public class DishOpinionController {
 
     private final DishOpinionService dishOpinionService;
 
-    @PreAuthorize("hasAuthority(#userEmail)")
+    @PreAuthorize("hasAuthority({#userEmail})")
     @PostMapping("/comments")
-    @Operation(summary = "addComment", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Tuple2<Boolean, String>> addComment(
+    @Operation(summary = "addOrUpdateComment", security = @SecurityRequirement(name = "JWT AUTH"))
+    public ResponseEntity<Tuple2<Boolean, String>> addOrUpdateComment(
             @RequestParam String userEmail,
             @RequestParam String dishName,
             @RequestParam String restaurantName,
@@ -29,37 +29,10 @@ public class DishOpinionController {
                 .body(dishOpinionService.addOrUpdateComment(userEmail, dishName, restaurantName, comment));
     }
 
-
-    @PreAuthorize("hasAuthority(#userEmail)")
+    @PreAuthorize("hasAuthority({#userEmail})")
     @PostMapping("/ratings")
-    @Operation(summary = "addRating", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Tuple2<Boolean, String>> addRating(
-            @RequestParam String userEmail,
-            @RequestParam String dishName,
-            @RequestParam String restaurantName,
-            @RequestParam Integer rating
-    ) {
-        return ResponseEntity.ok()
-                .body(dishOpinionService.addOrUpdateRating(userEmail, dishName, restaurantName, rating));
-    }
-
-    @PreAuthorize("hasAuthority(#userEmail)")
-    @PatchMapping("/comments")
-    @Operation(summary = "updateComment", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Tuple2<Boolean, String>> updateComment(
-            @RequestParam String userEmail,
-            @RequestParam String dishName,
-            @RequestParam String restaurantName,
-            @RequestParam String comment
-    ) {
-        return ResponseEntity.ok()
-                .body(dishOpinionService.addOrUpdateComment(userEmail, dishName, restaurantName, comment));
-    }
-
-    @PreAuthorize("hasAuthority(#userEmail)")
-    @PatchMapping("/ratings")
-    @Operation(summary = "updateRating", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Tuple2<Boolean, String>> updateRating(
+    @Operation(summary = "addOrUpdateRating", security = @SecurityRequirement(name = "JWT AUTH"))
+    public ResponseEntity<Tuple2<Boolean, String>> addOrUpdateRating(
             @RequestParam String userEmail,
             @RequestParam String dishName,
             @RequestParam String restaurantName,

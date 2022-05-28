@@ -19,10 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public static final String[] shouldFilterMatchers = new String[] {
-            "/cart-items", "/cart-items/**", "/opinions/**", "/qr", "/dishes/restaurant"
-    };
-
     @Autowired
     private FilterJWT filterJWT;
 
@@ -57,15 +53,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("*").permitAll();
 
         // security endpoints config
-        http.csrf().disable()
+        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class)
+                .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/cart-items", "/cart-items/**", "/opinions/**", "/qr").hasAuthority(Roles.CUSTOMER.name())
+                .antMatchers("/cart-items", "/cart-items/**", "/opinions/**", "/qr", "/dishes/preferences").hasAuthority(Roles.CUSTOMER.name())
                 .antMatchers("/dishes/restaurant").hasAuthority(Roles.RESTAURANT_EMPLOYEE.name())
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // filter config
-        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class);
     }
 
 }

@@ -23,13 +23,6 @@ public class FilterJWT extends OncePerRequestFilter {
     private final MyUserDetailsService myUserDetailsService;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-
-        return !Arrays.asList(SecurityConfig.shouldFilterMatchers).contains(path);
-    }
-
-    @Override
     protected void doFilterInternal(@NotNull HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         final String jwtTokenHeader = httpServletRequest.getHeader("Authorization");

@@ -23,7 +23,7 @@ public class MyUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
         authorities.add(new SimpleGrantedAuthority(user.getEmail()));
 
         restaurantEmployeeRepository

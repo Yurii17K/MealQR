@@ -19,7 +19,7 @@ public class QRDataController {
 
     private final QRDataService qrDataService;
 
-    @PreAuthorize("hasAuthority(#userEmail)")
+    @PreAuthorize("hasAuthority({#userEmail})")
     @GetMapping
     @Operation(summary = "generateQRDataFromCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<QRData> generateQRDataFromCustomerCart(

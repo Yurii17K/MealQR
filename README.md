@@ -5,6 +5,9 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 
 ## 🛠 Backend Endpoints
 
+**To view and try out all the endpoints navigate to `{host}/swagger-ui.html`**
+
+
 ### 🔐 Users:
 - Create a customer:
   - **POST** `{host}/users/customer?userName={value}&userLastName={value}&userCity={value}&allergies={value}&userEmail={value}&userPass={value}`
@@ -37,23 +40,19 @@ For each feature create a new branch from **dev** branch with a name **feature-{
 - Get random dish:
   - **GET** `{host}/dishes/random`
 - Get random dish in restaurant:
-  - **GET** `{host}/dishes/restaurant/random?restaurantName={value}`
+  - **GET** `{host}/dishes/random/{restaurantName}`
 - Add dish to restaurant offer:
   - **POST** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}&dishImg={value}&dishPrice={value}&dishDescription={value}`
 - Update dish in restaurant offer:
-  - **PATCH** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}&dishImg={value}&dishPrice={value}&dishDescription={value}`
+  - **PUT** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}&dishImg={value}&dishPrice={value}&dishDescription={value}`
 - Remove dish from restaurant offer:
   - **DELETE** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}`
 
 ### 💬 Comments and ratings:
-- Add comment to dish:
+- Add or update comment to dish:
   - **POST** `{host}/opinions/comments?userEmail={value}&dishName={value}&restaurantName={value}&comment={value}`
-- Add rating to dish:
+- Add or update rating to dish:
   - **POST** `{host}/opinions/ratings?userEmail={value}&dishName={value}&restaurantName={value}&rating={value}`
-- Update dish comment:
-  - **PATCH** `{host}/opinions/comments?userEmail={value}&dishName={value}&restaurantName={value}&comment={value}`
-- Update dish rating:
-  - **PATCH** `{host}/opinions/ratings?userEmail={value}&dishName={value}&restaurantName={value}&rating={value}`
 
 ### 📓 QR:
 - Generate data for QR code from customer cart:

@@ -66,6 +66,7 @@ public class DishService {
             Dish dishToCommit = Dish.builder()
                     .ID(optionalDish.get().getID())
                     .dishName(dishWithNewData.getDishName())
+                    .restaurantName(dishWithNewData.getRestaurantName())
                     .dishImg(dishWithNewData.getDishImg())
                     .dishPrice(dishWithNewData.getDishPrice())
                     .dishDescription(dishWithNewData.getDishDescription())
