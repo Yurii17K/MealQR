@@ -1,6 +1,5 @@
 package com.example.mealqr.pojos;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

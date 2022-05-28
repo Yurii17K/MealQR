@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @AllArgsConstructor
@@ -22,11 +23,26 @@ public class FilterJWT extends OncePerRequestFilter {
     private final MyUserDetailsService myUserDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+
+        return !Arrays.asList(SecurityConfig.shouldFilterMatchers).contains(path);
+    }
+
+    @Override
     protected void doFilterInternal(@NotNull HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        final String jwtToken = httpServletRequest.getHeader("Authorization");
+        final String jwtTokenHeader = httpServletRequest.getHeader("Authorization");
+        final String jwtToken;
 
-        if (jwtToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (jwtTokenHeader != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            if (jwtTokenHeader.contains("Bearer")) {
+                jwtToken = jwtTokenHeader.replace("Bearer ", "");
+            } else {
+                jwtToken = jwtTokenHeader;
+            }
+
             if (jwtToken.length() != 0 && jwtToken.matches(".*\\..*\\..*")) { // check if token is not empty and has a form of a jwt token
                 final String userEmail = JWT.extractAllClaims(jwtToken).getSubject();
                 final MyUserDetails myUserDetails = myUserDetailsService.loadUserByUsername(userEmail);

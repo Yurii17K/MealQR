@@ -3,10 +3,13 @@ package com.example.mealqr.controllers;
 import com.example.mealqr.pojos.User;
 import com.example.mealqr.security.Roles;
 import com.example.mealqr.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -72,6 +75,8 @@ public class UserController {
     }
 
     @PatchMapping("/customer/allergies")
+    @PreAuthorize("#userEmail")
+    @Operation(summary = "changeCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> changeCustomerAllergies(
             @RequestParam String userEmail,
             @RequestParam String allergies

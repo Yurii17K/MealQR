@@ -2,6 +2,8 @@ package com.example.mealqr.controllers;
 
 import com.example.mealqr.pojos.CartItem;
 import com.example.mealqr.services.CartItemService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @GetMapping
+    @Operation(summary = "getCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<List<CartItem>> getCustomerCart(
             @RequestParam String userEmail
     ) {
@@ -28,6 +31,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @GetMapping(value = "/cost")
+    @Operation(summary = "getCustomerCartCost", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Double> getCustomerCartCost(
             @RequestParam String userEmail
     ) {
@@ -37,6 +41,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @PostMapping
+    @Operation(summary = "addDishToCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> addDishToCustomerCart(
             @RequestParam String userEmail,
             @RequestParam String dishName,
@@ -48,6 +53,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @PatchMapping
+    @Operation(summary = "changeDishQuantityInCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> changeDishQuantityInCustomerCart(
             @RequestParam String userEmail,
             @RequestParam String dishName,
@@ -60,6 +66,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @DeleteMapping("/clear")
+    @Operation(summary = "clearCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> clearCustomerCart(
             @RequestParam String userEmail
     ) {
@@ -69,6 +76,7 @@ public class CartItemController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @DeleteMapping
+    @Operation(summary = "deleteDishFromCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> deleteDishFromCustomerCart(
             @RequestParam String userEmail,
             @RequestParam String dishName,

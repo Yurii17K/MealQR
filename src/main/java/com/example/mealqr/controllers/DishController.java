@@ -3,16 +3,15 @@ package com.example.mealqr.controllers;
 import com.example.mealqr.pojos.Dish;
 import com.example.mealqr.services.DishOpinionService;
 import com.example.mealqr.services.DishService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dishes")
@@ -32,6 +31,7 @@ public class DishController {
 
     @PreAuthorize("hasAuthority(#userEmail)")
     @GetMapping("/preferences")
+    @Operation(summary = "getAllDishesInRestaurantSortedByUserPreference", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<List<Tuple2<Dish, Tuple2<Double, List<String>>>>> getAllDishesInRestaurantSortedByUserPreference(
             @RequestParam String userEmail,
             @RequestParam String restaurantName
@@ -56,13 +56,14 @@ public class DishController {
 
     @PreAuthorize("hasAuthority({#restaurantName})")
     @PostMapping("/restaurant")
+    @Operation(summary = "addDishToRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> addDishToRestaurantOffer(
             @RequestParam String dishName,
             @RequestParam String restaurantName,
-            @RequestParam MultipartFile dishImgFile,
+            @RequestBody String dishImgFile,
             @RequestParam Double dishPrice,
             @RequestParam String dishDescription
-    ) throws IOException {
+    ) {
         Dish dishToAdd = Dish.builder()
                 .dishName(dishName)
                 .restaurantName(restaurantName)
@@ -77,13 +78,14 @@ public class DishController {
 
     @PreAuthorize("hasAuthority({#restaurantName})")
     @PatchMapping("/restaurant")
+    @Operation(summary = "updateDishInRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> updateDishInRestaurantOffer(
             @RequestParam String dishName,
             @RequestParam String restaurantName,
-            @RequestParam MultipartFile dishImgFile,
+            @RequestBody String dishImgFile,
             @RequestParam Double dishPrice,
             @RequestParam String dishDescription
-    ) throws IOException {
+    ) {
         Dish dishWithNewData = Dish.builder()
                 .dishName(dishName)
                 .restaurantName(restaurantName)
@@ -98,6 +100,7 @@ public class DishController {
 
     @PreAuthorize("hasAuthority({#restaurantName})")
     @DeleteMapping("/restaurant")
+    @Operation(summary = "removeDishFromRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Tuple2<Boolean, String>> removeDishFromRestaurantOffer(
             @RequestParam String dishName,
             @RequestParam String restaurantName

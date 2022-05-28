@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import java.security.PrivateKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class JWT {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2))
-                .signWith(SignatureAlgorithm.HS256, System.getenv("JWT_KEY"))
+                .signWith(SignatureAlgorithm.HS512, System.getenv("JWT_KEY"))
                 .compact();
     }
 
