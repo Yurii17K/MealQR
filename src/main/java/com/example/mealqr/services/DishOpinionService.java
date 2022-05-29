@@ -3,7 +3,6 @@ package com.example.mealqr.services;
 import com.example.mealqr.pojos.*;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
 import com.example.mealqr.repositories.*;
-import com.example.mealqr.security.Roles;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.AllArgsConstructor;
@@ -11,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class DishOpinionService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final RestaurantEmployeeRepository restaurantEmployeeRepository;
     private final SlopeOne slopeOne;
+    private final HashSet<String> curseWords;
+    private final Map<String, String> evasiveSymbols;
 
     public List<Tuple2<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantConfiguredForUser(
             @NotBlank String userEmail, @NotBlank String restaurantName) {
@@ -39,37 +42,6 @@ public class DishOpinionService {
                 .filter(dish -> !isUserAllergicToDish(userEmail, dish)) // remove allergies
                 .map(dish -> Tuple.of(dish, Tuple.of(getDishAverageRating(dish.getID()), getDishComments(dish.getID()))))
                 .collect(Collectors.toCollection(LinkedList::new));
-    }
-
-    public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
-                                                      @NotBlank String restaurantName, @NotBlank String comment) {
-        Optional<Dish> optionalDish = dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName);
-
-        // might happen if restaurant employee removed a dish while this request was processing
-        if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
-        }
-
-        Optional<DishComment> optionalDishComment =
-                dishCommentRepository.findByDishIdAndUserEmail(optionalDish.get().getID(), userEmail);
-
-        DishComment dishComment = DishComment.builder()
-                .dishId(optionalDish.get().getID())
-                .userEmail(userEmail)
-                .comment(comment)
-                .build();
-
-        // if the comment is not present -> add it
-        if (optionalDishComment.isEmpty()) {
-            dishCommentRepository.save(dishComment);
-            return Tuple.of(true, "Added comment to dish " + dishName + " from " + restaurantName);
-
-        } else { // if the comment is present -> update it
-            dishComment.setID(optionalDishComment.get().getID());
-            dishCommentRepository.save(dishComment);
-            return Tuple.of(true, "Updated comment to dish " + dishName + " from " + restaurantName);
-        }
-
     }
 
     public Tuple2<Boolean, String> addOrUpdateRating(@NotBlank String userEmail, @NotBlank String dishName,
@@ -102,6 +74,112 @@ public class DishOpinionService {
 
         }
 
+    }
+
+    public Tuple2<Boolean, String> addOrUpdateComment(@NotBlank String userEmail, @NotBlank String dishName,
+                                                      @NotBlank String restaurantName, @NotBlank String comment) {
+        Optional<Dish> optionalDish = dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName);
+
+        // might happen if restaurant employee removed a dish while this request was processing
+        if (optionalDish.isEmpty()) {
+            return Tuple.of(false, "Such dish does not exist");
+        }
+
+        comment = filterBadLanguage(comment);
+
+        Optional<DishComment> optionalDishComment =
+                dishCommentRepository.findByDishIdAndUserEmail(optionalDish.get().getID(), userEmail);
+
+        DishComment dishComment = DishComment.builder()
+                .dishId(optionalDish.get().getID())
+                .userEmail(userEmail)
+                .comment(comment)
+                .build();
+
+        // if the comment is not present -> add it
+        if (optionalDishComment.isEmpty()) {
+            dishCommentRepository.save(dishComment);
+            return Tuple.of(true, "Added comment to dish " + dishName + " from " + restaurantName);
+
+        } else { // if the comment is present -> update it
+            dishComment.setID(optionalDishComment.get().getID());
+            dishCommentRepository.save(dishComment);
+            return Tuple.of(true, "Updated comment to dish " + dishName + " from " + restaurantName);
+        }
+
+    }
+
+    private String filterBadLanguage(String originalComment) {
+        loadCurseWords();
+        loadEvasiveSymbols();
+
+        String copyOfOriginalComment = originalComment;
+
+
+        // getting rid of sly symbols that hide word meanings
+        for (Map.Entry<String, String> entry : evasiveSymbols.entrySet()) {
+            copyOfOriginalComment = copyOfOriginalComment.replaceAll(entry.getKey(), entry.getValue());
+        }
+
+        String[] copyOfOriginalCommentTokenized = copyOfOriginalComment.trim().split(" ");
+        String[] originalCommentTokenized = originalComment.trim().split(" ");
+
+        // check all word permutations of the comment
+        for (int k = 0; k < copyOfOriginalCommentTokenized.length; k++) {
+            StringBuilder accumulatingSentenceToCheck = new StringBuilder(copyOfOriginalCommentTokenized[k]);
+
+            for (int l = k + 1; l < copyOfOriginalCommentTokenized.length + 1; l++) {
+
+                if (curseWords.contains(accumulatingSentenceToCheck.toString().toLowerCase(Locale.ROOT))) {
+                    for (int i = k; i < l; i++) {
+                        originalCommentTokenized[i] = "#".repeat(originalCommentTokenized[i].length());
+                    }
+                }
+
+                // avoid going out of index on last array index
+                if (l < copyOfOriginalCommentTokenized.length)
+                    accumulatingSentenceToCheck.append(" ").append(copyOfOriginalCommentTokenized[l].trim());
+            }
+        }
+
+        return String.join(" ", originalCommentTokenized);
+    }
+
+    private void loadCurseWords() {
+        try(Scanner scanner = new Scanner(new File("src/main/resources/bad-words.csv"))) {
+            String line;
+
+            // read curse words and phrases and put in a map
+            while (scanner.hasNext()) {
+                line = scanner.nextLine();
+
+                // skip first lines and language indication lines
+                if (line.length() < 1 || line.charAt(0) == '-') {
+                    continue;
+                }
+
+                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replaceAll("[,]", ""));
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadEvasiveSymbols() {
+        try(Scanner scanner = new Scanner(new File("src/main/resources/bad-words.csv"))) {
+            String[] pairOfSymbols;
+
+            // read curse words and phrases and put in a map
+            while (scanner.hasNext()) {
+                pairOfSymbols = scanner.nextLine().replaceAll(",", "").split(" ");
+
+                evasiveSymbols.put(pairOfSymbols[1], pairOfSymbols[0]);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
