@@ -20,13 +20,15 @@ public class CartItemService {
 
     private final CartItemRepository cartItemRepository;
     private final DishRepository dishRepository;
+    private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
 
     public List<CartItem> getCustomerCart(@NotBlank String userEmail) {
         return cartItemRepository.getCustomerCart(userEmail);
     }
 
     public double getCustomerCartCost(@NotBlank String userEmail) {
-        return cartItemRepository.getCustomerCart(userEmail).stream().mapToDouble(CartItem::getCartItemCost).sum();
+        return cartItemRepository.getCustomerCart(userEmail).stream()
+                .mapToDouble(cartItem -> cartItem.getCartItemCost().doubleValue()).sum();
     }
 
     public Tuple2<Boolean, String> clearCustomerCart(@NotBlank String userEmail) {
@@ -45,7 +47,7 @@ public class CartItemService {
 
         // might happen if restaurant employee removed a dish while this request was processing
         if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
+            return Tuple.of(false, SUCH_DISH_DOES_NOT_EXIST);
         }
 
         // if for some reason the dish already exists in customer cart -> modify it
@@ -69,7 +71,7 @@ public class CartItemService {
 
         // might happen if restaurant employee removed a dish while this request was processing
         if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
+            return Tuple.of(false, SUCH_DISH_DOES_NOT_EXIST);
         }
 
         cartItemRepository.changeDishQuantityInCustomerCart(userEmail, optionalDish.get().getID(), quantity);
@@ -83,7 +85,7 @@ public class CartItemService {
 
         // might happen if restaurant employee removed a dish while this request was processing
         if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
+            return Tuple.of(false, SUCH_DISH_DOES_NOT_EXIST);
         }
 
         cartItemRepository.deleteByUserEmailAndDishId(userEmail, optionalDish.get().getID());

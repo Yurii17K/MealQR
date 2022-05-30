@@ -1,7 +1,6 @@
 package com.example.mealqr.security;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 @AllArgsConstructor
@@ -40,7 +38,7 @@ public class FilterJWT extends OncePerRequestFilter {
                 final String userEmail = JWT.extractAllClaims(jwtToken).getSubject();
                 final MyUserDetails myUserDetails = myUserDetailsService.loadUserByUsername(userEmail);
 
-                if (JWT.validateToken(jwtToken, myUserDetails)) {
+                if (Boolean.TRUE.equals(JWT.validateToken(jwtToken, myUserDetails))) {
                     // spring security default bs
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                             new UsernamePasswordAuthenticationToken(myUserDetails, null, myUserDetails.getAuthorities());

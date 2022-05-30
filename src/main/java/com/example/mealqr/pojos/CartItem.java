@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
@@ -31,6 +32,6 @@ public class CartItem {
 
     @NotNull
     @Column(nullable = false)
-    private double cartItemCost;
+    private BigDecimal cartItemCost;
 
 }

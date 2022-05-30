@@ -16,7 +16,7 @@ public class QRData {
     private final double sum;
 
     // customization of Builder
-    public static abstract class CustomQRDataBuilder extends QRDataBuilder{
+    public abstract static class CustomQRDataBuilder extends QRDataBuilder{
 
         @Override
         public QRData build() {

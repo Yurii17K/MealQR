@@ -29,6 +29,8 @@ public class DishOpinionService {
     private final SlopeOne slopeOne;
     private final HashSet<String> curseWords;
     private final Map<String, String> evasiveSymbols;
+    private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
+
 
     public List<Tuple2<Dish, Tuple2<Double, List<String>>>> getAllDishesInRestaurantConfiguredForUser(
             @NotBlank String userEmail, @NotBlank String restaurantName) {
@@ -50,7 +52,7 @@ public class DishOpinionService {
 
         // might happen if restaurant employee removed a dish while this request was processing
         if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
+            return Tuple.of(false, SUCH_DISH_DOES_NOT_EXIST);
         }
 
         Optional<DishRating> optionalDishRating =
@@ -82,7 +84,7 @@ public class DishOpinionService {
 
         // might happen if restaurant employee removed a dish while this request was processing
         if (optionalDish.isEmpty()) {
-            return Tuple.of(false, "Such dish does not exist");
+            return Tuple.of(false, SUCH_DISH_DOES_NOT_EXIST);
         }
 
         comment = filterBadLanguage(comment);
@@ -172,7 +174,7 @@ public class DishOpinionService {
 
             // read curse words and phrases and put in a map
             while (scanner.hasNext()) {
-                pairOfSymbols = scanner.nextLine().replaceAll(",", "").split(" ");
+                pairOfSymbols = scanner.nextLine().replace(",", "").split(" ");
 
                 evasiveSymbols.put(pairOfSymbols[1], pairOfSymbols[0]);
             }
@@ -212,6 +214,7 @@ public class DishOpinionService {
                         Function.identity(),
                         email -> {
 
+                            // create a map of dishId:rating
                             Map<Integer, Double> dishIdsAndRatingListForUser =
                                     dishRatingRepository
                                             .findAllByUserEmailAndRestaurantName(email, restaurantName)
@@ -220,8 +223,8 @@ public class DishOpinionService {
                                                     DishRating::getDishId,
                                                     d -> (double) d.getRating()
                                             ));
-
-
+                            
+                            // generate random ratings for all unrated dishes
                             if (dishIdsInRestaurant.size() != dishIdsAndRatingListForUser.size()) {
                                 for (int i = dishIdsAndRatingListForUser.size(); i < dishIdsInRestaurant.size(); i++) {
                                     dishIdsAndRatingListForUser.put(dishIdsInRestaurant.get(i),
@@ -249,7 +252,7 @@ public class DishOpinionService {
         return slopeOne.slopeOne(userEmail, getDataForPreferenceAnalysis(restaurantName))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
-                .map(integerDoubleEntry -> dishesWithIdsInRestaurant.get(integerDoubleEntry.getKey()))// map dishIds to Dish objects
+                .map(integerDoubleEntry -> dishesWithIdsInRestaurant.get(integerDoubleEntry.getKey())) // map dishIds to Dish objects
                 .collect(Collectors.toCollection(LinkedList::new)); // collect to a linked list to preserve sorted order
     }
 

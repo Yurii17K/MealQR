@@ -10,16 +10,15 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class DishService {
 
     private final DishRepository dishRepository;
+    private static final Random RANDOM = new Random();
 
     public List<Dish> getAllDishesInRestaurant(@NotBlank String restaurantName) {
         return dishRepository.findAllByRestaurantName(restaurantName);
@@ -85,7 +84,7 @@ public class DishService {
             return new Dish();
         }
 
-        return dishList.get(new Random().nextInt(dishList.size()));
+        return dishList.get(RANDOM.nextInt(dishList.size()));
     }
 
     public Dish getRandomDishFromRestaurantOffer(@NotBlank String restaurantName) {
@@ -95,7 +94,7 @@ public class DishService {
             return new Dish();
         }
 
-        return dishList.get(new Random().nextInt(dishList.size()));
+        return dishList.get(RANDOM.nextInt(dishList.size()));
     }
 
 

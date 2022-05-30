@@ -1,8 +1,5 @@
 package com.example.mealqr.exceptions;
 
-
-import org.springframework.security.core.AuthenticationException;
-
 public class UserSavingException extends Exception {
     public UserSavingException(String s) {
         super(s);

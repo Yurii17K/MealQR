@@ -3,8 +3,6 @@ package com.example.mealqr.security;
 import com.example.mealqr.pojos.User;
 import com.example.mealqr.repositories.RestaurantEmployeeRepository;
 import com.example.mealqr.repositories.UserRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

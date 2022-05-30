@@ -6,18 +6,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
 @AllArgsConstructor
 public class MyUserDetails implements UserDetails {
 
-    private final User user;
-    private final RestaurantEmployeeRepository restaurantEmployeeRepository;
+    private final transient User user;
+    private final transient RestaurantEmployeeRepository restaurantEmployeeRepository;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -86,7 +86,7 @@ public class UserController {
     }
 
     private ResponseEntity<Tuple2<Boolean, String>> createResponseBasedOnResult(Tuple2<Boolean, String> serviceResult) {
-        if (!serviceResult._1) {
+        if (Boolean.FALSE.equals(serviceResult._1)) {
             return ResponseEntity.ok()
                     .body(serviceResult);
         } else {

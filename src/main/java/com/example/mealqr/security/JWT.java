@@ -6,13 +6,16 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import java.security.PrivateKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class JWT {
+
+    private JWT () {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static String generateToken (User user) {
         Map<String, Object> claims = new HashMap<>();

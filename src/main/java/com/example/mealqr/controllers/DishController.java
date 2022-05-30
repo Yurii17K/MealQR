@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -61,7 +62,7 @@ public class DishController {
             @RequestParam String dishName,
             @RequestParam String restaurantName,
             @RequestBody String dishImgFile,
-            @RequestParam Double dishPrice,
+            @RequestParam BigDecimal dishPrice,
             @RequestParam String dishDescription
     ) {
         Dish dishToAdd = Dish.builder()
@@ -83,7 +84,7 @@ public class DishController {
             @RequestParam String dishName,
             @RequestParam String restaurantName,
             @RequestBody String dishImgFile,
-            @RequestParam Double dishPrice,
+            @RequestParam BigDecimal dishPrice,
             @RequestParam String dishDescription
     ) {
         Dish dishWithNewData = Dish.builder()

@@ -23,6 +23,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private FilterJWT filterJWT;
 
     @Bean
+    @Override
     public UserDetailsService userDetailsService() {
         return new MyUserDetailsService();
     }
@@ -48,9 +49,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers("*").permitAll();
 
         // security endpoints config
         http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class)
@@ -60,9 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/dishes/restaurant").hasAuthority(Roles.RESTAURANT_EMPLOYEE.name())
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        // filter config
-//        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class);
     }
 
 }

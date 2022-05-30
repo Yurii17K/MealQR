@@ -1,12 +1,12 @@
 package com.example.mealqr.pojos;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.Arrays;
 
 @AllArgsConstructor
 @Getter
@@ -35,7 +35,7 @@ public class Dish {
 
     @NotNull
     @Column(nullable = false)
-    private double dishPrice;
+    private BigDecimal dishPrice;
 
     @NotBlank
     @Column(nullable = false)
@@ -44,13 +44,26 @@ public class Dish {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+
         Dish dish = (Dish) o;
-        return ID != null && Objects.equals(ID, dish.ID);
+
+        if (!ID.equals(dish.ID)) return false;
+        if (!dishName.equals(dish.dishName)) return false;
+        if (!restaurantName.equals(dish.restaurantName)) return false;
+        if (!Arrays.equals(dishImg, dish.dishImg)) return false;
+        if (!dishPrice.equals(dish.dishPrice)) return false;
+        return dishDescription.equals(dish.dishDescription);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        int result = ID.hashCode();
+        result = 31 * result + dishName.hashCode();
+        result = 31 * result + restaurantName.hashCode();
+        result = 31 * result + Arrays.hashCode(dishImg);
+        result = 31 * result + dishPrice.hashCode();
+        result = 31 * result + dishDescription.hashCode();
+        return result;
     }
 }
