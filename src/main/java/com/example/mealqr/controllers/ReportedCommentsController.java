@@ -3,6 +3,7 @@ package com.example.mealqr.controllers;
 import com.example.mealqr.pojos.ReportedComment;
 import com.example.mealqr.services.ReportedCommentsService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class ReportedCommentsController {
 
     @PostMapping
     @PreAuthorize("hasAuthority(#userEmail)")
-    public ResponseEntity<Boolean> submitReport(
+    public ResponseEntity<Void> submitReport(
             @RequestParam String userEmail,
             @RequestParam Integer commentId,
             @RequestParam String reasoning
@@ -27,7 +28,8 @@ public class ReportedCommentsController {
                 .reasoning(reasoning)
                 .build();
 
-        return ResponseEntity
-                .ok(reportedCommentsService.submitReport(reportedComment));
+        reportedCommentsService.submitReport(reportedComment);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
