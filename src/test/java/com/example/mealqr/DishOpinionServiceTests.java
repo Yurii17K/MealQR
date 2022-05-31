@@ -46,14 +46,6 @@ public class DishOpinionServiceTests {
     @Mock
     private  SlopeOne slopeOne;
 
-    @Mock
-    private HashSet<String> curseWords;
-    //private HashSet<String> curseWords = new HashSet<>(Arrays.asList("shit", "fuck", "dick"));;
-
-    @Mock
-    private Map<String, String> evasiveSymbols;
-    //private Map<String, String> evasiveSymbols = new HashMap<String, String>();
-
     private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
 
     @InjectMocks
@@ -150,23 +142,22 @@ public class DishOpinionServiceTests {
 
 
     //TODO: ADD TESTS FOR COMMENTS
-    /*
     @Test
-    public void shouldAddComment(){
+    public void shouldAddComment() {
+
+        // given
         String testRestaurantName = "Test restaurant";
         String testUserEmail = "TestUser@email.com";
         String testDishName = "Test dish";
         String testComment = "Test comment";
 
-        Dish testDish = new Dish(1,"Test","test","test".getBytes(StandardCharsets.UTF_8), BigDecimal.TEN,"test");
-        //evasiveSymbols.put("S", "$");
-        when(evasiveSymbols.put(anyString(),anyString())).thenReturn(null);
+        Dish testDish = new Dish(1, "Test", "test", "test".getBytes(StandardCharsets.UTF_8), BigDecimal.TEN, "test");
 
-        when(dishRepository.findByDishNameAndRestaurantName(anyString(),anyString())).thenReturn(Optional.of(testDish));
+        // when
+        when(dishRepository.findByDishNameAndRestaurantName(anyString(), anyString())).thenReturn(Optional.of(testDish));
         when(dishRatingRepository.findByDishIdAndUserEmail(any(), anyString())).thenReturn(Optional.empty());
-        Assertions.assertEquals(Tuple.of(true, "Added comment to dish " + testDishName + " from " + testRestaurantName), dishOpinionService.addOrUpdateComment(testUserEmail,testDishName,testRestaurantName,testComment));
+
+        // then
+        Assertions.assertEquals(Tuple.of(true, "Added comment to dish " + testDishName + " from " + testRestaurantName), dishOpinionService.addOrUpdateComment(testUserEmail, testDishName, testRestaurantName, testComment));
     }
-    */
-
-
 }
