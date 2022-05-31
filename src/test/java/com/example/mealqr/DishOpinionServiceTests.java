@@ -141,7 +141,7 @@ public class DishOpinionServiceTests {
     }
 
 
-    //TODO: ADD TESTS FOR COMMENTS
+
     @Test
     public void shouldAddComment() {
 
@@ -160,4 +160,5 @@ public class DishOpinionServiceTests {
         // then
         Assertions.assertEquals(Tuple.of(true, "Added comment to dish " + testDishName + " from " + testRestaurantName), dishOpinionService.addOrUpdateComment(testUserEmail, testDishName, testRestaurantName, testComment));
     }
+
 }
