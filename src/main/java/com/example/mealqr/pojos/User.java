@@ -39,6 +39,7 @@ public class User {
     @Email(message = "Email should be valid", regexp =
     ".*@.*\\..*")
     @Column(unique = true, nullable = false)
+    @Setter
     private String email;
 
     @Setter
