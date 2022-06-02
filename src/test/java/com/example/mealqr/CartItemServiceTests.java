@@ -1,15 +1,9 @@
 package com.example.mealqr;
 import com.example.mealqr.pojos.CartItem;
-import com.example.mealqr.pojos.Dish;
-import com.example.mealqr.pojos.QRData;
-import com.example.mealqr.pojos.User;
 import com.example.mealqr.repositories.*;
-import com.example.mealqr.security.Roles;
 import com.example.mealqr.services.CartItemService;
-import com.example.mealqr.services.DishService;
-import com.example.mealqr.services.QRDataService;
-import com.example.mealqr.services.UserService;
 import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.Test;
@@ -18,14 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +35,7 @@ public class CartItemServiceTests {
 
     @BeforeEach
     public void setup(){
-        MockitoAnnotations.openMocks(this); //without this you will get NPE
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -53,4 +45,32 @@ public class CartItemServiceTests {
 
         Assertions.assertEquals(11.d, cartItemService.getCustomerCartCost("test@email.com"));
     }
+
+    @Test
+    public void getClearCustomerCartWhenCartNotClearedInvalid() {
+        //given
+        when(cartItemRepository.getCustomerCart(anyString())).thenReturn(Collections.singletonList(new CartItem()));
+
+        //when
+        Tuple2<Boolean, String> result = cartItemService.clearCustomerCart("user email");
+
+        //then
+        Tuple2<Boolean, String> expected = Tuple.of(false, "Customer cart not cleared");
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void getClearCustomerCartValid() {
+        //given
+        when(cartItemRepository.getCustomerCart(anyString())).thenReturn(Collections.emptyList());
+
+        //when
+        Tuple2<Boolean, String> result = cartItemService.clearCustomerCart("user email");
+
+        //then
+        Tuple2<Boolean, String> expected = Tuple.of(true, "Customer cart cleared");
+        assertEquals(expected, result);
+    }
+
+    //TODO: 3 MORE TESTS
 }
