@@ -1,3 +1,5 @@
+![example workflow](https://github.com/Yurii17K/MealQR/actions/workflows/maven.yml/badge.svg)
+
 # MealQR
  
 ## Git flow
