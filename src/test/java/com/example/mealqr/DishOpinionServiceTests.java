@@ -72,7 +72,7 @@ class DishOpinionServiceTests {
         //when
         List<Tuple2<Dish, Tuple2<Double, List<String>>>> result = dishOpinionService.getAllDishesInRestaurantConfiguredForUser(testUserEmail, testRestaurantName);
 
-        //when
+        //then
         assertFalse(result.isEmpty());
     }
 
