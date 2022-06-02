@@ -8,11 +8,14 @@ import com.example.mealqr.security.Roles;
 import com.example.mealqr.services.UserService;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,8 +26,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class UserServiceTests {
+
+    private static MockedStatic<JWT> jwtMockedStatic;
 
     @Mock
     private UserRepository userRepository;
@@ -41,6 +46,16 @@ public class UserServiceTests {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @BeforeClass
+    public static void init() {
+        jwtMockedStatic = mockStatic(JWT.class);
+    }
+
+    @AfterClass
+    public static void close() {
+        jwtMockedStatic.close();
     }
 
     @Test
@@ -105,7 +120,7 @@ public class UserServiceTests {
         when(bCryptPasswordEncoder.encode(dummyUser.getPass())).thenReturn("hashed password");
         when(customerAllergyRepository.save(customerAllergy)).thenReturn(customerAllergy);
         when(restaurantEmployeeRepository.save(restaurantEmployee)).thenReturn(restaurantEmployee);
-        mockStatic(JWT.class).when(() -> JWT.generateToken(any())).thenReturn("token1.token2.token3");
+        jwtMockedStatic.when(() -> JWT.generateToken(any())).thenReturn("token1.token2.token3");
 
         //when
         Tuple2<Boolean, String> result1 = userService.signUpCustomer(dummyUser, allergies);
@@ -158,7 +173,7 @@ public class UserServiceTests {
         User userInDatabase = new User().withPass("correctPass");
         when(userRepository.findUserByEmail(userEmail)).thenReturn(Optional.of(userInDatabase));
         when(bCryptPasswordEncoder.matches(userPass, userInDatabase.getPass())).thenReturn(true);
-        mockStatic(JWT.class).when(() -> JWT.generateToken(any())).thenReturn("token1.token2.token3");
+        jwtMockedStatic.when(() -> JWT.generateToken(any())).thenReturn("token1.token2.token3");
 
         //when
         Tuple2<Boolean, String> result = userService.singInUser(userEmail, userPass);
