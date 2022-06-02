@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Builder
+@With
 @Entity(name = "Users")
 @NoArgsConstructor
 @AllArgsConstructor

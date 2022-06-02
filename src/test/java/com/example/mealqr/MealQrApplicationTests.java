@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-class MealQrApplicationTests {
+public class MealQrApplicationTests {
 
     @Test
     public void contextLoads() {

@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-class QRDataServiceTests {
+public class QRDataServiceTests {
 
     @Mock
     private CartItemRepository cartItemRepository;

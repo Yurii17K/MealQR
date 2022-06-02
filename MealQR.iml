@@ -168,5 +168,6 @@
     <orderEntry type="library" name="Maven: io.github.classgraph:classgraph:4.8.143" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.13.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:2.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-inline:4.5.1" level="project" />
   </component>
 </module>

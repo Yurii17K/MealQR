@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-class DIshServiceTests {
+public class DIshServiceTests {
 
     @Mock
     private DishRepository dishRepository;
