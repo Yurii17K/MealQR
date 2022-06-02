@@ -109,16 +109,15 @@ public class DishOpinionService {
 
     }
 
-    private String filterBadLanguage(String originalComment) {
+    public String filterBadLanguage(String originalComment) {
         HashSet<String> curseWords = loadCurseWords();
         HashMap<String, String> evasiveSymbols = loadEvasiveSymbols();
 
-        String copyOfOriginalComment = originalComment;
-
+        String copyOfOriginalComment = originalComment.toLowerCase(Locale.ROOT);
 
         // getting rid of sly symbols that hide word meanings
         for (Map.Entry<String, String> entry : evasiveSymbols.entrySet()) {
-            copyOfOriginalComment = copyOfOriginalComment.replaceAll(entry.getKey(), entry.getValue());
+            copyOfOriginalComment = copyOfOriginalComment.replace(entry.getKey(), entry.getValue());
         }
 
         String[] copyOfOriginalCommentTokenized = copyOfOriginalComment.trim().split(" ");
@@ -130,7 +129,7 @@ public class DishOpinionService {
 
             for (int l = k + 1; l < copyOfOriginalCommentTokenized.length + 1; l++) {
 
-                if (curseWords.contains(accumulatingSentenceToCheck.toString().toLowerCase(Locale.ROOT))) {
+                if (curseWords.contains(accumulatingSentenceToCheck.toString())) {
                     for (int i = k; i < l; i++) {
                         originalCommentTokenized[i] = "#".repeat(originalCommentTokenized[i].length());
                     }
@@ -160,7 +159,7 @@ public class DishOpinionService {
                     continue;
                 }
 
-                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replaceAll("[,]", ""));
+                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replace(",", ""));
             }
 
         } catch (FileNotFoundException e) {

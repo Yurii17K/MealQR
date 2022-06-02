@@ -8,7 +8,6 @@ import com.example.mealqr.repositories.*;
 import com.example.mealqr.services.DishOpinionService;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import org.junit.jupiter.api.Assertions;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
@@ -81,7 +80,7 @@ public class DishOpinionServiceTests {
         testMap.put(1,2.0);
         String testRestaurantName = "Test restaurant";
         String testUserEmail = "TestUser@email.com";
-        List<String> userEmailList = new ArrayList();
+        List<String> userEmailList = new ArrayList<>();
         userEmailList.add(testUserEmail);
         userEmailList.add("test@test.com");
         when(restaurantEmployeeRepository.existsByRestaurantName(testRestaurantName)).thenReturn(true);
