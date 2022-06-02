@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Builder
+@With
 @Entity(name = "Users")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,6 +40,7 @@ public class User {
     @Email(message = "Email should be valid", regexp =
     ".*@.*\\..*")
     @Column(unique = true, nullable = false)
+    @Setter
     private String email;
 
     @Setter

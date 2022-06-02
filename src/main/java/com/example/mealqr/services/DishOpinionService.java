@@ -27,8 +27,6 @@ public class DishOpinionService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final RestaurantEmployeeRepository restaurantEmployeeRepository;
     private final SlopeOne slopeOne;
-    private final HashSet<String> curseWords;
-    private final Map<String, String> evasiveSymbols;
     private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
 
 
@@ -112,8 +110,8 @@ public class DishOpinionService {
     }
 
     private String filterBadLanguage(String originalComment) {
-        loadCurseWords();
-        loadEvasiveSymbols();
+        HashSet<String> curseWords = loadCurseWords();
+        HashMap<String, String> evasiveSymbols = loadEvasiveSymbols();
 
         String copyOfOriginalComment = originalComment;
 
@@ -147,7 +145,9 @@ public class DishOpinionService {
         return String.join(" ", originalCommentTokenized);
     }
 
-    private void loadCurseWords() {
+    private HashSet<String> loadCurseWords() {
+        HashSet<String> curseWords = new HashSet<>();
+
         try(Scanner scanner = new Scanner(new File("src/main/resources/bad-words.csv"))) {
             String line;
 
@@ -166,10 +166,14 @@ public class DishOpinionService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        return curseWords;
     }
 
-    private void loadEvasiveSymbols() {
-        try(Scanner scanner = new Scanner(new File("src/main/resources/bad-words.csv"))) {
+    private HashMap<String, String> loadEvasiveSymbols() {
+        HashMap<String, String> evasiveSymbols = new HashMap<>();
+
+        try(Scanner scanner = new Scanner(new File("src/main/resources/leatspeak.csv"))) {
             String[] pairOfSymbols;
 
             // read curse words and phrases and put in a map
@@ -182,6 +186,8 @@ public class DishOpinionService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        return evasiveSymbols;
     }
 
     private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){

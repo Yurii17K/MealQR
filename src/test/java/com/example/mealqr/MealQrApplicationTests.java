@@ -1,13 +1,14 @@
 package com.example.mealqr;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class MealQrApplicationTests {
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class MealQrApplicationTests {
 
     @Test
-    void contextLoads() {
+    public void contextLoads() {
     }
-
 }

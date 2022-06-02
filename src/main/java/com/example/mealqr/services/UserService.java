@@ -61,12 +61,6 @@ public class UserService {
 
         customerAllergyRepository.save(new CustomerAllergy(userEmail, allergies));
 
-        Optional<CustomerAllergy> optionalCustomerAllergy = customerAllergyRepository.findByUserEmail(userEmail);
-
-        if (optionalCustomerAllergy.isEmpty() || !allergies.equals(optionalCustomerAllergy.get().getAllergies())) {
-            return Tuple.of(false, "Customer allergies are NOT updated");
-        }
-
         return Tuple.of(true, "Customer allergies are updated");
     }
 
