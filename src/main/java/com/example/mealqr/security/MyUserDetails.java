@@ -1,8 +1,8 @@
 package com.example.mealqr.security;
 
-import com.example.mealqr.pojos.User;
-import com.example.mealqr.repositories.RestaurantEmployeeRepository;
-import lombok.AllArgsConstructor;
+import com.example.mealqr.domain.User;
+import com.example.mealqr.repositories.RestaurantRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MyUserDetails implements UserDetails {
 
-    private final transient User user;
-    private final transient RestaurantEmployeeRepository restaurantEmployeeRepository;
+    private final User user;
+    private final RestaurantRepository restaurantRepository;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -24,9 +24,8 @@ public class MyUserDetails implements UserDetails {
         authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
         authorities.add(new SimpleGrantedAuthority(user.getEmail()));
 
-        restaurantEmployeeRepository
-                .findByUserEmail(user.getEmail())
-                .ifPresent(restaurantEmployee -> authorities.add(new SimpleGrantedAuthority(restaurantEmployee.getRestaurantName())));
+        restaurantRepository.findAllByRestaurantManager(user)//
+                .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantName())));
 
         return authorities;
     }

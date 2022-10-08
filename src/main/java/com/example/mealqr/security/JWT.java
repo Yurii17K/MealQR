@@ -1,21 +1,20 @@
 package com.example.mealqr.security;
 
 
-import com.example.mealqr.pojos.User;
+import com.example.mealqr.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JWT {
-
-    private JWT () {
-        throw new IllegalStateException("Utility class");
-    }
 
     public static String generateToken (User user) {
         Map<String, Object> claims = new HashMap<>();

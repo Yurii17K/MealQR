@@ -1,8 +1,9 @@
 package com.example.mealqr.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -17,10 +18,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled=true)
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private FilterJWT filterJWT;
+    private final FilterJWT filterJWT;
 
     @Bean
     @Override
@@ -49,13 +50,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class)//
+                .csrf().disable()//
+                .authorizeRequests()//
+                .antMatchers("/api/users/sign-in", "/api/users/sign-up").permitAll()//
+                .antMatchers("/api/users/update-allergies").authenticated()//
 
-        // security endpoints config
-        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class)
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/cart-items", "/cart-items/**", "/opinions/**", "/qr", "/dishes/preferences").hasAuthority(Roles.CUSTOMER.name())
-                .antMatchers("/dishes/restaurant").hasAuthority(Roles.RESTAURANT_EMPLOYEE.name())
+                .antMatchers("/api/report-comment").authenticated()//
+                .antMatchers("/api/generate-qr").authenticated()//
+                .antMatchers("/api/opinion/add-comment").authenticated()//
+                .antMatchers("/api/opinion/add-rating").authenticated()//
+
+                .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers(HttpMethod.PUT, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+
+                .antMatchers("/api/cart**", "/api/cart/**").hasAuthority(Roles.CUSTOMER.name())//
+
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
