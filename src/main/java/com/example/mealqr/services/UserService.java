@@ -1,89 +1,75 @@
 package com.example.mealqr.services;
 
-import com.example.mealqr.pojos.CustomerAllergy;
-import com.example.mealqr.pojos.RestaurantEmployee;
-import com.example.mealqr.pojos.User;
+import com.example.mealqr.domain.CustomerAllergy;
+import com.example.mealqr.domain.User;
 import com.example.mealqr.repositories.CustomerAllergyRepository;
-import com.example.mealqr.repositories.RestaurantEmployeeRepository;
 import com.example.mealqr.repositories.UserRepository;
+import com.example.mealqr.rest.request.CustomerAllergiesUpdateReq;
+import com.example.mealqr.rest.request.UserSignInReq;
+import com.example.mealqr.rest.request.UserSignUpReq;
 import com.example.mealqr.security.JWT;
 import com.example.mealqr.security.Roles;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import lombok.AllArgsConstructor;
+import io.vavr.API;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
+import io.vavr.control.Validation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.Optional;
-import java.util.function.Supplier;
-
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final CustomerAllergyRepository customerAllergyRepository;
-    private final RestaurantEmployeeRepository restaurantEmployeeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Tuple2<Boolean, String> singInUser(@NotBlank String userEmail, @NotBlank String userPass) {
-        Optional<User> optionalUser = userRepository.findUserByEmail(userEmail);
-
-        if (optionalUser.isEmpty() || !bCryptPasswordEncoder.matches(userPass, optionalUser.get().getPass())) {
-            return Tuple.of(false, "Wrong Credentials");
-        } else {
-            return Tuple.of(true, JWT.generateToken(optionalUser.get()));
-        }
+    public Either<String, String> singInUser(UserSignInReq userSignInReq) {
+        return userRepository.findUserByEmail(userSignInReq.getUserEmail())//
+                .filter(user -> bCryptPasswordEncoder.matches(userSignInReq.getUserPassword(), user.getPass()))//
+                .map(JWT::generateToken)//
+                .toEither("Wrong credentials!");
     }
 
-    public Tuple2<Boolean, String> signUpCustomer(@NotNull User user, @NotBlank String allergies) {
-        Supplier<Object> supplier =
-                () -> customerAllergyRepository.save(new CustomerAllergy(user.getEmail(), allergies));
-
-        return createUser(user, supplier);
+    public Either<String, String> signUpUser(UserSignUpReq userSignUpReq) {
+        return validateUserSignUp(userSignUpReq)//
+                .peek(this::addAllergies)//
+                .map(emailIsUnique -> {
+                    User user = User.builder()//
+                            .email(userSignUpReq.getEmail())//
+                            .pass(bCryptPasswordEncoder.encode(userSignUpReq.getPass()))//
+                            .name(userSignUpReq.getName())//
+                            .lastName(userSignUpReq.getLastName())//
+                            .city(userSignUpReq.getCity())//
+                            .role(userSignUpReq.isClient() ? Roles.CUSTOMER : Roles.RESTAURANT_MANAGER)//
+                            .build();
+                    return JWT.generateToken(userRepository.save(user));
+                })//
+                .toEither();
     }
 
-    public Tuple2<Boolean, String> signUpRestaurantEmployee(@NotNull User user, @NotBlank String restaurantName) {
-        Supplier<Object> supplier =
-                () -> restaurantEmployeeRepository.save(new RestaurantEmployee(user.getEmail(), restaurantName));
-
-        return createUser(user, supplier);
+    private void addAllergies(UserSignUpReq userSignUpReq) {
+        userSignUpReq.getAllergies()//
+                .peek(allergiesPresent -> customerAllergyRepository.save(CustomerAllergy.builder()//
+                        .userEmail(userSignUpReq.getEmail())//
+                        .allergies(allergiesPresent)//
+                        .build()));
     }
 
-    public Tuple2<Boolean, String> updateCustomerAllergies(@NotBlank String userEmail, @NotBlank String allergies) {
-        Optional<User> optionalUser = userRepository.findUserByEmail(userEmail);
-
-        if (optionalUser.isEmpty() || !Roles.CUSTOMER.equals(optionalUser.get().getRole())) {
-            return Tuple.of(false, "No such customer");
-        }
-
-        customerAllergyRepository.save(new CustomerAllergy(userEmail, allergies));
-
-        return Tuple.of(true, "Customer allergies are updated");
+    private Validation<String, UserSignUpReq> validateUserSignUp(UserSignUpReq userSignUpReq) {
+        return API.Some(userRepository.findUserByEmail(userSignUpReq.getEmail()))//
+                .filter(Option::isEmpty)//
+                .map(userNotPresent -> userSignUpReq)//
+                .toValidation("User with this email already exists");
     }
 
-    private Tuple2<Boolean, String> createUser(@NotNull User user, @NotNull Supplier<Object> function) {
-        if (userRepository.findUserByEmail(user.getEmail()).isPresent()) {
-            return Tuple.of(false, "User with this email already exists");
-        } else {
-
-            user.setPass(bCryptPasswordEncoder.encode(user.getPass()));
-
-            userRepository.save(user);
-
-            // check if user was indeed created and throws exception if not
-            if (userRepository.findUserByEmail(user.getEmail()).isEmpty()) {
-                return Tuple.of(false, "Something went wrong when trying to add a user to the database");
-            } else {
-
-                // add user's allergies or restaurant name to corresponding tables depending on the type
-                function.get();
-
-                return Tuple.of(true, JWT.generateToken(user));
-            }
-        }
+    public Either<String, CustomerAllergy> updateCustomerAllergies(CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
+        return userRepository.findUserByEmail(customerAllergiesUpdateReq.getUserEmail())//
+                .map(userPresent -> customerAllergyRepository.save(CustomerAllergy.builder()//
+                        .userEmail(customerAllergiesUpdateReq.getUserEmail())//
+                        .allergies(customerAllergiesUpdateReq.getAllergies())//
+                        .build()))//
+                .toEither("User with this email does not exist");
     }
-
 }

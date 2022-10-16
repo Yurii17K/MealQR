@@ -1,15 +1,9 @@
 package com.example.mealqr.preferenceAnalysis;
 
-import com.example.mealqr.repositories.DishRatingRepository;
-import com.example.mealqr.repositories.DishRepository;
-import com.example.mealqr.repositories.UserRepository;
-import com.example.mealqr.services.DishOpinionService;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;

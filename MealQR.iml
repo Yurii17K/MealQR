@@ -15,7 +15,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" value="ba6fdaaa-8dfd-4f57-8edc-156519324404" />
+          <factory-entry name="entityManagerFactory" value="dd556004-ea6d-432b-bba0-4302110312d8" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>
@@ -166,8 +166,5 @@
     <orderEntry type="library" name="Maven: org.webjars:swagger-ui:4.10.3" level="project" />
     <orderEntry type="library" name="Maven: org.webjars:webjars-locator-core:0.48" level="project" />
     <orderEntry type="library" name="Maven: io.github.classgraph:classgraph:4.8.143" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.13.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:2.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-inline:4.5.1" level="project" />
   </component>
 </module>
