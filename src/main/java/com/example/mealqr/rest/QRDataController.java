@@ -25,4 +25,11 @@ public class QRDataController {
     public ResponseEntity<QRDataRes> generateQRDataFromCustomerCart(@RequestParam String userEmail) {
         return ResponseEntity.ok(qrDataService.generateQRDataFromCustomerCart(userEmail));
     }
+
+    @PreAuthorize("hasAuthority({#userEmail})")
+    @GetMapping("/generate-qr-promocode")
+    @Operation(summary = "generateQRDataFromCustomerCartWithPromoCode", security = @SecurityRequirement(name = "JWT AUTH"))
+    public ResponseEntity<QRDataRes> generateQRDataFromCustomerCart(@RequestParam String userEmail, @RequestParam String promocode) {
+        return ResponseEntity.ok(qrDataService.generateQRDataFromCustomerCart(userEmail, promocode));
+    }
 }

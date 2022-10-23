@@ -1,6 +1,6 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.security.Roles;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -29,4 +29,6 @@ public class PromoCode {
     Dish dish;
 
     BigDecimal priceReduction;
+
+    String promoCodeString;
 }
