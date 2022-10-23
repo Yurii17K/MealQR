@@ -18,7 +18,7 @@ public class QRDataService {
     public QRDataRes generateQRDataFromCustomerCart(@NotBlank String userEmail) {
         Seq<CartItem> customerCartItems = cartItemRepository.getCustomerCart(userEmail);
         return QRDataRes.of(
-                userEmail,//
+                userEmail,
                 customerCartItems.map(cartItem -> QRDataRes.CartItemRes.of(
                                 cartItem.getDish().getDishName(),//
                                 cartItem.getCartItemCost(),//
