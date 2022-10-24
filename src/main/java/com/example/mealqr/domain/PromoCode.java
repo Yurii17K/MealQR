@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Builder
-@With
+@Setter
 @Entity
 @Table(name = "promo_codes")
 @NoArgsConstructor

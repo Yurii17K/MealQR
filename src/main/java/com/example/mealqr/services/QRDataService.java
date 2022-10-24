@@ -40,6 +40,9 @@ public class QRDataService {
         if(existingCode.isEmpty()){
             return generateQRDataFromCustomerCart(userEmail);
         }
+        PromoCode theCode = existingCode.get();
+        theCode.setUsed(true);
+        promoCodeRepository.save(theCode);
         return QRDataRes.of(
                 userEmail,
                 customerCartItems.map(cartItem -> QRDataRes.CartItemRes.of(
