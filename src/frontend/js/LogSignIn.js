@@ -31,3 +31,8 @@ $(document).ready(function () {
     );
   });
 });
+
+var emailValue = document.getElementById("userEmail").value;
+var passValue = document.getElementById("userPass").value;
+
+console.log(emailValue);
