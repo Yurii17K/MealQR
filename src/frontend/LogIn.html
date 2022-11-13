@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="stylesheet" href="./css/LogIn.css">
+   </head>
+   <body>
+      <!-- Form-->
+      <div class="container">
+         <div class="form">
+            <div class="form-toggle"></div>
+            <div class="form-panel one">
+               <div class="form-header">
+                  <h1>mealQR</h1>
+               </div>
+               <div class="form-content">
+                  <form>
+                     <div class="form-group">
+                        <label for="userEmail">E-mail</label>
+                        <input type="e-mail" id="userEmail" name="userEmail" required="required"/>
+                     </div>
+                     <div class="form-group">
+                        <label for="userPass">Password</label>
+                        <input type="password" id="userPass" name="userPass" required="required"/>
+                     </div>
+                     <div class="form-group">
+                        <!--label.form-remember
+                           //input(type='checkbox')
+                           //| Remember Me
+                           --><a class="form-recovery" href="./PasswordRestore.html">Forgot your password?</a>
+                     </div>
+                     <div class="form-group">
+                        <button type="submit"><a href = "./DietExclusions.html">Log In</a></button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+         <script  src="./js/LogSignIn.js"></script>
+      </div>
+      <div class="pen-footer"><a href="./ClientSignUp.html">Join Us! Create new account</a></div>
+   </body>
+</html>
+
