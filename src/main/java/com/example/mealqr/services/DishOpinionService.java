@@ -30,51 +30,43 @@ public class DishOpinionService {
     private final DishRepository dishRepository;
     private final UserRepository userRepository;
 
-    public Either<String, DishRating> addOrUpdateRating(DishRatingReq dishRatingReq) {
-        return dishRepository.findByDishNameAndRestaurantName(dishRatingReq.getDishName(), dishRatingReq.getRestaurantName())//
-                .map(dish -> dishRatingRepository.findByDishDishIdAndUserEmail(dish.getDishId(), dishRatingReq.getUserEmail())//
+    public Either<String, DishRating> addOrUpdateRating(String userEmail, DishRatingReq dishRatingReq) {
+        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishRatingReq.getDishName(), dishRatingReq.getRestaurantId())//
+                .map(dish -> dishRatingRepository.findByDishDishIdAndUserEmail(dish.getDishId(), userEmail)//
                         .peek(dishRating -> dishRatingRepository.save(dishRating.withRating(dishRatingReq.getRating())))//
-                        .getOrElse(() -> dishRatingRepository.save(DishRating.builder()//
-                                .rating(dishRatingReq.getRating())//
-                                .userEmail(dishRatingReq.getUserEmail())//
-                                .dish(Dish.builder().dishId(dish.getDishId()).build())//
-                                .build())))//
+                        .getOrElse(() -> dishRatingRepository.save(DishRating.of(userEmail, dishRatingReq, dish))))//
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);
     }
 
-    public Either<String, DishComment> addOrUpdateComment(DishCommentReq dishCommentReq) {
-        return dishRepository.findByDishNameAndRestaurantName(dishCommentReq.getDishName(), dishCommentReq.getRestaurantName())//
-                .map(dish -> dishCommentRepository.findByDishDishIdAndUserEmail(dish.getDishId(), dishCommentReq.getUserEmail())//
+    public Either<String, DishComment> addOrUpdateComment(String userEmail, DishCommentReq dishCommentReq) {
+        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishCommentReq.getDishName(), dishCommentReq.getRestaurantId())//
+                .map(dish -> dishCommentRepository.findByDishDishIdAndUserEmail(dish.getDishId(), userEmail)//
                         .peek(dishComment -> dishCommentRepository.save(dishComment.withComment(dishCommentReq.getComment())))//
-                        .getOrElse(() -> dishCommentRepository.save(DishComment.builder()//
-                                .comment(CurseLanguage.filterBadLanguage(dishCommentReq.getComment()))//
-                                .userEmail(dishCommentReq.getUserEmail())//
-                                .dish(Dish.builder().dishId(dish.getDishId()).build())//
-                                .build())))//
+                        .getOrElse(() -> dishCommentRepository.save(DishComment.of(userEmail, dishCommentReq, dish))))//
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);
     }
 
-    Map<String, Map<Integer, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantName) {
-        Seq<Integer> dishIdsByRestaurantName = dishRepository.findAllByRestaurantName(restaurantName)//
+    Map<String, Map<Integer, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantId) {
+        Seq<Integer> dishIdsByRestaurant = dishRepository.findAllByRestaurantRestaurantId(restaurantId)//
                 .map(Dish::getDishId)//
                 .sorted();
         // take only the customers that rated sth in the restaurant
-        Seq<String> customerEmails = userRepository.findAllCustomersWhoRatedSomethingInRestaurant(restaurantName)
+        Seq<String> customerEmails = userRepository.findAllCustomersWhoRatedSomethingInRestaurant(restaurantId)
                 .distinct();
         return customerEmails.toMap(Function.identity(),
                         email -> {
                             // create a map of dishId:rating
-                            Map<Integer, Double> dishIdsWithRatingsByEmailAndRestaurantName = dishRatingRepository
-                                    .findAllByUserEmailAndRestaurantName(email, restaurantName)//
+                            Map<Integer, Double> dishIdsWithRatingsByEmailAndRestaurant = dishRatingRepository
+                                    .findAllByUserEmailAndRestaurant(email, restaurantId)//
                                     .toMap(dishRating -> dishRating.getDish().getDishId(),d -> (double) d.getRating())
                                     .toJavaMap();
                             // generate random ratings for all unrated dishes
-                            if (dishIdsByRestaurantName.size() != dishIdsWithRatingsByEmailAndRestaurantName.size()) {
-                                for (int i = dishIdsWithRatingsByEmailAndRestaurantName.size(); i < dishIdsByRestaurantName.size(); i++) {
-                                    dishIdsWithRatingsByEmailAndRestaurantName.put(dishIdsByRestaurantName.get(i), Math.random() * 5);
+                            if (dishIdsByRestaurant.size() != dishIdsWithRatingsByEmailAndRestaurant.size()) {
+                                for (int i = dishIdsWithRatingsByEmailAndRestaurant.size(); i < dishIdsByRestaurant.size(); i++) {
+                                    dishIdsWithRatingsByEmailAndRestaurant.put(dishIdsByRestaurant.get(i), Math.random() * 5);
                                 }
                             }
-                            return dishIdsWithRatingsByEmailAndRestaurantName;
+                            return dishIdsWithRatingsByEmailAndRestaurant;
                         }).toJavaMap();
     }
 

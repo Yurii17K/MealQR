@@ -9,10 +9,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api")
@@ -36,11 +36,10 @@ public class UserController {
     }
 
     @PatchMapping("/users/update-allergies")
-    @PreAuthorize("hasAuthority({#customerAllergiesUpdateReq.userEmail})")
     @Operation(summary = "changeCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<CustomerAllergy> changeCustomerAllergies(
+    public ResponseEntity<CustomerAllergy> changeCustomerAllergies(Principal principal,
             @RequestBody @Valid CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
-        return userService.updateCustomerAllergies(customerAllergiesUpdateReq)//
+        return userService.updateCustomerAllergies(principal.getName(), customerAllergiesUpdateReq)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }

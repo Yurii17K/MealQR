@@ -11,23 +11,26 @@ import io.vavr.collection.Seq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Validated
 public class DishController {
 
     private final DishService dishService;
 
-    @GetMapping("/dishes/{restaurantName}")
+    @GetMapping("/dishes/{restaurantId}")
     public ResponseEntity<Seq<DishRes>> getAllDishesInRestaurant(
-            @Valid @NotBlank @PathVariable("restaurantName") String restaurantName) {
-        return dishService.getAllDishesInRestaurant(restaurantName)//
+            @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
+        return dishService.getAllDishesInRestaurant(restaurantId)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
@@ -39,24 +42,22 @@ public class DishController {
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
 
-    @GetMapping("/dishes/random/{restaurantName}")
+    @GetMapping("/dishes/random/{restaurantId}")
     public ResponseEntity<DishRes> getRandomDish(
-            @Valid @NotBlank @PathVariable("restaurantName") String restaurantName) {
-        return dishService.getRandomDishFromRestaurantOffer(restaurantName)//
+            @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
+        return dishService.getRandomDishFromRestaurantOffer(restaurantId)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
 
-    @PreAuthorize("hasAuthority(#userEmail)")
     @GetMapping("/dishes/user")
     @Operation(summary = "getAllDishesInRestaurantSortedByUserPreference", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<List<DishWithOpinionsRes>> getAllDishesInRestaurantSortedByUserPreference(
-            @RequestParam @NotBlank @Valid String userEmail,
-            @RequestParam @NotBlank @Valid String restaurantName) {
-        return ResponseEntity.ok(dishService.getAllDishesInRestaurantConfiguredForUser(userEmail, restaurantName));
+    public ResponseEntity<List<DishWithOpinionsRes>> getAllDishesInRestaurantSortedByUserPreference(Principal principal,
+            @RequestParam @NotBlank @Valid String restaurantId) {
+        return ResponseEntity.ok(dishService.getAllDishesInRestaurantConfiguredForUser(principal.getName(), restaurantId));
     }
 
-    @PreAuthorize("hasAuthority({#dishSaveReq.restaurantName})")
+    @PreAuthorize("hasAuthority({#dishSaveReq.restaurantId})")
     @PostMapping("/dishes")
     @Operation(summary = "addDishToRestaurantMenu", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<DishRes> addDishToRestaurantMenu(@RequestBody @Valid DishSaveReq dishSaveReq) {
@@ -65,7 +66,7 @@ public class DishController {
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
 
-    @PreAuthorize("hasAuthority({#dishUpdateReq.restaurantName})")
+    @PreAuthorize("hasAuthority({#dishUpdateReq.restaurantId})")
     @PutMapping("/dishes")
     @Operation(summary = "updateDishInRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<DishRes> updateDishInRestaurantOffer(@RequestBody @Valid DishUpdateReq dishUpdateReq) {
@@ -74,12 +75,12 @@ public class DishController {
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
 
-    @PreAuthorize("hasAuthority({#restaurantName})")
+    @PreAuthorize("hasAuthority({#restaurantId})")
     @DeleteMapping("/dishes")
     @Operation(summary = "removeDishFromRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<DishRes> removeDishFromRestaurantOffer(@RequestParam String dishName,
-            @RequestParam String restaurantName) {
-        return dishService.removeDishFromRestaurantOffer(dishName, restaurantName)
+            @RequestParam String restaurantId) {
+        return dishService.removeDishFromRestaurantOffer(dishName, restaurantId)
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }

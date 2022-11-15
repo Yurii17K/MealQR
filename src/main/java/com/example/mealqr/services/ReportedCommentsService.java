@@ -1,6 +1,5 @@
 package com.example.mealqr.services;
 
-import com.example.mealqr.domain.DishComment;
 import com.example.mealqr.domain.ReportedComment;
 import com.example.mealqr.repositories.ReportedCommentsRepository;
 import com.example.mealqr.rest.request.ReportedCommentReq;
@@ -14,12 +13,8 @@ public class ReportedCommentsService {
     private final ReportedCommentsRepository reportedCommentsRepository;
 
     @Async
-    public void submitReport(ReportedCommentReq reportedCommentReq) {
-        ReportedComment reportedComment = ReportedComment.builder()//
-                .dishComment(DishComment.builder().dishOpinionId(reportedCommentReq.getCommentId()).build())//
-                .reasoning(reportedCommentReq.getReasoning())//
-                .userEmail(reportedCommentReq.getUserEmail())//
-                .build();
+    public void submitReport(String userEmail, ReportedCommentReq reportedCommentReq) {
+        ReportedComment reportedComment = ReportedComment.of(userEmail, reportedCommentReq);
         reportedCommentsRepository.save(reportedComment);
     }
 }

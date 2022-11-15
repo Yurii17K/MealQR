@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, String> {
 
-    boolean existsByRestaurantName(String restaurantName);
+    boolean existsByRestaurantId(String restaurantId);
 
     Seq<Restaurant> findAllByRestaurantManager(User restaurantManager);
 }

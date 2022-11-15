@@ -12,7 +12,7 @@ public class DishResMapper {
         return DishRes.of(
                 dish.getDishId(),
                 dish.getDishName(),
-                dish.getRestaurantName(),
+                dish.getRestaurant(),
                 ImageDtoMapper.mapToImageDto(dish.getDishImage()),
                 dish.getDishPrice(),
                 dish.getDishDescription()

@@ -17,9 +17,9 @@ public interface DishRatingRepository extends JpaRepository<DishRating, Integer>
 
     @Query(value = "select distinct dr.dish_opinion_id, dr.dish_id, dr.user_email, dr.rating from dish_ratings as dr " +
             "join dishes as d on d.dish_id = dr.dish_id " +
-            "where dr.user_email = :user_email and d.restaurant_name = :restaurant_name " +
+            "where dr.user_email = :user_email and d.restaurant_id = :restaurant_id " +
             "order by dr.dish_id", nativeQuery = true)
-    Seq<DishRating> findAllByUserEmailAndRestaurantName(
+    Seq<DishRating> findAllByUserEmailAndRestaurant(
             @Param("user_email") String userEmail,
-            @Param("restaurant_name") String restaurantName);
+            @Param("restaurant_id") String restaurantId);
 }

@@ -16,7 +16,7 @@ public class DishSaveReq {
     String dishName;
     @NotBlank
     @Size(max = 128)
-    String restaurantName;
+    String restaurantId;
     @NotNull(message = "Dish should have an image")
     ImageDto dishImage;
     @NotNull(message = "Dish should have a price")

@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Integer> {
 
-    Seq<Dish> findAllByRestaurantName(String restaurantName);
+    Seq<Dish> findAllByRestaurantRestaurantId(String restaurantId);
 
-    Option<Dish> findByDishNameAndRestaurantName(String dishName, String restaurantName);
+    Option<Dish> findByDishNameAndRestaurantRestaurantId(String dishName, String restaurantId);
 
     Option<Dish> findByDishId(Integer dishID);
 
     @Transactional
-    void deleteByDishNameAndRestaurantName(String dishName, String restaurantName);
+    void deleteByDishNameAndRestaurantRestaurantId(String dishName, String restaurantId);
 }

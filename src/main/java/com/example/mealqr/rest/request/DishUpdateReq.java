@@ -22,7 +22,7 @@ public class DishUpdateReq {
 
     @NotBlank
     @Size(max = 200)
-    String restaurantName;
+    String restaurantId;
 
     @Nullable
     ImageDto dishImage;

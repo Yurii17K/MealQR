@@ -37,8 +37,8 @@ public class CartItemService {
     }
 
     public Either<String, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantName) {
-        return dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName)//
+            @NotBlank String restaurantId) {
+        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
                         .map(cartItem -> {
                             cartItemRepository.changeDishQuantityInCustomerCart(userEmail, dish.getDishId(), 1);
@@ -52,16 +52,16 @@ public class CartItemService {
     }
 
     public Either<String, Boolean> changeDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantName, @NotNull int quantity) {
-        return dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName)//
+            @NotBlank String restaurantId, @NotNull int quantity) {
+        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.changeDishQuantityInCustomerCart(userEmail, dish.getDishId(), quantity))//
                 .map(dish -> true)//
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);
     }
 
     public Either<String, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantName) {
-        return dishRepository.findByDishNameAndRestaurantName(dishName, restaurantName)//
+            @NotBlank String restaurantId) {
+        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.deleteByUserEmailAndDishDishId(userEmail, dish.getDishId()))//
                 .map(dish -> true)//
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);

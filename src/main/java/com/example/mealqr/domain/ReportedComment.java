@@ -1,5 +1,6 @@
 package com.example.mealqr.domain;
 
+import com.example.mealqr.rest.request.ReportedCommentReq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,4 +31,12 @@ public class ReportedComment {
     String userEmail;
 
     String reasoning;
+
+    public static ReportedComment of(String userEmail, ReportedCommentReq reportedCommentReq) {
+        return ReportedComment.builder()//
+                .dishComment(DishComment.builder().dishOpinionId(reportedCommentReq.getCommentId()).build())//
+                .reasoning(reportedCommentReq.getReasoning())//
+                .userEmail(userEmail)//
+                .build();
+    }
 }

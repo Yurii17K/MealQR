@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select u.email from users as u " +
             "join dish_ratings as dr on u.email = dr.user_email " +
             "join dishes as d on dr.dish_id = d.dish_id " +
-            "where d.restaurant_name = :restaurant_name and u.role = 'CUSTOMER'",
+            "where d.restaurant_id = :restaurant_id and u.role = 'CUSTOMER'",
             nativeQuery = true)
-    Seq<String> findAllCustomersWhoRatedSomethingInRestaurant(@Param("restaurant_name") String restaurantName);
+    Seq<String> findAllCustomersWhoRatedSomethingInRestaurant(@Param("restaurant_id") String restaurantId);
 }

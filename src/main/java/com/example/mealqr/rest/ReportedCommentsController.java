@@ -4,13 +4,13 @@ import com.example.mealqr.rest.request.ReportedCommentReq;
 import com.example.mealqr.services.ReportedCommentsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api")
@@ -20,9 +20,9 @@ public class ReportedCommentsController {
 
 
     @PostMapping("/report-comment")
-    @PreAuthorize("hasAuthority(#reportedCommentReq.userEmail)")
-    public ResponseEntity<Boolean> submitReport(@RequestBody @Valid ReportedCommentReq reportedCommentReq) {
-        reportedCommentsService.submitReport(reportedCommentReq);
+    public ResponseEntity<Boolean> submitReport(Principal principal,
+            @RequestBody @Valid ReportedCommentReq reportedCommentReq) {
+        reportedCommentsService.submitReport(principal.getName(), reportedCommentReq);
         return ResponseEntity.ok(true);
     }
 }

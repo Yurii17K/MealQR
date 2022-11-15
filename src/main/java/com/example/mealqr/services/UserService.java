@@ -64,12 +64,11 @@ public class UserService {
                 .toValidation("User with this email already exists");
     }
 
-    public Either<String, CustomerAllergy> updateCustomerAllergies(CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
-        return userRepository.findUserByEmail(customerAllergiesUpdateReq.getUserEmail())//
-                .map(userPresent -> customerAllergyRepository.save(CustomerAllergy.builder()//
-                        .userEmail(customerAllergiesUpdateReq.getUserEmail())//
-                        .allergies(customerAllergiesUpdateReq.getAllergies())//
-                        .build()))//
+    public Either<String, CustomerAllergy> updateCustomerAllergies(String userEmail,
+            CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
+        return userRepository.findUserByEmail(userEmail)//
+                .map(userPresent -> customerAllergyRepository.save(
+                        CustomerAllergy.of(userEmail, customerAllergiesUpdateReq)))//
                 .toEither("User with this email does not exist");
     }
 }
