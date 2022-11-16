@@ -1,6 +1,7 @@
 package com.example.mealqr.web.rest;
 
 import com.example.mealqr.domain.Dish;
+import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.services.CartItemService;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +36,9 @@ public class CartItemController {
     @Operation(summary = "addDishToCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<Dish> addDishToCustomerCart(Principal principal, @RequestParam String dishName,
             @RequestParam String restaurantId) {
-        return cartItemService.addDishToCustomerCart(principal.getName(), dishName, restaurantId)
+        return cartItemService.addDishToCustomerCart(principal.getName(), dishName, restaurantId)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @PatchMapping("/cart/update-dish")
@@ -46,7 +47,7 @@ public class CartItemController {
             @RequestParam String dishName, @RequestParam String restaurantId, @RequestParam Integer quantity) {
         return cartItemService.changeDishQuantityInCustomerCart(principal.getName(), dishName, restaurantId, quantity)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @DeleteMapping("/cart/clear-cart")
@@ -61,6 +62,6 @@ public class CartItemController {
             @RequestParam String restaurantId) {
         return cartItemService.deleteDishFromCustomerCart(principal.getName(), dishName, restaurantId)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 }

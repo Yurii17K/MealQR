@@ -2,6 +2,7 @@ package com.example.mealqr.web.rest;
 
 import com.example.mealqr.domain.DishComment;
 import com.example.mealqr.domain.DishRating;
+import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.services.DishOpinionService;
 import com.example.mealqr.web.rest.request.DishCommentReq;
 import com.example.mealqr.web.rest.request.DishRatingReq;
@@ -30,7 +31,7 @@ public class DishOpinionController {
             @RequestBody @Valid DishCommentReq dishCommentReq) {
         return dishOpinionService.addOrUpdateComment(principal.getName(), dishCommentReq)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @PostMapping("/opinion/add-rating")
@@ -38,7 +39,7 @@ public class DishOpinionController {
     public ResponseEntity<DishRating> addOrUpdateRating(Principal principal,
             @RequestBody @Valid DishRatingReq dishRatingReq) {
         return dishOpinionService.addOrUpdateRating(principal.getName(), dishRatingReq)//
-                        .map(ResponseEntity::ok)//
-                        .getOrElseThrow(s -> new RuntimeException(s));
+                .map(ResponseEntity::ok)//
+                .getOrElseThrow(ApiException::new);
     }
 }

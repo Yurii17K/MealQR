@@ -1,5 +1,6 @@
 package com.example.mealqr.web.rest;
 
+import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.services.DishService;
 import com.example.mealqr.web.rest.reponse.DishRes;
 import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
@@ -33,14 +34,14 @@ public class DishController {
         return dishService.getAllDishesInRestaurant(restaurantId)//
                 .map(Seq::asJava)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @GetMapping("/dishes/random")
     public ResponseEntity<DishRes> getRandomDish() {
         return dishService.getRandomDish()
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @GetMapping("/dishes/random/{restaurantId}")
@@ -48,7 +49,7 @@ public class DishController {
             @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
         return dishService.getRandomDishFromRestaurantOffer(restaurantId)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @GetMapping("/dishes/user")
@@ -64,7 +65,7 @@ public class DishController {
     public ResponseEntity<DishRes> addDishToRestaurantMenu(@RequestBody @Valid DishSaveReq dishSaveReq) {
         return dishService.addDishToRestaurantMenu(dishSaveReq)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @PreAuthorize("hasAuthority({#dishUpdateReq.restaurantId})")
@@ -73,7 +74,7 @@ public class DishController {
     public ResponseEntity<DishRes> updateDishInRestaurantOffer(@RequestBody @Valid DishUpdateReq dishUpdateReq) {
         return dishService.updateDishInRestaurantOffer(dishUpdateReq)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 
     @PreAuthorize("hasAuthority({#restaurantId})")
@@ -83,6 +84,6 @@ public class DishController {
             @RequestParam String restaurantId) {
         return dishService.removeDishFromRestaurantOffer(dishName, restaurantId)
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 }

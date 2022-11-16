@@ -78,7 +78,8 @@ public class UserService {
     }
 
     private Validation<String, UserSignUpReq> validateEmail(UserSignUpReq userSignUpReq) {
-        return userRepository.findUserByEmail(userSignUpReq.getEmail())//
+        return API.Some(userRepository.findUserByEmail(userSignUpReq.getEmail()))//
+                .filter(Option::isEmpty)//
                 .map(userNotPresent -> userSignUpReq)//
                 .toValidation("User with this email already exists");
     }

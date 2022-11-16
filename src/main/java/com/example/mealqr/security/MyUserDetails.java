@@ -25,7 +25,7 @@ public class MyUserDetails implements UserDetails {
         authorities.add(new SimpleGrantedAuthority(user.getEmail()));
 
         restaurantRepository.findAllByRestaurantManager(user)//
-                .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantName())));
+                .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantId())));
 
         return authorities;
     }

@@ -1,5 +1,6 @@
 package com.example.mealqr.web.rest;
 
+import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.services.CartItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,6 @@ public class PromoCodeController {
     public ResponseEntity<Boolean> applyPromoCode(Principal principal, @RequestParam @Valid String promoCode) {
         return cartItemService.registerPromoInSession(principal.getName(), promoCode)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(ApiException::new);
     }
 }
