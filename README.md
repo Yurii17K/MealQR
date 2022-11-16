@@ -5,11 +5,11 @@
 ## Git flow
 For each feature create a new branch from **dev** branch with a name **feature-{feature-name}**
 
-## 🛠 Backend Endpoints
+## 🛠 Backend Endpoints (THIS LIST IS NOT UPDATED)
 
-**To view and try out all the endpoints navigate to `{host}/swagger-ui.html`**
+**To view and try out all the UP TO DATE endpoints navigate to `{host}/swagger-ui/index.html`**
 
-
+# -- NOT UP TO DATE --
 ### 🔐 Users:
 - Create a customer:
   - **POST** `{host}/users/customer?userName={value}&userLastName={value}&userCity={value}&allergies={value}&userEmail={value}&userPass={value}`
