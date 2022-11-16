@@ -1,5 +1,6 @@
 package com.example.mealqr.domain;
 
+import com.example.mealqr.web.rest.request.CustomerAllergiesUpdateReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,4 +23,11 @@ public class CustomerAllergy {
     @Column(name = "user_email")
     String userEmail;
     String allergies;
+
+    public static CustomerAllergy of(String userEmail, CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
+        return CustomerAllergy.builder()//
+                .userEmail(userEmail)//
+                .allergies(customerAllergiesUpdateReq.getAllergies())//
+                .build();
+    }
 }

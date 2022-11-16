@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Table(name = "cart_items")
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@With
 public class CartItem {
 
     @Id

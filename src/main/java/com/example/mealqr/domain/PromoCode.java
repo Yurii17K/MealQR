@@ -1,11 +1,11 @@
 package com.example.mealqr.domain;
 
 
+import com.example.mealqr.domain.enums.PromoCodeType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Getter
 @Builder
@@ -20,15 +20,22 @@ public class PromoCode {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "promo_code_id")
-    Integer promo_code_id;
+    Integer promoCodeId;
 
-    Boolean used;
+    String promoCodeString;
+
+    int usesLeft;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Dish.class)
     @JoinColumn(name = "dish_id", referencedColumnName = "dish_id")
     Dish dish;
 
-    BigDecimal priceReduction;
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Restaurant.class)
+    @JoinColumn(name = "restaurant_id", referencedColumnName = "restaurant_id")
+    Restaurant restaurant;
 
-    String promoCodeString;
+    int priceReduction;
+
+    PromoCodeType promoCodeType;
+
 }

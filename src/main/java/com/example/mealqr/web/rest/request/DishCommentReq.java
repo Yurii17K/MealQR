@@ -1,8 +1,7 @@
-package com.example.mealqr.rest.request;
+package com.example.mealqr.web.rest.request;
 
 import lombok.Value;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -10,14 +9,10 @@ import javax.validation.constraints.Size;
 public class DishCommentReq {
 
     @NotBlank
-    @Email(message = "Email should be valid", regexp = ".*@.*\\..*")
-    String userEmail;
-
-    @NotBlank
     String dishName;
 
     @NotBlank
-    String restaurantName;
+    String restaurantId;
 
     @NotBlank
     @Size(max = 1000)

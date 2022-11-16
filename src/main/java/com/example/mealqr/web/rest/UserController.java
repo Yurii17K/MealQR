@@ -1,18 +1,19 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
 import com.example.mealqr.domain.CustomerAllergy;
-import com.example.mealqr.rest.request.CustomerAllergiesUpdateReq;
-import com.example.mealqr.rest.request.UserSignInReq;
-import com.example.mealqr.rest.request.UserSignUpReq;
 import com.example.mealqr.services.UserService;
+import com.example.mealqr.web.rest.request.CustomerAllergiesUpdateReq;
+import com.example.mealqr.web.rest.request.UserSignInReq;
+import com.example.mealqr.web.rest.request.UserSignUpReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -32,15 +33,14 @@ public class UserController {
     public ResponseEntity<String> signUpCustomer(@RequestBody @Valid UserSignUpReq userSignUpReq) {
         return userService.signUpUser(userSignUpReq)//
                 .map(ResponseEntity::ok)//
-                .getOrElseThrow(s -> new RuntimeException(s));
+                .getOrElseThrow(s -> new RuntimeException(s.collect(Collectors.joining("; "))));
     }
 
     @PatchMapping("/users/update-allergies")
-    @PreAuthorize("hasAuthority({#customerAllergiesUpdateReq.userEmail})")
     @Operation(summary = "changeCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<CustomerAllergy> changeCustomerAllergies(
+    public ResponseEntity<CustomerAllergy> changeCustomerAllergies(Principal principal,
             @RequestBody @Valid CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
-        return userService.updateCustomerAllergies(customerAllergiesUpdateReq)//
+        return userService.updateCustomerAllergies(principal.getName(), customerAllergiesUpdateReq)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }
