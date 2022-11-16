@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 
 @Getter
 @Builder
@@ -25,7 +24,7 @@ public class PromoCode {
 
     String promoCodeString;
 
-    boolean isUsed;
+    int usesLeft;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Dish.class)
     @JoinColumn(name = "dish_id", referencedColumnName = "dish_id")
@@ -35,7 +34,7 @@ public class PromoCode {
     @JoinColumn(name = "restaurant_id", referencedColumnName = "restaurant_id")
     Restaurant restaurant;
 
-    BigDecimal priceReduction;
+    int priceReduction;
 
     PromoCodeType promoCodeType;
 

@@ -1,9 +1,6 @@
 package com.example.mealqr;
 
-import com.example.mealqr.domain.CartItem;
-import com.example.mealqr.domain.Dish;
-import com.example.mealqr.domain.DishComment;
-import com.example.mealqr.domain.DishRating;
+import com.example.mealqr.domain.*;
 import com.example.mealqr.rest.request.DishCommentReq;
 import com.example.mealqr.rest.request.DishRatingReq;
 import lombok.AccessLevel;
@@ -21,19 +18,17 @@ public class TestData {
     static String DISH_DESCRIPTION = "dishDescription";
     static BigDecimal DISH_PRICE = BigDecimal.ONE;
     static String DISH_NAME = "dishName";
-    static String RESTAURANT_NAME = "restaurantName";
+    static String RESTAURANT_ID = "restaurantId";
     static Integer GLOBAL_ID_Integer = 1;
     static Integer DISH_QUANTITY = 4;
     static Integer DISH_RATING_SCORE = 5;
     static String DISH_COMMENT_COMMENT = "dishComment";
 
-    static String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
-
     static Dish DISH = Dish.builder()//
             .dishId(GLOBAL_ID_Integer)//
             .dishPrice(BigDecimal.ONE)//
             .dishDescription(DISH_DESCRIPTION)//
-            .restaurantName(RESTAURANT_NAME)//
+            .restaurant(Restaurant.builder().restaurantId(RESTAURANT_ID).build())//
             .dishName(DISH_NAME)//
             .build();
 
@@ -46,15 +41,13 @@ public class TestData {
             .build();
 
     static DishRatingReq DISH_RATING_REQ = DishRatingReq.of(
-            USER_EMAIL,
             DISH_NAME,
-            RESTAURANT_NAME,
+            RESTAURANT_ID,
             DISH_RATING_SCORE);
 
     static DishCommentReq DISH_COMMENT_REQ = DishCommentReq.of(
-            USER_EMAIL,
             DISH_NAME,
-            RESTAURANT_NAME,
+            RESTAURANT_ID,
             DISH_COMMENT_COMMENT);
 
     static DishRating DISH_RATING = DishRating.builder()//

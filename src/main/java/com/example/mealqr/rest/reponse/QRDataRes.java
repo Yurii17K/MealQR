@@ -11,23 +11,7 @@ public class QRDataRes {
 
     String userEmail;
     Seq<CartItemRes> cartItemRes;
-    double sum;
-    String promocode;
-
-    public static QRDataRes of(String userEmail, Seq<CartItemRes> cartItemRes) {
-        return QRDataRes.of(
-                userEmail,
-                cartItemRes,
-                cartItemRes.map(CartItemRes::getCartItemCost).sum().doubleValue(),null);
-    }
-    public static QRDataRes of(String userEmail, Seq<CartItemRes> cartItemRes, String promocode) {
-        return QRDataRes.of(
-                userEmail,
-                cartItemRes,
-                cartItemRes.map(CartItemRes::getCartItemCost).sum().doubleValue(),
-                promocode);
-    }
-
+    double cartCost;
 
     @Value(staticConstructor = "of")
     public static class CartItemRes {
