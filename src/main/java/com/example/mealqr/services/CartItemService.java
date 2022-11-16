@@ -6,6 +6,8 @@ import com.example.mealqr.domain.PromoCode;
 import com.example.mealqr.repositories.CartItemRepository;
 import com.example.mealqr.repositories.DishRepository;
 import com.example.mealqr.repositories.PromoCodeRepository;
+import com.example.mealqr.services.mappers.CartItemResMapper;
+import com.example.mealqr.web.rest.reponse.CartItemRes;
 import io.vavr.API;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
@@ -31,11 +33,12 @@ public class CartItemService {
 
     private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
 
-    public Seq<CartItem> getCustomerCart(@NotBlank String userEmail) {
+    public Seq<CartItemRes> getCustomerCart(@NotBlank String userEmail) {
         Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(userEmail);
         return Option.of(RequestContextHolder.currentRequestAttributes().getAttribute(PROMOCODE, RequestAttributes.SCOPE_SESSION))//
                 .map(promo -> applyPromoToCartItems((PromoCode) promo, customerCart))//
-                .getOrElse(customerCart);
+                .getOrElse(customerCart)
+                .map(CartItemResMapper::mapToCartItemRes);
     }
 
     public double getCustomerCartCost(@NotBlank String userEmail) {
@@ -84,14 +87,15 @@ public class CartItemService {
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);
     }
 
-    public Either<String, PromoCode> registerPromoInSession(String userEmail, String promoCode) {
+    public Either<String, Boolean> registerPromoInSession(String userEmail, String promoCode) {
         Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(userEmail);
         Option<PromoCode> currentPromo = promoCodeRepository.findByPromoCodeStringAndAndRestaurant(promoCode, customerCart.headOption().get()
                 .getDish().getRestaurant().getRestaurantId());
         return currentPromo
                 .toValidation("Promo code is not valid!")//
                 .flatMap(this::canPromoBeUsed)//
-                .peek(code -> RequestContextHolder.currentRequestAttributes().setAttribute(PROMOCODE, code, RequestAttributes.SCOPE_SESSION))//
+                .peek(validCode -> RequestContextHolder.currentRequestAttributes().setAttribute(PROMOCODE, validCode, RequestAttributes.SCOPE_SESSION))//
+                .map(validCode -> true)//
                 .toEither();
     }
 

@@ -1,16 +1,16 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
-import com.example.mealqr.domain.CartItem;
 import com.example.mealqr.domain.Dish;
 import com.example.mealqr.services.CartItemService;
+import com.example.mealqr.web.rest.reponse.CartItemRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.vavr.collection.Seq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -21,8 +21,8 @@ public class CartItemController {
 
     @GetMapping("/cart")
     @Operation(summary = "getCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Seq<CartItem>> getCustomerCart(Principal principal) {
-        return ResponseEntity.ok(cartItemService.getCustomerCart(principal.getName()));
+    public ResponseEntity<List<CartItemRes>> getCustomerCart(Principal principal) {
+        return ResponseEntity.ok(cartItemService.getCustomerCart(principal.getName()).asJava());
     }
 
     @GetMapping("/cart/cost")

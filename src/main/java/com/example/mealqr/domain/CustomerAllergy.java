@@ -1,6 +1,6 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.CustomerAllergiesUpdateReq;
+import com.example.mealqr.web.rest.request.CustomerAllergiesUpdateReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

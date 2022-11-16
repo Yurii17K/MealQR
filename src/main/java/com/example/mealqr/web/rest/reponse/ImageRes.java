@@ -1,9 +1,9 @@
-package com.example.mealqr.rest.dto;
+package com.example.mealqr.web.rest.reponse;
 
 import lombok.Value;
 
 @Value(staticConstructor = "of")
-public class ImageDto {
+public class ImageRes {
     String base64Data;
     String contentType;
 }

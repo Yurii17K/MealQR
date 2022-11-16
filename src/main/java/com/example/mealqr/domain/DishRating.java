@@ -1,6 +1,6 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.DishRatingReq;
+import com.example.mealqr.web.rest.request.DishRatingReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;

@@ -1,7 +1,7 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.DishSaveReq;
-import com.example.mealqr.rest.request.DishUpdateReq;
+import com.example.mealqr.web.rest.request.DishSaveReq;
+import com.example.mealqr.web.rest.request.DishUpdateReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

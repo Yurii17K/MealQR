@@ -1,7 +1,7 @@
 package com.example.mealqr.services.mappers;
 
 import com.example.mealqr.domain.Dish;
-import com.example.mealqr.rest.reponse.DishRes;
+import com.example.mealqr.web.rest.reponse.DishRes;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +12,7 @@ public class DishResMapper {
         return DishRes.of(
                 dish.getDishId(),
                 dish.getDishName(),
-                dish.getRestaurant(),
+                RestaurantResMapper.mapToRestaurantRes(dish.getRestaurant()),
                 ImageDtoMapper.mapToImageDto(dish.getDishImage()),
                 dish.getDishPrice(),
                 dish.getDishDescription()

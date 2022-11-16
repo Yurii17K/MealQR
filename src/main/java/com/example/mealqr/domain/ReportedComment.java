@@ -1,6 +1,6 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.ReportedCommentReq;
+import com.example.mealqr.web.rest.request.ReportedCommentReq;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

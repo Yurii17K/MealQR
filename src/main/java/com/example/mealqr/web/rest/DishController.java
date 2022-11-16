@@ -1,10 +1,10 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
-import com.example.mealqr.rest.reponse.DishRes;
-import com.example.mealqr.rest.reponse.DishWithOpinionsRes;
-import com.example.mealqr.rest.request.DishSaveReq;
-import com.example.mealqr.rest.request.DishUpdateReq;
 import com.example.mealqr.services.DishService;
+import com.example.mealqr.web.rest.reponse.DishRes;
+import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
+import com.example.mealqr.web.rest.request.DishSaveReq;
+import com.example.mealqr.web.rest.request.DishUpdateReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.vavr.collection.Seq;
@@ -28,9 +28,10 @@ public class DishController {
     private final DishService dishService;
 
     @GetMapping("/dishes/{restaurantId}")
-    public ResponseEntity<Seq<DishRes>> getAllDishesInRestaurant(
+    public ResponseEntity<List<DishRes>> getAllDishesInRestaurant(
             @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
         return dishService.getAllDishesInRestaurant(restaurantId)//
+                .map(Seq::asJava)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));
     }

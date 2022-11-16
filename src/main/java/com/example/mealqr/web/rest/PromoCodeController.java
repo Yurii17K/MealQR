@@ -1,6 +1,5 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
-import com.example.mealqr.domain.PromoCode;
 import com.example.mealqr.services.CartItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public class PromoCodeController {
     private final CartItemService cartItemService;
 
     @PatchMapping("/promo/apply")
-    public ResponseEntity<PromoCode> applyPromoCode(Principal principal, @RequestParam @Valid String promoCode) {
+    public ResponseEntity<Boolean> applyPromoCode(Principal principal, @RequestParam @Valid String promoCode) {
         return cartItemService.registerPromoInSession(principal.getName(), promoCode)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(s -> new RuntimeException(s));

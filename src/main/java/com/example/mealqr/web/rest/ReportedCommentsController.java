@@ -1,7 +1,7 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
-import com.example.mealqr.rest.request.ReportedCommentReq;
 import com.example.mealqr.services.ReportedCommentsService;
+import com.example.mealqr.web.rest.request.ReportedCommentReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

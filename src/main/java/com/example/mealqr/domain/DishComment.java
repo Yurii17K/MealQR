@@ -1,7 +1,7 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.DishCommentReq;
 import com.example.mealqr.services.CurseLanguage;
+import com.example.mealqr.web.rest.request.DishCommentReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;

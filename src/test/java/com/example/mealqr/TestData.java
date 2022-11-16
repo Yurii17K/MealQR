@@ -1,8 +1,8 @@
 package com.example.mealqr;
 
 import com.example.mealqr.domain.*;
-import com.example.mealqr.rest.request.DishCommentReq;
-import com.example.mealqr.rest.request.DishRatingReq;
+import com.example.mealqr.web.rest.request.DishCommentReq;
+import com.example.mealqr.web.rest.request.DishRatingReq;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;

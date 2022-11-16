@@ -1,7 +1,7 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.rest.request.DishSaveReq;
-import com.example.mealqr.rest.request.DishUpdateReq;
+import com.example.mealqr.web.rest.request.DishSaveReq;
+import com.example.mealqr.web.rest.request.DishUpdateReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -26,6 +26,7 @@ public class Dish {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Restaurant.class)
     @JoinColumn(name = "restaurant_id", referencedColumnName = "restaurant_id")
+    @ToString.Exclude
     Restaurant restaurant;
 
     @OneToOne(targetEntity = DishImage.class)
@@ -34,6 +35,10 @@ public class Dish {
 
     BigDecimal dishPrice;
     String dishDescription;
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
 
     public static Dish of(DishSaveReq dishSaveReq, DishImage dishImage) {
         return Dish.builder()//

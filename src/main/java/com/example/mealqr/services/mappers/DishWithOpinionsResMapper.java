@@ -2,7 +2,7 @@ package com.example.mealqr.services.mappers;
 
 import com.example.mealqr.domain.Dish;
 import com.example.mealqr.domain.DishComment;
-import com.example.mealqr.rest.reponse.DishWithOpinionsRes;
+import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
 import io.vavr.collection.Seq;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -14,13 +14,15 @@ public class DishWithOpinionsResMapper {
         return DishWithOpinionsRes.of(
                 dish.getDishId().toString(),//
                 dish.getDishName(),//
-                dish.getRestaurant().getRestaurantName(),//
+                RestaurantResMapper.mapToRestaurantRes(dish.getRestaurant()),//
                 ImageDtoMapper.mapToImageDto(dish.getDishImage()),//
                 dish.getDishPrice().doubleValue(),//
                 dish.getDishDescription(),//
                 rating,//
-                dishComments.map(dishComment -> DishWithOpinionsRes.DishCommentDto.of(
+                dishComments
+                        .map(dishComment -> DishWithOpinionsRes.DishCommentRes.of(
                                 dishComment.getUserEmail(),//
-                                dishComment.getComment())));
+                                dishComment.getComment()))
+                        .asJava());
     }
 }

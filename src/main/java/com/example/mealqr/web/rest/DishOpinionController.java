@@ -1,10 +1,10 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
 import com.example.mealqr.domain.DishComment;
 import com.example.mealqr.domain.DishRating;
-import com.example.mealqr.rest.request.DishCommentReq;
-import com.example.mealqr.rest.request.DishRatingReq;
 import com.example.mealqr.services.DishOpinionService;
+import com.example.mealqr.web.rest.request.DishCommentReq;
+import com.example.mealqr.web.rest.request.DishRatingReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;

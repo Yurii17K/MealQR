@@ -1,4 +1,4 @@
-package com.example.mealqr.rest.request;
+package com.example.mealqr.web.rest.request;
 
 import lombok.Value;
 

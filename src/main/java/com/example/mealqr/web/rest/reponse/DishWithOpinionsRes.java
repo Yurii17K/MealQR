@@ -1,24 +1,24 @@
-package com.example.mealqr.rest.reponse;
+package com.example.mealqr.web.rest.reponse;
 
-import com.example.mealqr.rest.dto.ImageDto;
-import io.vavr.collection.Seq;
 import lombok.Value;
+
+import java.util.List;
 
 @Value(staticConstructor = "of")
 public class DishWithOpinionsRes {
 
     String dishId;
     String dishName;
-    String restaurantName;
-    ImageDto dishImage;
+    RestaurantRes restaurant;
+    ImageRes dishImage;
     double dishPrice;
     String dishDescription;
 
     double dishAverageRating;
-    Seq<DishCommentDto> dishCommentDto;
+    List<DishCommentRes> dishComments;
 
     @Value(staticConstructor = "of")
-    public static class DishCommentDto {
+    public static class DishCommentRes {
         String userEmail;
         String comment;
     }

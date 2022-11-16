@@ -1,7 +1,7 @@
-package com.example.mealqr.rest;
+package com.example.mealqr.web.rest;
 
-import com.example.mealqr.rest.reponse.QRDataRes;
 import com.example.mealqr.services.QRDataService;
+import com.example.mealqr.web.rest.reponse.QRDataRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;

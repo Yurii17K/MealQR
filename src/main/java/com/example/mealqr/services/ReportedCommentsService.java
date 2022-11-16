@@ -2,7 +2,7 @@ package com.example.mealqr.services;
 
 import com.example.mealqr.domain.ReportedComment;
 import com.example.mealqr.repositories.ReportedCommentsRepository;
-import com.example.mealqr.rest.request.ReportedCommentReq;
+import com.example.mealqr.web.rest.request.ReportedCommentReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
