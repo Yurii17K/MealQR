@@ -41,7 +41,7 @@ public class DishOpinionService {
     public Either<String, DishComment> addOrUpdateComment(String userEmail, DishCommentReq dishCommentReq) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishCommentReq.getDishName(), dishCommentReq.getRestaurantId())//
                 .map(dish -> dishCommentRepository.findByDishDishIdAndUserEmail(dish.getDishId(), userEmail)//
-                        .peek(dishComment -> dishCommentRepository.save(dishComment.withComment(dishCommentReq.getComment())))//
+                        .peek(dishComment -> dishCommentRepository.save(dishComment.withComment(ProfanitiesFilter.filterBadLanguage(dishCommentReq.getComment()))))//
                         .getOrElse(() -> dishCommentRepository.save(DishComment.of(userEmail, dishCommentReq, dish))))//
                 .toEither(SUCH_DISH_DOES_NOT_EXIST);
     }

@@ -1,6 +1,6 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.services.CurseLanguage;
+import com.example.mealqr.services.ProfanitiesFilter;
 import com.example.mealqr.web.rest.request.DishCommentReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +22,7 @@ public class DishComment extends DishOpinion{
 
     public static DishComment of(String userEmail, DishCommentReq dishCommentReq, Dish dish) {
         return DishComment.builder()//
-                .comment(CurseLanguage.filterBadLanguage(dishCommentReq.getComment()))//
+                .comment(ProfanitiesFilter.filterBadLanguage(dishCommentReq.getComment()))//
                 .userEmail(userEmail)//
                 .dish(Dish.builder().dishId(dish.getDishId()).build())//
                 .build();

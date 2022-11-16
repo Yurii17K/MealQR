@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CurseLanguage {
+public class ProfanitiesFilter {
 
     public static String filterBadLanguage(String originalComment) {
         HashSet<String> curseWords = loadCurseWords();
@@ -60,7 +60,7 @@ public class CurseLanguage {
                     continue;
                 }
 
-                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replace(",", ""));
+                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replace("[,']", ""));
             }
 
         } catch (FileNotFoundException e) {
