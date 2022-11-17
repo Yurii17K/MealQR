@@ -1,5 +1,6 @@
 package com.example.mealqr.security;
 
+import com.example.mealqr.domain.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,12 +62,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/opinion/add-comment").authenticated()//
                 .antMatchers("/api/opinion/add-rating").authenticated()//
 
-                .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-                .antMatchers(HttpMethod.PUT, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-                .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT.name())//
+                .antMatchers(HttpMethod.PUT, "/api/dishes").hasAuthority(Roles.RESTAURANT.name())//
+                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT.name())//
+                .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT.name())//
 
-                .antMatchers("/api/cart**", "/api/cart/**").hasAuthority(Roles.CUSTOMER.name())//
+                .antMatchers( "/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name())//
 
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

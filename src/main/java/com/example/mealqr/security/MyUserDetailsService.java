@@ -1,5 +1,6 @@
 package com.example.mealqr.security;
 
+import com.example.mealqr.domain.enums.Roles;
 import com.example.mealqr.repositories.RestaurantRepository;
 import com.example.mealqr.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,11 @@ public class MyUserDetailsService implements UserDetailsService {
     private RestaurantRepository restaurantRepository;
 
     @Override
-    public MyUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findUserByEmail(email)//
-                .map(user -> new MyUserDetails(user, restaurantRepository))//
-                .getOrElseThrow(RuntimeException::new);
+    public MyUserDetails loadUserByUsername(String subject) throws UsernameNotFoundException {
+        return userRepository.findUserByEmail(subject)//
+                .map(user -> new MyUserDetails(subject, Roles.CLIENT))//
+                .getOrElse(() -> restaurantRepository.findByRestaurantId(subject)//
+                        .map(restaurant -> new MyUserDetails(subject, Roles.RESTAURANT))//
+                        .getOrElseThrow(() -> new UsernameNotFoundException("Subject not found")));
     }
 }

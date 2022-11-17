@@ -2,6 +2,7 @@ package com.example.mealqr.services;
 
 import com.example.mealqr.domain.CustomerAllergy;
 import com.example.mealqr.domain.User;
+import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.repositories.CustomerAllergyRepository;
 import com.example.mealqr.repositories.UserRepository;
 import com.example.mealqr.security.JWT;
@@ -15,6 +16,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +30,14 @@ public class UserService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Either<String, String> singInUser(UserSignInReq userSignInReq) {
+    public Either<ApiError, String> singInUser(UserSignInReq userSignInReq) {
         return userRepository.findUserByEmail(userSignInReq.getUserEmail())//
                 .filter(user -> bCryptPasswordEncoder.matches(userSignInReq.getUserPassword(), user.getPass()))//
                 .map(JWT::generateToken)//
-                .toEither("Wrong credentials!");
+                .toEither(ApiError.buildError("Bad credentials!"));
     }
 
-    public Either<Seq<String>, String> signUpUser(UserSignUpReq userSignUpReq) {
+    public Either<Seq<ApiError>, String> signUpUser(UserSignUpReq userSignUpReq) {
         return validateUserSignUp(userSignUpReq)//
                 .map(emailIsUnique -> {
                     User user = User.of(userSignUpReq, bCryptPasswordEncoder::encode);
@@ -45,12 +47,12 @@ public class UserService {
                 .toEither();
     }
 
-    public Either<String, CustomerAllergy> updateCustomerAllergies(String userEmail,
+    public Either<ApiError, CustomerAllergy> updateCustomerAllergies(String userEmail,
             CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
         return userRepository.findUserByEmail(userEmail)//
                 .map(userPresent -> customerAllergyRepository.save(
                         CustomerAllergy.of(userEmail, customerAllergiesUpdateReq)))//
-                .toEither("User with this email does not exist");
+                .toEither(ApiError.buildError("User with this email does not exist", HttpStatus.NOT_FOUND));
     }
 
     private void addAllergies(UserSignUpReq userSignUpReq) {
@@ -61,7 +63,7 @@ public class UserService {
                         .build()));
     }
 
-    private Validation<Seq<String>, UserSignUpReq> validateUserSignUp(UserSignUpReq userSignUpReq) {
+    private Validation<Seq<ApiError>, UserSignUpReq> validateUserSignUp(UserSignUpReq userSignUpReq) {
         return Validation.combine(
                         validatePassword(userSignUpReq),
                         validateEmail(userSignUpReq)
@@ -70,17 +72,17 @@ public class UserService {
                 .mapError(Function.identity());
     }
 
-    private Validation<String, UserSignUpReq> validatePassword(UserSignUpReq userSignUpReq) {
+    private Validation<ApiError, UserSignUpReq> validatePassword(UserSignUpReq userSignUpReq) {
         return API.Some(userSignUpReq.getPass())//
                 .filter(pass -> pass.length() >= 8 && pass.length() <= 128)//
                 .map(userNotPresent -> userSignUpReq)//
-                .toValidation("Password not secure");
+                .toValidation(ApiError.buildError("Password not secure"));
     }
 
-    private Validation<String, UserSignUpReq> validateEmail(UserSignUpReq userSignUpReq) {
+    private Validation<ApiError, UserSignUpReq> validateEmail(UserSignUpReq userSignUpReq) {
         return API.Some(userRepository.findUserByEmail(userSignUpReq.getEmail()))//
                 .filter(Option::isEmpty)//
                 .map(userNotPresent -> userSignUpReq)//
-                .toValidation("User with this email already exists");
+                .toValidation(ApiError.buildError("User with this email already exists"));
     }
 }

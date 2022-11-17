@@ -12,8 +12,7 @@ public class RestaurantResMapper {
         return RestaurantRes.of(
                 restaurant.getRestaurantId(),
                 restaurant.getRestaurantName(),
-                restaurant.getRestaurantCity(),
-                UserResMapper.mapToUserRes(restaurant.getRestaurantManager())
+                restaurant.getRestaurantCity()
         );
     }
 }

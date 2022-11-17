@@ -1,6 +1,5 @@
 package com.example.mealqr.domain;
 
-import com.example.mealqr.security.Roles;
 import com.example.mealqr.web.rest.request.UserSignUpReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,9 +30,6 @@ public class User {
 
     String city;
 
-    @Enumerated(EnumType.STRING)
-    Roles role;
-
     public static User of(UserSignUpReq userSignUpReq, UnaryOperator<String> passwordEncoderFunction) {
         return User.builder()//
                 .email(userSignUpReq.getEmail())//
@@ -41,7 +37,6 @@ public class User {
                 .name(userSignUpReq.getName())//
                 .lastName(userSignUpReq.getLastName())//
                 .city(userSignUpReq.getCity())//
-                .role(userSignUpReq.isClient() ? Roles.CUSTOMER : Roles.RESTAURANT_MANAGER)//
                 .build();
     }
 }

@@ -1,43 +1,37 @@
 package com.example.mealqr.security;
 
-import com.example.mealqr.domain.User;
-import com.example.mealqr.repositories.RestaurantRepository;
+import com.example.mealqr.domain.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class MyUserDetails implements UserDetails {
 
-    private final User user;
-    private final RestaurantRepository restaurantRepository;
+    private final String subject;
+    private final Roles role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-
-        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
-        authorities.add(new SimpleGrantedAuthority(user.getEmail()));
-
-        restaurantRepository.findAllByRestaurantManager(user)//
-                .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantId())));
-
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(role.name()));
+        authorities.add(new SimpleGrantedAuthority(subject));
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return user.getPass();
+        return "NOPE";
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return subject;
     }
 
     @Override

@@ -15,8 +15,7 @@ public class UserResMapper {
                 user.getEmail(),
                 user.getName(),
                 user.getLastName(),
-                user.getCity(),
-                user.getRole()
+                user.getCity()
         );
     }
 }

@@ -3,6 +3,7 @@ package com.example.mealqr.services;
 import com.example.mealqr.domain.CustomerAllergy;
 import com.example.mealqr.domain.Dish;
 import com.example.mealqr.domain.DishImage;
+import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
 import com.example.mealqr.repositories.CustomerAllergyRepository;
 import com.example.mealqr.repositories.DishImageRepository;
@@ -19,7 +20,9 @@ import io.vavr.collection.Seq;
 import io.vavr.collection.Vector;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
+import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
@@ -42,15 +45,15 @@ public class DishService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public Either<String, Seq<DishRes>> getAllDishesInRestaurant(@NotBlank String restaurantId) {
+    public Either<ApiError, Seq<DishRes>> getAllDishesInRestaurant(@NotBlank String restaurantId) {
         return API.Some(dishRepository.findAllByRestaurantRestaurantId(restaurantId))//
                 .filter(Seq::nonEmpty)//
                 .map(dishes -> dishes.map(DishResMapper::mapToDishRes))//
-                .toEither("This restaurant's menu is empty");
+                .toEither(ApiError.buildError("The restaurant is empty or doesn't exist"));
     }
 
     public List<DishWithOpinionsRes> getAllDishesInRestaurantConfiguredForUser(String userEmail, String restaurantId) {
-        if (!restaurantRepository.existsByRestaurantId(restaurantId)) {
+        if (restaurantRepository.findByRestaurantId(restaurantId).isEmpty()) {
             return new LinkedList<>();
         }
         return getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantId) // analyse user preferences
@@ -63,20 +66,20 @@ public class DishService {
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
-    public Either<String, DishRes> getRandomDish() {
+    public Either<ApiError, DishRes> getRandomDish() {
         Seq<Dish> dishes = Vector.ofAll(dishRepository.findAll());
         return dishes.headOption()//
                 .map(dosh -> dishes.get(RANDOM.nextInt(dishes.size())))//
                 .map(DishResMapper::mapToDishRes)//
-                .toEither("App is in the development stage, no dishes");
+                .toEither(ApiError.buildError("App is in the development stage, no dishes", HttpStatus.NOT_FOUND));
     }
 
-    public Either<String, DishRes> getRandomDishFromRestaurantOffer(@NotBlank String restaurantId) {
+    public Either<ApiError, DishRes> getRandomDishFromRestaurantOffer(@NotBlank String restaurantId) {
         Seq<Dish> dishes = dishRepository.findAllByRestaurantRestaurantId(restaurantId);
         return dishes.headOption()//
                 .map(dosh -> dishes.get(RANDOM.nextInt(dishes.size())))//
                 .map(DishResMapper::mapToDishRes)//
-                .toEither("This restaurant's menu is empty");
+                .toEither(ApiError.buildError("The restaurant is empty or doesn't exist"));
     }
 
     private LinkedList<Dish> getAllDishesInRestaurantSortedByUserPreference(String userEmail, String restaurantId) {
@@ -92,29 +95,44 @@ public class DishService {
                 .collect(Collectors.toCollection(LinkedList::new)); // collect to a linked list to preserve sorted order
     }
 
-    public Either<String, DishRes> addDishToRestaurantMenu(DishSaveReq dishSaveReq) {
-        DishImage dishImage = DishImage.of(dishSaveReq);
-        Dish dishToBeAdded = Dish.of(dishSaveReq, dishImage);
-        dishImageRepository.save(dishImage);
-        return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishSaveReq.getDishName(), dishSaveReq.getRestaurantId()))//
+    public Either<ApiError, DishRes> addDishToRestaurantMenu(DishSaveReq dishSaveReq) {
+        return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishSaveReq.getDishName(),
+                        dishSaveReq.getRestaurantId()))//
                 .filter(Option::isEmpty)//
-                .map(noDishInDb -> DishResMapper.mapToDishRes(dishRepository.save(dishToBeAdded)))//
-                .toEither("Dish with this name already exists in your restaurant");
+                .map(noDishInDb -> DishResMapper.mapToDishRes(
+                        dishRepository.save(Dish.of(dishSaveReq, saveDishImage(dishSaveReq)))))//
+                .toEither(ApiError.buildError("Dish with this name already exists in the restaurant"));
     }
 
-    public Either<String, DishRes> removeDishFromRestaurantOffer(@NotBlank String dishName, @NotBlank String restaurantId) {
+    public Either<ApiError, DishRes> removeDishFromRestaurantOffer(@NotBlank String dishName, @NotBlank String restaurantId) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> dishRepository.deleteByDishNameAndRestaurantRestaurantId(dishName, restaurantId))//
                 .map(DishResMapper::mapToDishRes)//
-                .toEither("Dish with this name does not exist in this restaurant offer");
+                .toEither(ApiError.buildError("Dish with this name does not exist in the restaurant", HttpStatus.NOT_FOUND));
     }
 
-    public Either<String, DishRes> updateDishInRestaurantOffer(DishUpdateReq dishUpdateReq) {
+    public Either<ApiError, DishRes> updateDishInRestaurantOffer(DishUpdateReq dishUpdateReq) {
         DishImage updatedDishImage = DishImage.of(dishUpdateReq, dishImageRepository::save);
-        return dishRepository.findByDishId(dishUpdateReq.getDishId())//
+        return validateDishUpdate(dishUpdateReq)//
                 .map(dishInDb -> DishResMapper.mapToDishRes(
                         dishRepository.save(Dish.of(dishUpdateReq, dishInDb, updatedDishImage))))//
-                .toEither("No such dish in restaurant's offer");
+                .toEither();
+    }
+
+    private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {
+        Option<Dish> dishById = dishRepository.findByDishId(dishUpdateReq.getDishId());
+        if (dishById.isEmpty()){
+            return Validation.invalid(ApiError.buildError("Dish does not exist", HttpStatus.NOT_FOUND));
+        }
+        if (dishUpdateReq.getDishName().isEmpty()) {
+            return Validation.valid(dishById.get());
+        } else {
+            return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishUpdateReq.getDishName().get(),
+                                                            dishUpdateReq.getRestaurantId()))
+                                                    .filter(Option::isEmpty)//
+                                                    .flatMap(dishNotPresent -> dishById)//
+                                                    .toValidation(ApiError.buildError("Dish with this name already exists in the restaurant"));
+        }
     }
 
     private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
@@ -126,5 +144,10 @@ public class DishService {
                                 .toLowerCase(Locale.ROOT)//
                                 .contains(allergy)))//
                 .getOrElse(false);
+    }
+
+    private DishImage saveDishImage(DishSaveReq dishSaveReq) {
+        DishImage dishImage = DishImage.of(dishSaveReq);
+        return dishImageRepository.save(dishImage);
     }
 }

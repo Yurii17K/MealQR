@@ -3,26 +3,22 @@ package com.example.mealqr.exceptions;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import java.util.List;
-
 @Getter
 public class ApiError {
 
     private final HttpStatus status;
     private final String message;
-    private final List<String> errors;
 
-    public ApiError(String message, List<String> errors) {
-        super();
-        this.status = HttpStatus.BAD_REQUEST;
+    private ApiError(String message, HttpStatus httpStatus) {
+        this.status = httpStatus;
         this.message = message;
-        this.errors = errors;
     }
 
-    public ApiError(String message) {
-        super();
-        this.status = HttpStatus.BAD_REQUEST;
-        this.message = message;
-        this.errors = List.of();
+    public static ApiError buildError(String message, HttpStatus httpStatus) {
+        return new ApiError(message, httpStatus);
+    }
+
+    public static ApiError buildError(String message) {
+        return new ApiError(message, HttpStatus.BAD_REQUEST);
     }
 }

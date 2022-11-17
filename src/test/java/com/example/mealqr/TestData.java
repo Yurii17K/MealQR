@@ -1,8 +1,6 @@
 package com.example.mealqr;
 
 import com.example.mealqr.domain.*;
-import com.example.mealqr.web.rest.request.DishCommentReq;
-import com.example.mealqr.web.rest.request.DishRatingReq;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,15 +38,14 @@ public class TestData {
             .dishQuantity(4)//
             .build();
 
-    static DishRatingReq DISH_RATING_REQ = DishRatingReq.of(
-            DISH_NAME,
-            RESTAURANT_ID,
-            DISH_RATING_SCORE);
-
-    static DishCommentReq DISH_COMMENT_REQ = DishCommentReq.of(
-            DISH_NAME,
-            RESTAURANT_ID,
-            DISH_COMMENT_COMMENT);
+//    static DishRatingReq DISH_RATING_REQ = DishRatingReq.of(
+//            DISH_ID,
+//            DISH_RATING_SCORE);
+//
+//    static DishCommentReq DISH_COMMENT_REQ = DishCommentReq.of(
+//            DISH_NAME,
+//            RESTAURANT_ID,
+//            DISH_COMMENT_COMMENT);
 
     static DishRating DISH_RATING = DishRating.builder()//
             .dishOpinionId(GLOBAL_ID_Integer)//

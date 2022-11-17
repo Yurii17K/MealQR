@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface PromoCodeRepository extends JpaRepository<PromoCode, Integer> {
     Seq<PromoCode> findByDish(Dish dish);
 
-    Option<PromoCode> findByPromoCodeStringAndAndRestaurant(String promoCodeString, String restaurantId);
+    Option<PromoCode> findByPromoCodeStringAndRestaurantRestaurantId(String promoCodeString, String restaurantId);
 }
