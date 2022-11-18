@@ -11,12 +11,11 @@ public class UserResMapper {
 
     public static UserRes mapToUserRes(User user) {
         return UserRes.of(
-                user.getUserId().toString(),
+                user.getUserId(),
                 user.getEmail(),
                 user.getName(),
                 user.getLastName(),
-                user.getCity(),
-                user.getRole()
+                user.getCity()
         );
     }
 }

@@ -10,7 +10,7 @@ public class CartItemResMapper {
 
     public static CartItemRes mapToCartItemRes(CartItem cartItem) {
         return CartItemRes.of(
-                cartItem.getCartItemId().toString(),
+                cartItem.getCartItemId(),
                 cartItem.getUserEmail(),
                 DishResMapper.mapToDishRes(cartItem.getDish()),
                 cartItem.getDishQuantity(),

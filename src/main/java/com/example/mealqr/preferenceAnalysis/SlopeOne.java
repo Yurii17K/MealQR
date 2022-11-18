@@ -14,13 +14,13 @@ import java.util.Map.Entry;
 @Component
 public class SlopeOne {
 
-    private static final Map<Integer, Map<Integer, Double>> diff = new HashMap<>();
-    private static final Map<Integer, Map<Integer, Integer>> freq = new HashMap<>();
-    private Map<String, Map<Integer, Double>> inputData = new HashMap<>();
-    private final Map<String, Map<Integer, Double>> outputData = new HashMap<>();
+    private static final Map<String, Map<String, Double>> diff = new HashMap<>();
+    private static final Map<String, Map<String, Integer>> freq = new HashMap<>();
+    private Map<String, Map<String, Double>> inputData = new HashMap<>();
+    private final Map<String, Map<String, Double>> outputData = new HashMap<>();
 
-    public Map<Integer, Double> slopeOne(@NotBlank String userEmail,
-                                         @NotNull Map<String, Map<Integer, Double>> inputData) {
+    public Map<String, Double> slopeOne(@NotBlank String userEmail,
+                                         @NotNull Map<String, Map<String, Double>> inputData) {
 
         this.inputData = inputData;
 
@@ -37,16 +37,16 @@ public class SlopeOne {
      * @param data
      *            existing user data and their items' ratings
      */
-    private void buildDifferencesMatrix(Map<String, Map<Integer, Double>> data) {
-        for (Map<Integer, Double> userRatings : data.values()) {
-            for (Entry<Integer, Double> e : userRatings.entrySet()) {
+    private void buildDifferencesMatrix(Map<String, Map<String, Double>> data) {
+        for (Map<String, Double> userRatings : data.values()) {
+            for (Entry<String, Double> e : userRatings.entrySet()) {
 
                 if (!diff.containsKey(e.getKey())) {
                     diff.put(e.getKey(), new HashMap<>());
                     freq.put(e.getKey(), new HashMap<>());
                 }
 
-                for (Entry<Integer, Double> e2 : userRatings.entrySet()) {
+                for (Entry<String, Double> e2 : userRatings.entrySet()) {
                     int oldCount = 0;
                     if (freq.get(e.getKey()).containsKey(e2.getKey())) {
                         oldCount = freq.get(e.getKey()).get(e2.getKey());
@@ -62,8 +62,8 @@ public class SlopeOne {
             }
         }
 
-        for (Integer j : diff.keySet()) {
-            for (Integer i : diff.get(j).keySet()) {
+        for (String j : diff.keySet()) {
+            for (String i : diff.get(j).keySet()) {
                 double oldValue = diff.get(j).get(i);
                 int count = freq.get(j).get(i);
                 diff.get(j).put(i, oldValue / count);
@@ -80,18 +80,18 @@ public class SlopeOne {
      * @param data
      *            existing user data and their items' ratings
      */
-    private Map<Integer, Double> predict(Map<String, Map<Integer, Double>> data, String userEmail) {
-        Map<Integer, Double> uPred = new HashMap<>();
-        Map<Integer, Integer> uFreq = new HashMap<>();
+    private Map<String, Double> predict(Map<String, Map<String, Double>> data, String userEmail) {
+        Map<String, Double> uPred = new HashMap<>();
+        Map<String, Integer> uFreq = new HashMap<>();
 
-        for (Integer j : diff.keySet()) {
+        for (String j : diff.keySet()) {
             uFreq.put(j, 0);
             uPred.put(j, 0.0);
         }
 
-        for (Entry<String, Map<Integer, Double>> e : data.entrySet()) {
-            for (Integer j : e.getValue().keySet()) {
-                for (Integer k : diff.keySet()) {
+        for (Entry<String, Map<String, Double>> e : data.entrySet()) {
+            for (String j : e.getValue().keySet()) {
+                for (String k : diff.keySet()) {
                     try {
                         double predictedValue = diff.get(k).get(j) + e.getValue().get(j);
                         double finalValue = predictedValue * freq.get(k).get(j);
@@ -102,17 +102,17 @@ public class SlopeOne {
                     }
                 }
             }
-            HashMap<Integer, Double> clean = new HashMap<>();
-            for (Integer j : uPred.keySet()) {
+            HashMap<String, Double> clean = new HashMap<>();
+            for (String j : uPred.keySet()) {
                 if (uFreq.get(j) > 0) {
                     clean.put(j, uPred.get(j) / uFreq.get(j));
                 }
             }
-            for (Integer j : inputData.values().stream().findFirst().get().keySet()) {
+            for (String j : inputData.values().stream().findFirst().get().keySet()) {
                 if (e.getValue().containsKey(j)) {
                     clean.put(j, e.getValue().get(j));
-                } else if (!clean.containsKey(j)) {
-                    clean.put(j, -1.0);
+                } else {
+                    clean.putIfAbsent(j, -1.0);
                 }
             }
             outputData.put(e.getKey(), clean);

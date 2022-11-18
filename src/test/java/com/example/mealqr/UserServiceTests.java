@@ -5,7 +5,7 @@
 //import com.example.mealqr.repositories.CustomerAllergyRepository;
 //import com.example.mealqr.repositories.UserRepository;
 //import com.example.mealqr.security.JWT;
-//import com.example.mealqr.security.Roles;
+//import com.example.mealqr.domain.enums.Roles;
 //import com.example.mealqr.services.UserService;
 //import io.vavr.Tuple;
 //import io.vavr.Tuple2;

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DishCommentRepository extends JpaRepository<DishComment, Integer> {
 
-    Seq<DishComment> findAllByDishDishId(Integer dishID);
+    Seq<DishComment> findAllByDishDishId(String dishID);
 
-    Option<DishComment> findByDishDishIdAndUserEmail(Integer dishID, String userEmail);}
+    Option<DishComment> findByDishDishIdAndUserEmail(String dishID, String userEmail);}

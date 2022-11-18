@@ -16,9 +16,8 @@ import javax.persistence.*;
 public abstract class DishOpinion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "dish_opinion_id")
-    Integer dishOpinionId;
+    String dishOpinionId;
 
     @ManyToOne(targetEntity = Dish.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "dish_id", referencedColumnName = "dish_id")

@@ -3,6 +3,7 @@ package com.example.mealqr.services;
 import com.example.mealqr.domain.CartItem;
 import com.example.mealqr.domain.Dish;
 import com.example.mealqr.domain.PromoCode;
+import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.repositories.CartItemRepository;
 import com.example.mealqr.repositories.DishRepository;
 import com.example.mealqr.repositories.PromoCodeRepository;
@@ -14,10 +15,12 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -51,12 +54,19 @@ public class CartItemService {
                 .doubleValue();
     }
 
+    @Transactional
     public boolean clearCustomerCart(@NotBlank String userEmail) {
         cartItemRepository.deleteAllByUserEmail(userEmail);
         return true;
     }
 
-    public Either<String, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
+    @Transactional
+    public boolean clearCustomerCart(@NotBlank String userEmail, String restaurantId) {
+        cartItemRepository.deleteByUserEmailAndDishRestaurantRestaurantId(userEmail, restaurantId);
+        return true;
+    }
+
+    public Either<ApiError, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
             @NotBlank String restaurantId) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
@@ -68,52 +78,53 @@ public class CartItemService {
                             cartItemRepository.addDishToCustomerCart(userEmail, dish.getDishId(), 1);
                             return dish;
                         }))
-                .toEither(SUCH_DISH_DOES_NOT_EXIST);
+                .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<String, Boolean> changeDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
+    public Either<ApiError, Boolean> changeDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
             @NotBlank String restaurantId, @NotNull int quantity) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.changeDishQuantityInCustomerCart(userEmail, dish.getDishId(), quantity))//
                 .map(dish -> true)//
-                .toEither(SUCH_DISH_DOES_NOT_EXIST);
+                .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<String, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
+    @Transactional
+    public Either<ApiError, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
             @NotBlank String restaurantId) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
                 .peek(dish -> cartItemRepository.deleteByUserEmailAndDishDishId(userEmail, dish.getDishId()))//
                 .map(dish -> true)//
-                .toEither(SUCH_DISH_DOES_NOT_EXIST);
+                .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<String, Boolean> registerPromoInSession(String userEmail, String promoCode) {
+    public Either<ApiError, Boolean> registerPromoInSession(String userEmail, String promoCode) {
         Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(userEmail);
-        Option<PromoCode> currentPromo = promoCodeRepository.findByPromoCodeStringAndAndRestaurant(promoCode, customerCart.headOption().get()
-                .getDish().getRestaurant().getRestaurantId());
+        Option<PromoCode> currentPromo = promoCodeRepository.findByPromoCodeStringAndRestaurantRestaurantId(promoCode,
+                customerCart.headOption().get().getDish().getRestaurant().getRestaurantId());
         return currentPromo
-                .toValidation("Promo code is not valid!")//
+                .toValidation(ApiError.buildError("Promo code is not valid", HttpStatus.NOT_FOUND))//
                 .flatMap(this::canPromoBeUsed)//
                 .peek(validCode -> RequestContextHolder.currentRequestAttributes().setAttribute(PROMOCODE, validCode, RequestAttributes.SCOPE_SESSION))//
                 .map(validCode -> true)//
                 .toEither();
     }
 
-    private Validation<String, PromoCode> canPromoBeUsed(PromoCode promoCode) {
+    private Validation<ApiError, PromoCode> canPromoBeUsed(PromoCode promoCode) {
         return API.Some(promoCode)//
                 .filter(code -> code.getUsesLeft() > 0)//
-                .toValidation("Promo code exceeded the amount of uses");
+                .toValidation(ApiError.buildError("Promo code exceeded the amount of uses"));
     }
 
     private Seq<CartItem> applyPromoToCartItems(PromoCode currentPromo, Seq<CartItem> cartItems) {
         switch (currentPromo.getPromoCodeType()) {
             case DISH_SPECIFIC_PERCENT:
                 return cartItems
-                        .filter(cartItem -> cartItem.getDish().getDishId().intValue() == currentPromo.getDish().getDishId().intValue())
+                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))
                         .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().multiply(BigDecimal.valueOf(1.0d - 0.01 * currentPromo.getPriceReduction()))));
             case DISH_SPECIFIC:
                 return cartItems
-                        .filter(cartItem -> cartItem.getDish().getDishId().intValue() == currentPromo.getDish().getDishId().intValue())
+                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))
                         .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().subtract(BigDecimal.valueOf(currentPromo.getPriceReduction()))));
             default:
                 return cartItems;
