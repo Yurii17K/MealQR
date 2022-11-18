@@ -37,11 +37,11 @@ public class UserService {
 
     public Either<Seq<String>, String> signUpUser(UserSignUpReq userSignUpReq) {
         return validateUserSignUp(userSignUpReq)//
-                .peek(this::addAllergies)//
                 .map(emailIsUnique -> {
                     User user = User.of(userSignUpReq, bCryptPasswordEncoder::encode);
                     return JWT.generateToken(userRepository.save(user));
                 })//
+                .peek(afterUserCreation -> addAllergies(userSignUpReq))//
                 .toEither();
     }
 
