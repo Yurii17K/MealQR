@@ -7,24 +7,23 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class MyUserDetails implements UserDetails {
 
-    private final User user;
+    private final User subject;
     private final RestaurantRepository restaurantRepository;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(subject.getRole().name()));
+        authorities.add(new SimpleGrantedAuthority(subject.getEmail()));
 
-        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
-        authorities.add(new SimpleGrantedAuthority(user.getEmail()));
-
-        restaurantRepository.findAllByRestaurantManager(user)//
+        restaurantRepository.findAllByRestaurantManagerEmail(subject.getEmail())//
                 .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantId())));
 
         return authorities;
@@ -32,12 +31,12 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPass();
+        return subject.getPass();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return subject.getEmail();
     }
 
     @Override

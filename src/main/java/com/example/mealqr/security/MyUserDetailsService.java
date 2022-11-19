@@ -16,9 +16,9 @@ public class MyUserDetailsService implements UserDetailsService {
     private RestaurantRepository restaurantRepository;
 
     @Override
-    public MyUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findUserByEmail(email)//
+    public MyUserDetails loadUserByUsername(String subject) throws UsernameNotFoundException {
+        return userRepository.findUserByEmail(subject)//
                 .map(user -> new MyUserDetails(user, restaurantRepository))//
-                .getOrElseThrow(RuntimeException::new);
+                .getOrElseThrow(() -> new UsernameNotFoundException("Subject not found"));
     }
 }

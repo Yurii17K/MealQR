@@ -6,10 +6,10 @@ import java.math.BigDecimal;
 
 @Value(staticConstructor = "of")
 public class DishRes {
-    Integer dishId;
+    String dishId;
     String dishName;
     RestaurantRes restaurant;
-    ImageRes dishImage;
+    ImageDto dishImage;
     BigDecimal dishPrice;
     String dishDescription;
 }

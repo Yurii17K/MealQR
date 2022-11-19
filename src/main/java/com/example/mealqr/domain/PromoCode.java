@@ -18,9 +18,8 @@ import javax.persistence.*;
 public class PromoCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "promo_code_id")
-    Integer promoCodeId;
+    String promoCodeId;
 
     String promoCodeString;
 

@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 @Value
 public class UserSignUpReq {
 
-    boolean isClient;
+    boolean client;
 
     @NotBlank
     @Size(max = 128)

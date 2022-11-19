@@ -7,6 +7,8 @@ import com.example.mealqr.services.DishOpinionService;
 import com.example.mealqr.web.rest.request.DishCommentReq;
 import com.example.mealqr.web.rest.request.DishRatingReq;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class DishOpinionController {
     private final DishOpinionService dishOpinionService;
 
     @PostMapping("/opinion/add-comment")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = ""),
+            @ApiResponse(responseCode = "404", description = "Dish doesn't exist")})
     @Operation(summary = "addOrUpdateComment", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<DishComment> addOrUpdateComment(Principal principal,
             @RequestBody @Valid DishCommentReq dishCommentReq) {
@@ -35,6 +40,9 @@ public class DishOpinionController {
     }
 
     @PostMapping("/opinion/add-rating")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = ""),
+            @ApiResponse(responseCode = "404", description = "Dish doesn't exist")})
     @Operation(summary = "addOrUpdateRating", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<DishRating> addOrUpdateRating(Principal principal,
             @RequestBody @Valid DishRatingReq dishRatingReq) {

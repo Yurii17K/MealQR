@@ -35,8 +35,8 @@ public class FilterJWT extends OncePerRequestFilter {
             }
 
             if (jwtToken.length() != 0 && jwtToken.matches(".*\\..*\\..*")) { // check if token is not empty and has a form of a jwt token
-                final String userEmail = JWT.extractAllClaims(jwtToken).getSubject();
-                final MyUserDetails myUserDetails = myUserDetailsService.loadUserByUsername(userEmail);
+                final String subject = JWT.extractAllClaims(jwtToken).getSubject();
+                final MyUserDetails myUserDetails = myUserDetailsService.loadUserByUsername(subject);
 
                 if (Boolean.TRUE.equals(JWT.validateToken(jwtToken, myUserDetails))) {
                     // spring security default bs

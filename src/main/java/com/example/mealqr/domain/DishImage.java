@@ -1,13 +1,13 @@
 package com.example.mealqr.domain;
 
+import com.example.mealqr.web.rest.reponse.ImageDto;
 import com.example.mealqr.web.rest.request.DishSaveReq;
-import com.example.mealqr.web.rest.request.DishUpdateReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
-import java.util.function.UnaryOperator;
+import java.util.UUID;
 
 @Entity
 @Table(name = "dish_image")
@@ -21,8 +21,7 @@ public class DishImage {
 
     @Id
     @Column(name = "dish_image_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Integer dishImageId;
+    String dishImageId;
 
     @Transient
     @OneToOne(targetEntity = Dish.class)
@@ -34,17 +33,25 @@ public class DishImage {
 
     public static DishImage of(DishSaveReq dishSaveReq) {
         return DishImage.builder()//
+                .dishImageId(UUID.randomUUID().toString())//
                 .data(dishSaveReq.getDishImage().getBase64Data().getBytes(StandardCharsets.UTF_8))//
                 .contentType(dishSaveReq.getDishImage().getContentType())//
                 .build();
     }
 
-    public static DishImage of(DishUpdateReq dishUpdateReq, UnaryOperator<DishImage> function) {
-        return dishUpdateReq.getDishImage()//
-                .map(newImage -> function.apply(DishImage.builder()//
-                            .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
-                            .contentType(newImage.getContentType())//
-                            .build()))//
-                .getOrElse(DishImage.builder().build());
+    public static DishImage of(ImageDto newImage) {
+        return DishImage.builder()//
+                .dishImageId(UUID.randomUUID().toString())//
+                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
+                .contentType(newImage.getContentType())//
+                .build();
+    }
+
+    public static DishImage of(ImageDto newImage, DishImage originalImage) {
+        return DishImage.builder()//
+                .dishImageId(originalImage.getDishImageId())//
+                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
+                .contentType(newImage.getContentType())//
+                .build();
     }
 }

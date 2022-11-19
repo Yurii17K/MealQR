@@ -11,10 +11,7 @@ import javax.validation.constraints.NotNull;
 public class DishRatingReq {
 
     @NotBlank
-    String dishName;
-
-    @NotBlank
-    String restaurantId;
+    String dishId;
 
     @NotNull
     @Min(0)

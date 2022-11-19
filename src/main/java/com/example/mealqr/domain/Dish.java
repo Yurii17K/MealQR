@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
@@ -18,9 +19,8 @@ import java.math.BigDecimal;
 public class Dish {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "dish_id")
-    Integer dishId;
+    String dishId;
 
     String dishName;
 
@@ -42,6 +42,7 @@ public class Dish {
 
     public static Dish of(DishSaveReq dishSaveReq, DishImage dishImage) {
         return Dish.builder()//
+                .dishId(UUID.randomUUID().toString())//
                 .dishName(dishSaveReq.getDishName())//
                 .restaurant(Restaurant.builder().restaurantId(dishSaveReq.getRestaurantId()).build())//
                 .dishDescription(dishSaveReq.getDishDescription())//
@@ -50,13 +51,13 @@ public class Dish {
                 .build();
     }
 
-    public static Dish of(DishUpdateReq dishUpdateReq, Dish originalDish, DishImage updatedDishImage) {
+    public static Dish of(DishUpdateReq dishUpdateReq, Dish originalDish) {
         return Dish.builder()//
                 .dishId(originalDish.getDishId())//
                 .dishPrice(dishUpdateReq.getDishPrice().getOrElse(originalDish.getDishPrice()))//
                 .dishDescription(dishUpdateReq.getDishDescription().getOrElse(originalDish.getDishDescription()))//
                 .dishImage(dishUpdateReq.getDishImage()//
-                        .map(d -> updatedDishImage)//
+                        .map(d -> DishImage.of(d, originalDish.getDishImage()))//
                         .getOrElse(originalDish.getDishImage()))//
                 .build();
     }

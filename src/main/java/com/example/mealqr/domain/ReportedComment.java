@@ -18,9 +18,8 @@ import javax.persistence.*;
 public class ReportedComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "report_id")
-    Integer reportId;
+    String reportId;
 
     @ManyToOne(targetEntity = DishComment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", referencedColumnName = "dish_opinion_id")

@@ -30,12 +30,12 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
             errorMessages.add(error.getDefaultMessage());
         }
 
-        final ApiError apiError = new ApiError(String.join("; ", errorMessages));
+        final ApiError apiError = ApiError.buildError(String.join("; ", errorMessages));
         return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
     }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Object> handleCustomException(final ApiException apiException) {
-        return new ResponseEntity<>(apiException.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiException.getMessage(), apiException.getHttpStatus());
     }
 }

@@ -1,6 +1,6 @@
 package com.example.mealqr.web.rest.request;
 
-import com.example.mealqr.web.rest.reponse.ImageRes;
+import com.example.mealqr.web.rest.reponse.ImageDto;
 import lombok.Value;
 
 import javax.validation.constraints.NotBlank;
@@ -18,7 +18,7 @@ public class DishSaveReq {
     @Size(max = 128)
     String restaurantId;
     @NotNull(message = "Dish should have an image")
-    ImageRes dishImage;
+    ImageDto dishImage;
     @NotNull(message = "Dish should have a price")
     BigDecimal dishPrice;
     @NotBlank
