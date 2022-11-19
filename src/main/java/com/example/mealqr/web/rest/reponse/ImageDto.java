@@ -3,7 +3,7 @@ package com.example.mealqr.web.rest.reponse;
 import lombok.Value;
 
 @Value(staticConstructor = "of")
-public class ImageRes {
+public class ImageDto {
     String base64Data;
     String contentType;
 }

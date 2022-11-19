@@ -1,5 +1,6 @@
 package com.example.mealqr.security;
 
+import com.example.mealqr.domain.enums.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
@@ -66,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
-                .antMatchers("/api/cart**", "/api/cart/**").hasAuthority(Roles.CUSTOMER.name())//
+                .antMatchers( "/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name())//
 
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

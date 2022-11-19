@@ -4,13 +4,13 @@ import com.example.mealqr.domain.CartItem;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
+public interface CartItemRepository extends JpaRepository<CartItem, String> {
 
     @Query(value = "select * from cart_items as ci " +
             "join dishes as d on d.dish_id = ci.dish_id " +
@@ -18,25 +18,26 @@ public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
     nativeQuery = true)
     Seq<CartItem> getCustomerCart(@Param("user_email") String userEmail);
 
-    Option<CartItem> findByUserEmailAndDishDishId(String userEmail, Integer dishID);
+    Option<CartItem> findByUserEmailAndDishDishId(String userEmail, String dishID);
 
-    @Transactional
     void deleteAllByUserEmail(String userEmail);
 
-    @Transactional
-    void deleteByUserEmailAndDishDishId(String userEmail, Integer dishID);
+    void deleteByUserEmailAndDishDishId(String userEmail, String dishID);
 
-    @Transactional
+    @Modifying
+    void deleteByUserEmailAndDishRestaurantRestaurantId(String userEmail, String restaurantId);
+
+    @Modifying
     @Query(value = "SELECT count(*) FROM change_dish_quantity_in_customer_cart(:user_email_param, :dish_id_param, :quantity_param)",
             nativeQuery = true)
     void changeDishQuantityInCustomerCart(@Param("user_email_param") String userEmail,
-                                          @Param("dish_id_param") Integer dishID,
+                                          @Param("dish_id_param") String dishID,
                                           @Param("quantity_param") int quantity);
 
-    @Transactional
+    @Modifying
     @Query(value = "SELECT count(*) FROM add_dish_to_customer_cart(:user_email_param, :dish_id_param, :quantity_param)",
             nativeQuery = true)
     void addDishToCustomerCart(@Param("user_email_param") String userEmail,
-                               @Param("dish_id_param") Integer dishID,
+                               @Param("dish_id_param") String dishID,
                                @Param("quantity_param") int quantity);
 }

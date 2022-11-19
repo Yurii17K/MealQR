@@ -37,8 +37,8 @@ public class UserController {
     }
 
     @PatchMapping("/users/update-allergies")
-    @Operation(summary = "changeCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<CustomerAllergy> changeCustomerAllergies(Principal principal,
+    @Operation(summary = "updateCustomerAllergies", security = @SecurityRequirement(name = "JWT AUTH"))
+    public ResponseEntity<CustomerAllergy> updateCustomerAllergies(Principal principal,
             @RequestBody @Valid CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
         return userService.updateCustomerAllergies(principal.getName(), customerAllergiesUpdateReq)//
                 .map(ResponseEntity::ok)//

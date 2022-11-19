@@ -12,7 +12,7 @@ public class DishWithOpinionsResMapper {
 
     public static DishWithOpinionsRes mapToDishWithOpinionsRes(Dish dish, double rating, Seq<DishComment> dishComments) {
         return DishWithOpinionsRes.of(
-                dish.getDishId().toString(),//
+                dish.getDishId(),//
                 dish.getDishName(),//
                 RestaurantResMapper.mapToRestaurantRes(dish.getRestaurant()),//
                 ImageDtoMapper.mapToImageDto(dish.getDishImage()),//

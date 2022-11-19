@@ -1,6 +1,6 @@
 package com.example.mealqr.web.rest.request;
 
-import com.example.mealqr.web.rest.reponse.ImageRes;
+import com.example.mealqr.web.rest.reponse.ImageDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vavr.control.Option;
@@ -8,29 +8,26 @@ import lombok.Value;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Value
 public class DishUpdateReq {
 
-    @NotNull
-    int dishId;
+    @NotBlank
+    String dishId;
+
+    @NotBlank
+    String restaurantId;
 
     @Nullable
     @Size(max = 200)
     @JsonProperty
     String dishName;
 
-    @NotBlank
-    @Size(max = 200)
-    @JsonProperty
-    String restaurantId;
-
     @Nullable
     @JsonProperty
-    ImageRes dishImage;
+    ImageDto dishImage;
 
     @Nullable
     @JsonProperty
@@ -41,13 +38,14 @@ public class DishUpdateReq {
     @JsonProperty
     String dishDescription;
 
+
     @JsonIgnore
     public Option<String> getDishName() {
         return Option.of(dishName);
     }
 
     @JsonIgnore
-    public Option<ImageRes> getDishImage() {
+    public Option<ImageDto> getDishImage() {
         return Option.of(dishImage);
     }
 

@@ -10,7 +10,7 @@ public class DishWithOpinionsRes {
     String dishId;
     String dishName;
     RestaurantRes restaurant;
-    ImageRes dishImage;
+    ImageDto dishImage;
     double dishPrice;
     String dishDescription;
 

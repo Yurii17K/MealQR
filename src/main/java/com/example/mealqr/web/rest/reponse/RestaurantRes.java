@@ -7,5 +7,4 @@ public class RestaurantRes {
     String restaurantId;
     String restaurantName;
     String restaurantCity;
-    UserRes restaurantManager;
 }

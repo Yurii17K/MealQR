@@ -9,11 +9,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DishRatingRepository extends JpaRepository<DishRating, Integer> {
+public interface DishRatingRepository extends JpaRepository<DishRating, String> {
 
-    Seq<DishRating> findAllByDishDishId(Integer dishId);
+    Seq<DishRating> findAllByDishDishId(String dishId);
 
-    Option<DishRating> findByDishDishIdAndUserEmail(Integer dishID, String userEmail);
+    Option<DishRating> findByDishDishIdAndUserEmail(String dishID, String userEmail);
 
     @Query(value = "select distinct dr.dish_opinion_id, dr.dish_id, dr.user_email, dr.rating from dish_ratings as dr " +
             "join dishes as d on d.dish_id = dr.dish_id " +

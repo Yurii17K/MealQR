@@ -9,10 +9,7 @@ import javax.validation.constraints.Size;
 public class DishCommentReq {
 
     @NotBlank
-    String dishName;
-
-    @NotBlank
-    String restaurantId;
+    String dishId;
 
     @NotBlank
     @Size(max = 1000)

@@ -1,5 +1,6 @@
 package com.example.mealqr.domain;
 
+import com.example.mealqr.web.rest.request.RestaurantSaveReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -23,11 +24,15 @@ public class Restaurant {
     String restaurantCity;
 
     @ManyToOne(targetEntity = User.class)
-    @JoinColumn(name = "restaurant_manager_id", referencedColumnName = "user_id")
+    @JoinColumn(name = "manager_email", referencedColumnName = "email")
     User restaurantManager;
 
-    @PrePersist
-    void setRestaurantId() {
-        this.restaurantId = UUID.randomUUID().toString();
+    public static Restaurant of(RestaurantSaveReq restaurantSaveReq, String userEmail) {
+        return Restaurant.builder()//
+                .restaurantId(UUID.randomUUID().toString())//
+                .restaurantName(restaurantSaveReq.getRestaurantName())//
+                .restaurantCity(restaurantSaveReq.getRestaurantCity())//
+                .restaurantManager(User.builder().email(userEmail).build())//
+                .build();
     }
 }
