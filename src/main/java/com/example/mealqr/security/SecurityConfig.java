@@ -66,6 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
+                .antMatchers( "/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+
                 .antMatchers( "/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name())//
 
                 .and()
