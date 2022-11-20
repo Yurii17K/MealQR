@@ -5,6 +5,7 @@ import com.example.mealqr.web.rest.reponse.RestaurantRes;
 import com.example.mealqr.web.rest.request.RestaurantSaveReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;

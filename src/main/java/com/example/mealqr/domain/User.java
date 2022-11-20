@@ -5,10 +5,7 @@ import com.example.mealqr.web.rest.request.UserSignUpReq;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -37,6 +34,7 @@ public class User {
 
     String city;
 
+    @Enumerated(EnumType.STRING)
     Roles role;
 
     public static User of(UserSignUpReq userSignUpReq, UnaryOperator<String> passwordEncoderFunction) {
