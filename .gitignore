@@ -39,3 +39,6 @@ replay_pid*
 # Maven
 log/
 target/
+
+# Heroku
+#Procfile
