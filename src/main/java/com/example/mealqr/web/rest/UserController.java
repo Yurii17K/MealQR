@@ -22,14 +22,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/users/sing-in")
+    @PostMapping("/users/sign-in")
     public ResponseEntity<String> signInUser(@RequestBody @Valid UserSignInReq userSignInReq) {
-        return userService.singInUser(userSignInReq)//
+        return userService.signInUser(userSignInReq)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }
 
-    @PostMapping(value = "/users/sing-up")
+    @PostMapping(value = "/users/sign-up")
     public ResponseEntity<String> signUpCustomer(@RequestBody @Valid UserSignUpReq userSignUpReq) {
         return userService.signUpUser(userSignUpReq)//
                 .map(ResponseEntity::ok)//

@@ -100,8 +100,9 @@ public class DishService {
         return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishSaveReq.getDishName(),
                         dishSaveReq.getRestaurantId()))//
                 .filter(Option::isEmpty)//
-                .map(noDishInDb -> DishResMapper.mapToDishRes(
-                        dishRepository.save(Dish.of(dishSaveReq, saveDishImage(dishSaveReq)))))//
+                .map(notPresent -> Dish.create(dishSaveReq, saveDishImage(dishSaveReq)))//
+                .map(dishRepository::save)//
+                .map(DishResMapper::mapToDishRes)//
                 .toEither(ApiError.buildError("Dish with this name already exists in the restaurant"));
     }
 
@@ -120,7 +121,7 @@ public class DishService {
     }
 
     private Dish updateDish(DishUpdateReq dishUpdateReq, Dish originalDish) {
-        return dishRepository.save(Dish.of(dishUpdateReq, originalDish));
+        return dishRepository.save(Dish.update(dishUpdateReq, originalDish));
     }
 
     private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {
@@ -128,7 +129,7 @@ public class DishService {
         if (dishById.isEmpty()){
             return Validation.invalid(ApiError.buildError("Dish does not exist", HttpStatus.NOT_FOUND));
         }
-        if (dishUpdateReq.getDishName().isEmpty()) {
+        if (dishUpdateReq.getDishName().isEmpty() || dishUpdateReq.getDishName().get().equals(dishById.get().getDishName())) {
             return Validation.valid(dishById.get());
         } else {
             return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishUpdateReq.getDishName().get(),

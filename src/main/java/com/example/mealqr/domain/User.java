@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -20,12 +21,14 @@ import static com.example.mealqr.domain.enums.Roles.RESTAURANT_MANAGER;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+public class User implements Serializable {
 
-    @Id
+
     @Column(name = "user_id")
     String userId;
 
+    @Id
+    @Column(name = "email", unique = true)
     String email;
     String pass;
 

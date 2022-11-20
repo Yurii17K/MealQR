@@ -31,7 +31,7 @@ public class UserService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Either<ApiError, String> singInUser(UserSignInReq userSignInReq) {
+    public Either<ApiError, String> signInUser(UserSignInReq userSignInReq) {
         return userRepository.findUserByEmail(userSignInReq.getUserEmail())//
                 .filter(user -> bCryptPasswordEncoder.matches(userSignInReq.getUserPassword(), user.getPass()))//
                 .map(JWT::generateToken)//
@@ -41,13 +41,12 @@ public class UserService {
     public Either<Seq<ApiError>, String> signUpUser(UserSignUpReq userSignUpReq) {
         return validateUserSignUp(userSignUpReq)//
                 .map(emailIsUnique -> {
-                    User user = User.of(userSignUpReq, bCryptPasswordEncoder::encode);
+                    User user = userRepository.save(User.of(userSignUpReq, bCryptPasswordEncoder::encode));
                     if (user.getRole() == Roles.CLIENT) {
                         addAllergies(userSignUpReq);
                     }
-                    return JWT.generateToken(userRepository.save(user));
+                    return JWT.generateToken(user);
                 })//
-                .peek(afterUserCreation -> addAllergies(userSignUpReq))//
                 .toEither();
     }
 

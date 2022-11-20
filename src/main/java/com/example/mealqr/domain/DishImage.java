@@ -34,6 +34,7 @@ public class DishImage {
     public static DishImage of(DishSaveReq dishSaveReq) {
         return DishImage.builder()//
                 .dishImageId(UUID.randomUUID().toString())//
+                .dish(Dish.builder().build())
                 .data(dishSaveReq.getDishImage().getBase64Data().getBytes(StandardCharsets.UTF_8))//
                 .contentType(dishSaveReq.getDishImage().getContentType())//
                 .build();
@@ -47,7 +48,7 @@ public class DishImage {
                 .build();
     }
 
-    public static DishImage of(ImageDto newImage, DishImage originalImage) {
+    public static DishImage update(ImageDto newImage, DishImage originalImage) {
         return DishImage.builder()//
                 .dishImageId(originalImage.getDishImageId())//
                 .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//

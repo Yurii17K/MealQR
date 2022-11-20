@@ -36,11 +36,7 @@ public class Dish {
     BigDecimal dishPrice;
     String dishDescription;
 
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
-    }
-
-    public static Dish of(DishSaveReq dishSaveReq, DishImage dishImage) {
+    public static Dish create(DishSaveReq dishSaveReq, DishImage dishImage) {
         return Dish.builder()//
                 .dishId(UUID.randomUUID().toString())//
                 .dishName(dishSaveReq.getDishName())//
@@ -51,13 +47,14 @@ public class Dish {
                 .build();
     }
 
-    public static Dish of(DishUpdateReq dishUpdateReq, Dish originalDish) {
+    public static Dish update(DishUpdateReq dishUpdateReq, Dish originalDish) {
         return Dish.builder()//
                 .dishId(originalDish.getDishId())//
+                .dishName(dishUpdateReq.getDishName().getOrElse(originalDish.getDishName()))//
                 .dishPrice(dishUpdateReq.getDishPrice().getOrElse(originalDish.getDishPrice()))//
                 .dishDescription(dishUpdateReq.getDishDescription().getOrElse(originalDish.getDishDescription()))//
                 .dishImage(dishUpdateReq.getDishImage()//
-                        .map(d -> DishImage.of(d, originalDish.getDishImage()))//
+                        .map(newDishImage -> DishImage.update(newDishImage, originalDish.getDishImage()))//
                         .getOrElse(originalDish.getDishImage()))//
                 .build();
     }
