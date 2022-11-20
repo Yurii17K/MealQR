@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="stylesheet" href="../css/Cart.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+      <link rel="stylesheet" href="https://s3-us-west-2.amazonaws.com/s.cdpn.io/5175/utf-latest.min.css">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+          <script src="./js/Cart.js"></script>
+      <script src="../../libraries/zepto.min.js"></script>
+   </head>
+   <body>
+        <div id="logo"> 
+            <img src="../../icons/logo.png">
+         </div>
+      <div class="main">
+         <h1>My Cart</h1>
+         <section class="shopping-cart">
+            <ol class="ui-list shopping-cart--list" id="shopping-cart--list">
+               <script id = "shopping-cart--list-item-template" type="text/template">
+                  <li class="_grid shopping-cart--list-item">
+                        <div class="_column product-image">
+                          <img class="product-image--img" src="{{=img}}" alt="Item image" />
+                        </div>
+                        <div class="_column product-info">
+                          <h4 class="product-name">{{=name}}</h4>
+                          <p class="product-desc">{{=desc}}</p>
+                        </div>
+                        <div class="_column product-modifiers" data-product-price="{{=price}}">
+                          <div class="_grid">
+                            <button class="_btn _column product-subtract">&minus;</button>
+                            <div class="_column product-qty">0</div>
+                            <button class="_btn _column product-plus">&plus;</button>
+                          </div>
+                          <button class="_btn entypo-trash product-remove">Remove</button>
+                          <div class="price product-total-price">0.00€</div>
+                        </div>
+                      </li>
+               </script>
+            </ol>
+            <div class="form-group">
+               <label for="PromoCode">Promo Code
+               <input type="PromoCode" id="PromoCode" name="PromoCode"/>
+               </label>
+               <div class="form-group">
+                  <button2 type="submit">Apply</button2>
+               </div>
+            </div>
+            <footer class="_grid cart-totals">
+               <div class="_column subtotal" id="subtotalCtr">
+                  <div class="cart-totals-key">Subtotal</div>
+                  <div class="cart-totals-value">0.00€</div>
+               </div>
+               <div class="_column total" id="totalCtr">
+                  <div class="cart-totals-key">Total</div>
+                  <div class="cart-totals-value">0.00€</div>
+               </div>
+            </footer>
+            <div class="form-group">
+               <button type="submit">Confirm</button>
+            </div>
+         </section>
+      </div>
+   </body>
+</html>
+

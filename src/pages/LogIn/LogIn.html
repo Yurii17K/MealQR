@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="stylesheet" href="./css/LogIn.css">
+            <!--<script  src="./js/LogSignIn.js"></script>-->
+       <script  src="./LogIn/js/LogIn.js"></script>
+   </head>
+   <body>
+      <!-- Form-->
+      <div class="container">
+         <div class="form">
+            <div class="form-toggle"></div>
+            <div class="form-panel one">
+               <div class="form-header">
+                  <h1>mealQR</h1>
+               </div>
+               <div class="form-content">
+                   <!-- action for now -->
+                     <div class="form-group">
+                        <label for="userEmail">E-mail</label>
+                        <input type="email" id="userEmail" name="userEmail" required="required"/>
+                     </div>
+                     <div class="form-group">
+                        <label for="userPass">Password</label>
+                        <input type="password" id="userPass" name="userPass" required="required"/>
+                     </div>
+                     <div class="form-group">
+                        <!--label.form-remember
+                           //input(type='checkbox')
+                           //| Remember Me
+                           --><a class="form-recovery" href="../PasswordRestore/PasswordRestore.html">Forgot your password?</a>
+                     </div>
+                     <div class="form-group">
+                        <button onclick="send()"><a href="./Cards/Cards.html">Log In</a></button>
+                     </div>
+               
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="pen-footer"><a href="./ClientSignUp/ClientSignUp.html">Join Us! Create new account</a></div>
+   </body>
+</html>

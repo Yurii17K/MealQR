@@ -1,0 +1,469 @@
+/* DO NOT USE THIS */
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700);
+html,
+body {
+  font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* END OF DO NOT USE THIS */
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* Buttons */
+
+.btn-primary {
+  display: block;
+  clear: both;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border: none;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  display: block;
+  clear: both;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border: none;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-primary:focus,
+.btn-primary:hover,
+.btn-secondary:focus,
+.btn-secondary:hover,
+.btn:active:focus {
+  outline: none;
+}
+
+.btn-danger {
+  display: block;
+  clear: both;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border: none;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn-danger:active,
+.btn-danger:active:focus,
+.btn-danger:active:hover,
+.btn-danger:focus,
+.btn-danger:hover {
+  color: #FFF;
+  background-color: #c9302c;
+  border-color: #c9302c;
+  outline: none;
+}
+
+.form-horizontal .control-label {
+  text-align: left !important;
+}
+
+.form-group .control-label label {
+  font-weight: 600;
+  margin-bottom: 0px;
+  padding-top: 5px;
+}
+
+.form-control {
+  border-radius: 22px;
+  border: 1px solid transparent;
+  height: 44px;
+  line-height: 44px;
+  padding: 0 15px;
+  -webkit-box-shadow: inset 0px 0px 4px rgba(0,0,0,0.15);
+  box-shadow: inset 0px 0px 4px rgba(0,0,0,0.15);
+  -webkit-appearance: none;
+}
+
+.form-control:focus {
+  border: 1px solid #00BCD4;
+  -webkit-box-shadow: inset 0px 0px 4px rgba(0,0,0,0.15);
+  box-shadow: inset 0px 0px 4px rgba(0,0,0,0.15);
+}
+
+.text-helper {
+  margin-top: 0.2em;
+  font-size: 0.8em;
+  display: block;
+}
+
+.form-group p {
+  margin: 0;
+}
+
+
+/** PROFILE **/
+
+.profile-holder label,
+.profile-people-holder .profile-name h3,
+.notification-legend p,
+.settings-legend p {
+  color: #333333;
+  font-weight: 600;
+}
+
+.profile-update .control-label {
+  margin-bottom: 1em;
+}
+
+.profile-update .profile-email p,
+.profile-update .profile-email .btn {
+  display: inline-block;
+  margin: 0;
+}
+
+.profile-update .profile-email .btn {
+  margin-left: 10px;
+  border-radius: 25px;
+  background-color: transparent;
+  color: #888888;
+  border: 1px solid #888888;
+  padding: 5px 10px;
+  width: auto;
+}
+
+.profile-update .profile-email .btn:active:focus,
+.profile-update .profile-email .btn:active:hover {
+  background-color: #888888;
+  color: #FFFFFF;
+  border: 1px solid transparent;
+}
+
+.profile-people-holder {
+  padding: 1.5em 0;
+  border-bottom: 3px solid #00BCD4;
+  margin-bottom: 1.5em;
+}
+
+.profile-people-holder .profile-picture {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background-color: #00BCD4;
+  text-align: center;
+  line-height: 75px;
+  color: #FFF;
+  margin: 0 auto;
+}
+
+.profile-people-holder .profile-picture span {
+  font-size: 24px;
+}
+
+.profile-settings-holder form {
+  padding-bottom: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.notification-settings {
+  margin-bottom: 1.5em;
+}
+
+.notification-legend {
+  position: relative;
+  padding: 0 76px 0 0;
+}
+
+.notification-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  margin-top: -14px;
+}
+
+.judgments-settings {
+  pointer-events: all;
+  border-top: 1px solid #e4e9eb;
+  margin-bottom: 1.5em;
+  overflow: hidden;
+  height: 0px;
+}
+
+.judgments-settings.disabled {
+  pointer-events: none;
+  color: #d2d2d2;
+}
+
+.judgments-settings.disabled .settings-legend p {
+  color: #d2d2d2;
+}
+
+.judgments-settings .settings-legend {
+  position: relative;
+  padding: 12px 74px 12px 0;
+  line-height: 34px;
+}
+
+.notification-settings .notification-legend p,
+.judgments-settings .settings-legend p {
+  margin: 0;
+}
+
+.form-btns {
+  text-align: center;
+  padding-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.form-btns .btn {
+  border-radius: 25px;
+  background-color: transparent;
+  color: #00BCD4;
+  border: 2px solid #00BCD4;
+}
+
+.form-btns .btn:active {
+  background-color: #00BCD4;
+  color: #FFFFFF;
+  border: 2px solid transparent;
+}
+
+.form-btns .btn:active:focus,
+.form-btns .btn:active:hover {
+  background-color: #00BCD4;
+  color: #FFFFFF;
+  border: 2px solid transparent;
+}
+
+/** END PROFILE **/
+
+
+/** LIST OF JUDGMENTS **/
+
+.list ul {
+  padding: 0;
+  margin: 0;
+}
+
+.list ul > li {
+  list-style: none;
+  border-bottom: 1px solid #e4e9eb;
+  padding: 10px 70px 10px 0px;
+  position: relative;
+  min-height: 56px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+}
+
+.list ul > li .list-title {
+  font-size: 1em;
+  font-weight: normal;
+  margin: 0;
+  color: #333333;
+}
+
+.judgments-settings.disabled .list ul > li .list-title {
+  color: #d2d2d2;
+}
+
+.list ul > li p {
+  margin: 0;
+}
+
+.list ul > li .list-title + p {
+  margin-top: .2em;
+  font-size: 12px;
+}
+
+
+/** END OF LIST OF JUDGMENTS **/
+
+
+/** TOGGLE BUTTON **/
+
+.tgl {
+  display: none;
+}
+
+.tgl,
+.tgl:after,
+.tgl:before,
+.tgl *,
+.tgl *:after,
+.tgl *:before,
+.tgl + .tgl-btn {
+  box-sizing: border-box;
+}
+
+.tgl::-moz-selection,
+.tgl:after::-moz-selection,
+.tgl:before::-moz-selection,
+.tgl *::-moz-selection,
+.tgl *:after::-moz-selection,
+.tgl *:before::-moz-selection,
+.tgl + .tgl-btn::-moz-selection {
+  background: none;
+}
+
+.tgl::selection,
+.tgl:after::selection,
+.tgl:before::selection,
+.tgl *::selection,
+.tgl *:after::selection,
+.tgl *:before::selection,
+.tgl + .tgl-btn::selection {
+  background: none;
+}
+
+.tgl + .tgl-btn {
+  outline: 0;
+  display: block;
+  width: 4em;
+  height: 2em;
+  margin: 0;
+  position: relative;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.judgments-settings.disabled .tgl-ios + .tgl-btn {
+  opacity: 0.4;
+}
+
+.tgl + .tgl-btn:after,
+.tgl + .tgl-btn:before {
+  position: relative;
+  display: block;
+  content: "";
+  width: 50%;
+  height: 100%;
+}
+
+.tgl + .tgl-btn:after {
+  left: 0;
+}
+
+.tgl + .tgl-btn:before {
+  display: none;
+}
+
+.tgl:checked + .tgl-btn:after {
+  left: 50%;
+}
+
+.tgl-ios + .tgl-btn {
+  background: #fbfbfb;
+  border-radius: 2em;
+  padding: 2px;
+  -webkit-transition: all .4s ease;
+  transition: all .4s ease;
+  border: 1px solid #e8eae9;
+}
+
+.tgl-ios + .tgl-btn:after {
+  border-radius: 2em;
+  background: #fbfbfb;
+  -webkit-transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), padding 0.3s ease, margin 0.3s ease;
+  transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), padding 0.3s ease, margin 0.3s ease;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.tgl-ios + .tgl-btn:hover:after {
+  will-change: padding;
+}
+
+.tgl-ios + .tgl-btn:active {
+  box-shadow: inset 0 0 0 2em #e8eae9;
+}
+
+.tgl-ios + .tgl-btn:active:after {
+  padding-right: .8em;
+}
+
+.tgl-ios:checked + .tgl-btn {
+  background: #00BCD4;
+}
+
+.tgl-ios:checked + .tgl-btn:active {
+  box-shadow: none;
+}
+
+.tgl-ios:checked + .tgl-btn:active:after {
+  margin-left: -.8em;
+}
+
+
+/** END OF TOGGLE BUTTON **/
+
+@media screen and (min-width: 640px) {
+  .container-fluid {
+    padding: 0 12.5%;
+  }
+  .btn-primary {
+    clear: none;
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+  }
+  .btn-secondary {
+    clear: none;
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+  }
+  .btn-danger {
+    clear: none;
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+  }
+  .modal-content {
+    top: 15px;
+    bottom: 30%;
+    left: 25%;
+    right: 25%;
+  }
+}
+
+.form-control::-webkit-input-placeholder {
+  opacity: 0.85;
+}
+
+.form-control:-moz-placeholder {
+  opacity: 0.85;
+}
+
+.form-control::-moz-placeholder {
+  opacity: 0.85;
+}
+
+.form-control:-ms-input-placeholder {
+  opacity: 0.85;
+}
+
+.form-control::-ms-input-placeholder {
+  opacity: 0.85;
+}
+
+.form-control:placeholder-shown {
+  opacity: 0.85;
+}
