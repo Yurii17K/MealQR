@@ -29,21 +29,21 @@ public class Dish {
     @ToString.Exclude
     Restaurant restaurant;
 
-    @OneToOne(targetEntity = DishImage.class)
+    @OneToOne(targetEntity = DishImage.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "dish_image_id", referencedColumnName = "dish_image_id")
     DishImage dishImage;
 
     BigDecimal dishPrice;
     String dishDescription;
 
-    public static Dish create(DishSaveReq dishSaveReq, DishImage dishImage) {
+    public static Dish create(DishSaveReq dishSaveReq) {
         return Dish.builder()//
                 .dishId(UUID.randomUUID().toString())//
                 .dishName(dishSaveReq.getDishName())//
                 .restaurant(Restaurant.builder().restaurantId(dishSaveReq.getRestaurantId()).build())//
                 .dishDescription(dishSaveReq.getDishDescription())//
                 .dishPrice(dishSaveReq.getDishPrice())//
-                .dishImage(dishImage)
+                .dishImage(DishImage.of(dishSaveReq))//
                 .build();
     }
 

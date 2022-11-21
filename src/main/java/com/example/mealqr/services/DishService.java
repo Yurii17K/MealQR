@@ -100,7 +100,7 @@ public class DishService {
         return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishSaveReq.getDishName(),
                         dishSaveReq.getRestaurantId()))//
                 .filter(Option::isEmpty)//
-                .map(notPresent -> Dish.create(dishSaveReq, saveDishImage(dishSaveReq)))//
+                .map(notPresent -> Dish.create(dishSaveReq))//
                 .map(dishRepository::save)//
                 .map(DishResMapper::mapToDishRes)//
                 .toEither(ApiError.buildError("Dish with this name already exists in the restaurant"));
@@ -129,6 +129,7 @@ public class DishService {
         if (dishById.isEmpty()){
             return Validation.invalid(ApiError.buildError("Dish does not exist", HttpStatus.NOT_FOUND));
         }
+
         if (dishUpdateReq.getDishName().isEmpty() || dishUpdateReq.getDishName().get().equals(dishById.get().getDishName())) {
             return Validation.valid(dishById.get());
         } else {
@@ -149,10 +150,5 @@ public class DishService {
                                 .toLowerCase(Locale.ROOT)//
                                 .contains(allergy)))//
                 .getOrElse(false);
-    }
-
-    private DishImage saveDishImage(DishSaveReq dishSaveReq) {
-        DishImage dishImage = DishImage.of(dishSaveReq);
-        return dishImageRepository.save(dishImage);
     }
 }
