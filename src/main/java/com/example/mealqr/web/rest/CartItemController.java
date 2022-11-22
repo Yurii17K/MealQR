@@ -41,21 +41,20 @@ public class CartItemController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist in the restaurant")})
     @Operation(summary = "Add dish to the customer's cart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Dish> addDishToCustomerCart(Principal principal, @RequestParam String dishName,
-            @RequestParam String restaurantId) {
-        return cartItemService.addDishToCustomerCart(principal.getName(), dishName, restaurantId)//
+    public ResponseEntity<Dish> addDishToCustomerCart(Principal principal, @RequestParam String dishId) {
+        return cartItemService.addDishToCustomerCart(principal.getName(), dishId)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }
 
-    @PatchMapping("/cart/update-dish")
+    @PutMapping("/cart/update-dish")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist in the restaurant")})
     @Operation(summary = "Change quantity of the dish in the cart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Boolean> changeDishQuantityInCustomerCart(Principal principal,
-            @RequestParam String dishName, @RequestParam String restaurantId, @RequestParam Integer quantity) {
-        return cartItemService.changeDishQuantityInCustomerCart(principal.getName(), dishName, restaurantId, quantity)//
+    public ResponseEntity<Boolean> increaseDishQuantityInCustomerCart(Principal principal,
+            @RequestParam String dishId, @RequestParam Integer quantity) {
+        return cartItemService.increaseDishQuantityInCustomerCart(principal.getName(), dishId, quantity)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }

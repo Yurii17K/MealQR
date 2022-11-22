@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -32,22 +31,22 @@ public class DishImage {
     byte[] data;
     String contentType;
 
-    public static DishImage of(DishSaveReq dishSaveReq) {
+    public static DishImage of(DishSaveReq dishSaveReq, String dishId) {
         return DishImage.builder()//
                 .dishImageId(UUID.randomUUID().toString())//
-                .dish(Dish.builder().build())
+                .dish(Dish.builder().dishId(dishId).build())//
                 .data(dishSaveReq.getDishImage().getBase64Data().getBytes(StandardCharsets.UTF_8))//
                 .contentType(dishSaveReq.getDishImage().getContentType())//
                 .build();
     }
 
-    public static DishImage of(ImageDto newImage) {
-        return DishImage.builder()//
-                .dishImageId(UUID.randomUUID().toString())//
-                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
-                .contentType(newImage.getContentType())//
-                .build();
-    }
+//    public static DishImage of(ImageDto newImage) {
+//        return DishImage.builder()//
+//                .dishImageId(UUID.randomUUID().toString())//
+//                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
+//                .contentType(newImage.getContentType())//
+//                .build();
+//    }
 
     public static DishImage update(ImageDto newImage, DishImage originalImage) {
         return DishImage.builder()//

@@ -43,7 +43,7 @@ public class DishOpinionService {
     public Either<ApiError, DishComment> addOrUpdateComment(String userEmail, DishCommentReq dishCommentReq) {
         return dishRepository.findByDishId(dishCommentReq.getDishId())//
                 .map(dish -> dishCommentRepository.findByDishDishIdAndUserEmail(dish.getDishId(), userEmail)//
-                        .peek(dishComment -> dishCommentRepository.save(dishComment.withComment(ProfanitiesFilter.filterBadLanguage(dishCommentReq.getComment()))))//
+                        .peek(dishComment -> dishCommentRepository.save(dishComment.withComment(dishCommentReq.getComment())))//
                         .getOrElse(() -> dishCommentRepository.save(DishComment.of(userEmail, dishCommentReq, dish))))//
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }

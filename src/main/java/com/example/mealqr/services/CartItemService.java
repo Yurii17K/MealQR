@@ -17,13 +17,14 @@ import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import javax.transaction.Transactional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -66,30 +67,29 @@ public class CartItemService {
         return true;
     }
 
-    public Either<ApiError, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantId) {
-        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
+    public Either<ApiError, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
+        return dishRepository.findByDishId(dishId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
                         .map(cartItem -> {
-                            cartItemRepository.changeDishQuantityInCustomerCart(userEmail, dish.getDishId(), 1);
+                            cartItemRepository.increaseDishQuantityInCustomerCart(userEmail, dish.getDishId(), 1);
                             return dish;
                         })
                         .getOrElse(() -> {
-                            cartItemRepository.addDishToCustomerCart(userEmail, dish.getDishId(), 1);
+                            String newCartItemId = UUID.randomUUID().toString();
+                            cartItemRepository.addDishToCustomerCart(newCartItemId, userEmail, dish.getDishId(), 1);
                             return dish;
                         }))
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<ApiError, Boolean> changeDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantId, @NotNull int quantity) {
-        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
-                .peek(dish -> cartItemRepository.changeDishQuantityInCustomerCart(userEmail, dish.getDishId(), quantity))//
+    public Either<ApiError, Boolean> increaseDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishId,
+            @NotNull int quantity) {
+        return dishRepository.findByDishId(dishId)//
+                .peek(dish -> cartItemRepository.increaseDishQuantityInCustomerCart(userEmail, dish.getDishId(), quantity))//
                 .map(dish -> true)//
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    @Transactional
     public Either<ApiError, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
             @NotBlank String restaurantId) {
         return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//

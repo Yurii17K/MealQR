@@ -60,7 +60,7 @@ public class ProfanitiesFilter {
                     continue;
                 }
 
-                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replace("[,']", ""));
+                curseWords.add(line.trim().toLowerCase(Locale.ROOT).replaceAll("[,']", ""));
             }
 
         } catch (FileNotFoundException e) {

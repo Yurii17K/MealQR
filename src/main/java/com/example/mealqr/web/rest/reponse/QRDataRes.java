@@ -1,12 +1,13 @@
 package com.example.mealqr.web.rest.reponse;
 
-import io.vavr.collection.Seq;
 import lombok.Value;
+
+import java.util.List;
 
 
 @Value(staticConstructor = "of")
 public class QRDataRes {
     String userEmail;
-    Seq<CartItemRes> cartItemRes;
+    List<CartItemRes> cartItemRes;
     double cartCost;
 }

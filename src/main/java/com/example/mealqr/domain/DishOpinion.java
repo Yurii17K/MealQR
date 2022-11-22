@@ -1,6 +1,7 @@
 package com.example.mealqr.domain;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @MappedSuperclass
 @SuperBuilder
 @NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class DishOpinion {
 

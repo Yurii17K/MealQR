@@ -7,6 +7,7 @@ import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.repositories.CustomerAllergyRepository;
 import com.example.mealqr.repositories.UserRepository;
 import com.example.mealqr.security.JWT;
+import com.example.mealqr.web.rest.reponse.TokenRes;
 import com.example.mealqr.web.rest.request.CustomerAllergiesUpdateReq;
 import com.example.mealqr.web.rest.request.UserSignInReq;
 import com.example.mealqr.web.rest.request.UserSignUpReq;
@@ -31,21 +32,21 @@ public class UserService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Either<ApiError, String> signInUser(UserSignInReq userSignInReq) {
+    public Either<ApiError, TokenRes> signInUser(UserSignInReq userSignInReq) {
         return userRepository.findUserByEmail(userSignInReq.getUserEmail())//
                 .filter(user -> bCryptPasswordEncoder.matches(userSignInReq.getUserPassword(), user.getPass()))//
-                .map(JWT::generateToken)//
+                .map(user -> TokenRes.of(JWT.generateToken(user), user.getRole() == Roles.CLIENT))//
                 .toEither(ApiError.buildError("Bad credentials!"));
     }
 
-    public Either<Seq<ApiError>, String> signUpUser(UserSignUpReq userSignUpReq) {
+    public Either<Seq<ApiError>, TokenRes> signUpUser(UserSignUpReq userSignUpReq) {
         return validateUserSignUp(userSignUpReq)//
                 .map(emailIsUnique -> {
                     User user = userRepository.save(User.of(userSignUpReq, bCryptPasswordEncoder::encode));
                     if (user.getRole() == Roles.CLIENT) {
                         addAllergies(userSignUpReq);
                     }
-                    return JWT.generateToken(user);
+                    return TokenRes.of(JWT.generateToken(user), user.getRole() == Roles.CLIENT);
                 })//
                 .toEither();
     }

@@ -37,19 +37,21 @@ public class Dish {
     String dishDescription;
 
     public static Dish create(DishSaveReq dishSaveReq) {
+        String dishId = UUID.randomUUID().toString();
         return Dish.builder()//
-                .dishId(UUID.randomUUID().toString())//
+                .dishId(dishId)//
                 .dishName(dishSaveReq.getDishName())//
                 .restaurant(Restaurant.builder().restaurantId(dishSaveReq.getRestaurantId()).build())//
                 .dishDescription(dishSaveReq.getDishDescription())//
                 .dishPrice(dishSaveReq.getDishPrice())//
-                .dishImage(DishImage.of(dishSaveReq))//
+                .dishImage(DishImage.of(dishSaveReq, dishId))//
                 .build();
     }
 
     public static Dish update(DishUpdateReq dishUpdateReq, Dish originalDish) {
         return Dish.builder()//
                 .dishId(originalDish.getDishId())//
+                .restaurant(originalDish.getRestaurant())//
                 .dishName(dishUpdateReq.getDishName().getOrElse(originalDish.getDishName()))//
                 .dishPrice(dishUpdateReq.getDishPrice().getOrElse(originalDish.getDishPrice()))//
                 .dishDescription(dishUpdateReq.getDishDescription().getOrElse(originalDish.getDishDescription()))//

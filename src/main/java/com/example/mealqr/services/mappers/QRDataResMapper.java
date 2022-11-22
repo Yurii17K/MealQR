@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QRDataResMapper {
     public static QRDataRes mapToQRDataRes(String userEmail, Seq<CartItemRes> customerCartItems, double cartCost) {
-        return QRDataRes.of(userEmail, customerCartItems, cartCost);
+        return QRDataRes.of(userEmail, customerCartItems.asJava(), cartCost);
     }
 }

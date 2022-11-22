@@ -2,13 +2,9 @@ package com.example.mealqr.services;
 
 import com.example.mealqr.domain.CustomerAllergy;
 import com.example.mealqr.domain.Dish;
-import com.example.mealqr.domain.DishImage;
 import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
-import com.example.mealqr.repositories.CustomerAllergyRepository;
-import com.example.mealqr.repositories.DishImageRepository;
-import com.example.mealqr.repositories.DishRepository;
-import com.example.mealqr.repositories.RestaurantRepository;
+import com.example.mealqr.repositories.*;
 import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.services.mappers.DishWithOpinionsResMapper;
 import com.example.mealqr.web.rest.reponse.DishRes;
@@ -16,6 +12,7 @@ import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
 import com.example.mealqr.web.rest.request.DishSaveReq;
 import com.example.mealqr.web.rest.request.DishUpdateReq;
 import io.vavr.API;
+import io.vavr.Function2;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Vector;
 import io.vavr.control.Either;
@@ -41,7 +38,7 @@ public class DishService {
     private final DishRepository dishRepository;
     private final RestaurantRepository restaurantRepository;
     private final CustomerAllergyRepository customerAllergyRepository;
-    private final DishImageRepository dishImageRepository;
+    private final CartItemRepository cartItemRepository;
     private final SlopeOne slopeOne;
 
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -107,11 +104,10 @@ public class DishService {
     }
 
     @Transactional
-    public Either<ApiError, DishRes> removeDishFromRestaurantOffer(@NotBlank String dishName, @NotBlank String restaurantId) {
-        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
+    public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishName, @NotBlank String restaurantId) {
+        return validateDishDelete(dishName, restaurantId)//
                 .peek(dish -> dishRepository.deleteByDishNameAndRestaurantRestaurantId(dishName, restaurantId))//
-                .map(DishResMapper::mapToDishRes)//
-                .toEither(ApiError.buildError("Dish with this name does not exist in the restaurant", HttpStatus.NOT_FOUND));
+                .toEither();
     }
 
     public Either<ApiError, DishRes> updateDishInRestaurantOffer(DishUpdateReq dishUpdateReq) {
@@ -122,6 +118,19 @@ public class DishService {
 
     private Dish updateDish(DishUpdateReq dishUpdateReq, Dish originalDish) {
         return dishRepository.save(Dish.update(dishUpdateReq, originalDish));
+    }
+
+    private Validation<Seq<ApiError>, Boolean> validateDishDelete(String dishName, String restaurantId) {
+        Option<Dish> dishOption = dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId);
+        return Validation.combine(
+                        dishOption.toValidation(ApiError.buildError(
+                                "Dish with this name does not exist in the restaurant", HttpStatus.NOT_FOUND)),
+                        dishOption//
+                                .map(cartItemRepository::findAllByDish)//
+                                .filter(Seq::isEmpty)//
+                                .toValidation(ApiError.buildError("Invalid state! Dish is in someone's cart")))//
+                .ap(Function2.constant(true))//
+                .mapError(Function.identity());
     }
 
     private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {

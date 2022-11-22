@@ -1,7 +1,6 @@
 package com.example.mealqr.services.mappers;
 
 import com.example.mealqr.domain.Dish;
-import com.example.mealqr.domain.DishImage;
 import com.example.mealqr.web.rest.reponse.DishRes;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -57,13 +57,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/users/update-allergies").authenticated()//
 
                 .antMatchers("/api/report-comment").authenticated()//
-                .antMatchers("/api/generate-qr").authenticated()//
                 .antMatchers("/api/opinion/add-comment").authenticated()//
                 .antMatchers("/api/opinion/add-rating").authenticated()//
+                .antMatchers("/api/generate-qr").authenticated()//
 
                 .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.PUT, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+//                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
                 .antMatchers( "/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//

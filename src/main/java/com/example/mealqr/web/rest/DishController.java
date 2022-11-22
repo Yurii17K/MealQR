@@ -105,7 +105,7 @@ public class DishController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish with this name does not exists in the restaurant")})
     @Operation(summary = "removeDishFromRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<DishRes> removeDishFromRestaurantOffer(@RequestParam String dishName, @RequestParam String restaurantId) {
+    public ResponseEntity<Boolean> removeDishFromRestaurantOffer(@RequestParam String dishName, @RequestParam String restaurantId) {
         return dishService.removeDishFromRestaurantOffer(dishName, restaurantId)
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);

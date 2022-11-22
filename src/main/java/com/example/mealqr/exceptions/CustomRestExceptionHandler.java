@@ -1,5 +1,6 @@
 package com.example.mealqr.exceptions;
 
+import com.example.mealqr.web.rest.reponse.ErrorRes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,6 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Object> handleCustomException(final ApiException apiException) {
-        return new ResponseEntity<>(apiException.getMessage(), apiException.getHttpStatus());
+        return new ResponseEntity<>(ErrorRes.of(apiException.getMessage()), apiException.getHttpStatus());
     }
 }
