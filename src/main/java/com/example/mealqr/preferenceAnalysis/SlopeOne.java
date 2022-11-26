@@ -14,11 +14,15 @@ import java.util.Map.Entry;
 @Component
 public class SlopeOne {
 
-    private static final Map<String, Map<String, Double>> diff = new HashMap<>();
+    private static final Map<String, Map<String, Double>> diff = new HashMap<>(); //Differences between user ratings
     private static final Map<String, Map<String, Integer>> freq = new HashMap<>();
     private Map<String, Map<String, Double>> inputData = new HashMap<>();
     private final Map<String, Map<String, Double>> outputData = new HashMap<>();
 
+
+    //Returns a mapping of <Dish_id, predicted_rating>
+    //inputData is <User email, <Dish_id, Dish_rating>> for all users that rated something in the given restaurant
+    //Eg. a map from users to their respective dish ratings
     public Map<String, Double> slopeOne(@NotBlank String userEmail,
                                          @NotNull Map<String, Map<String, Double>> inputData) {
 
@@ -80,6 +84,8 @@ public class SlopeOne {
      * @param data
      *            existing user data and their items' ratings
      */
+    //data is <User email, <Dish_id, Dish_rating>> for all users that rated something in the given restaurant
+    //Eg. a map from users to their respective dish ratings
     private Map<String, Double> predict(Map<String, Map<String, Double>> data, String userEmail) {
         Map<String, Double> uPred = new HashMap<>();
         Map<String, Integer> uFreq = new HashMap<>();
@@ -90,13 +96,13 @@ public class SlopeOne {
         }
 
         for (Entry<String, Map<String, Double>> e : data.entrySet()) {
-            for (String j : e.getValue().keySet()) {
+            for (String userId : e.getValue().keySet()) {
                 for (String k : diff.keySet()) {
                     try {
-                        double predictedValue = diff.get(k).get(j) + e.getValue().get(j);
-                        double finalValue = predictedValue * freq.get(k).get(j);
+                        double predictedValue = diff.get(k).get(userId) + e.getValue().get(userId);
+                        double finalValue = predictedValue * freq.get(k).get(userId);
                         uPred.put(k, uPred.get(k) + finalValue);
-                        uFreq.put(k, uFreq.get(k) + freq.get(k).get(j));
+                        uFreq.put(k, uFreq.get(k) + freq.get(k).get(userId));
                     } catch (NullPointerException e1) {
                         System.out.println("NULLBUODFYBWILABFOYLWRBOIYLBUOYLBH");
                     }

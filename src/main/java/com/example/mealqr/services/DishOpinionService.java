@@ -48,10 +48,14 @@ public class DishOpinionService {
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
+
+    //Returns <User email, <Dish_id, Dish_rating>> for all users that rated something in the given restaurant
+    //Eg. a map from users to their respective dish ratings
     Map<String, Map<String, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantId) {
         Seq<String> dishIdsByRestaurant = dishRepository.findAllByRestaurantRestaurantId(restaurantId)//
                 .map(Dish::getDishId)//
                 .sorted();
+
         // take only the customers that rated sth in the restaurant
         Seq<String> clientEmails = userRepository.findAllClientsWhoRatedSomethingInRestaurant(restaurantId)
                 .distinct();

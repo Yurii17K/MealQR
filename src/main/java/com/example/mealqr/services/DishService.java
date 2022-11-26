@@ -39,7 +39,7 @@ public class DishService {
     private final RestaurantRepository restaurantRepository;
     private final CustomerAllergyRepository customerAllergyRepository;
     private final CartItemRepository cartItemRepository;
-    private final SlopeOne slopeOne;
+    private final MasterRecommenderService masterRecommenderService;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -85,8 +85,9 @@ public class DishService {
                 .findAllByRestaurantRestaurantId(restaurantId)//
                 .toMap(Dish::getDishId, Function.identity());
 
+
         // results of user preference analysis
-        return slopeOne.slopeOne(userEmail, dishOpinionService.getDataForPreferenceAnalysis(restaurantId))//
+        return masterRecommenderService.getDishRatingPredictionsForRestaurantAndUser(userEmail,restaurantId)//
                 .entrySet().stream()//
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
                 .map(ratingByDishId -> dishesWithIdsInRestaurant.get(ratingByDishId.getKey()).get()) // map dishIds to Dish objects
