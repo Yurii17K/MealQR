@@ -44,19 +44,28 @@ public class MasterRecommenderService {
         }
         return ratingCount;
     }
-    //TODO: Consider only the last n dishes rated by the user
+    //TODO: Consider only the last n dishes rated by the user, change for to a parallel stream
     private Map<String,Double> getFastTextDishRatings(String userEmail, String restaurantId){
         Map<String,Double> finalRatingPredictions = new HashMap<>();
         Seq<DishRating> dishesRatedByUser = dishRatingRepository.findAllByUserEmail(userEmail);
+
         Seq<DishRes> restaurantDishes = getAllDishesInRestaurant(restaurantId).get();
-        for(DishRes res : restaurantDishes){
-            Double value = 0.0;
-            for(DishRating existingRating : dishesRatedByUser){
-                Dish dishFromRating = existingRating.getDish();
-                Double similarity = fastTextClient.getTextualSimilarityBetweenDishes(dishFromRating.getDishName(),dishFromRating.getDishDescription(),res.getDishName(),res.getDishDescription());
-                value+=similarity*existingRating.getRating();
+
+        if(dishesRatedByUser.size()==0){
+            for(DishRes res : restaurantDishes){
+                finalRatingPredictions.put(res.getDishId(),2.5);
             }
-            finalRatingPredictions.put(res.getDishId(),value/dishesRatedByUser.size());
+        }
+        else{
+            for(DishRes res : restaurantDishes){
+                Double value = 0.0;
+                for(DishRating existingRating : dishesRatedByUser){
+                    Dish dishFromRating = existingRating.getDish();
+                    Double similarity = fastTextClient.getTextualSimilarityBetweenDishes(dishFromRating.getDishName(),dishFromRating.getDishDescription(),res.getDishName(),res.getDishDescription());
+                    value+=similarity*existingRating.getRating();
+                }
+                finalRatingPredictions.put(res.getDishId(),value/dishesRatedByUser.size());
+            }
         }
         return finalRatingPredictions;
     }
