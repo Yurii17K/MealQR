@@ -18,8 +18,11 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,28 +55,30 @@ public class DishOpinionService {
     //Returns <User email, <Dish_id, Dish_rating>> for all users that rated something in the given restaurant
     //Eg. a map from users to their respective dish ratings
     Map<String, Map<String, Double>> getDataForPreferenceAnalysis(@NotBlank String restaurantId) {
-        Seq<String> dishIdsByRestaurant = dishRepository.findAllByRestaurantRestaurantId(restaurantId)//
+        List<String> dishIdsByRestaurant = dishRepository.findAllByRestaurantRestaurantId(restaurantId).stream()
                 .map(Dish::getDishId)//
-                .sorted();
+                .sorted().collect(Collectors.toList());
 
         // take only the customers that rated sth in the restaurant
-        Seq<String> clientEmails = userRepository.findAllClientsWhoRatedSomethingInRestaurant(restaurantId)
-                .distinct();
-        return clientEmails.toMap(Function.identity(),
-                        email -> {
-                            // create a map of dishId:rating
-                            Map<String, Double> dishIdsWithRatingsByEmailAndRestaurant = dishRatingRepository
-                                    .findAllByUserEmailAndRestaurant(email, restaurantId)//
-                                    .toMap(dishRating -> dishRating.getDish().getDishId(),d -> (double) d.getRating())
-                                    .toJavaMap();
-                            // generate random ratings for all unrated dishes
-                            if (dishIdsByRestaurant.size() != dishIdsWithRatingsByEmailAndRestaurant.size()) {
-                                for (int i = dishIdsWithRatingsByEmailAndRestaurant.size(); i < dishIdsByRestaurant.size(); i++) {
-                                    dishIdsWithRatingsByEmailAndRestaurant.put(dishIdsByRestaurant.get(i), Math.random() * 5);
-                                }
-                            }
-                            return dishIdsWithRatingsByEmailAndRestaurant;
-                        }).toJavaMap();
+        List<String> clientEmails = userRepository.findAllClientsWhoRatedSomethingInRestaurant(restaurantId).stream()
+                .distinct().collect(Collectors.toList());
+
+        Map<String, Map<String, Double>> returnMap = new HashMap<>();
+        for(String email :clientEmails){
+            Map<String, Double> dishIdsWithRatingsByEmailAndRestaurant = dishRatingRepository
+                    .findAllByUserEmailAndRestaurant(email, restaurantId)//
+                    .toMap(dishRating -> dishRating.getDish().getDishId(),d -> (double) d.getRating())
+                    .toJavaMap();
+            // generate random ratings for all unrated dishes
+            if (dishIdsByRestaurant.size() != dishIdsWithRatingsByEmailAndRestaurant.size()) {
+                for (int i = dishIdsWithRatingsByEmailAndRestaurant.size(); i < dishIdsByRestaurant.size(); i++) {
+                    dishIdsWithRatingsByEmailAndRestaurant.put(dishIdsByRestaurant.get(i), Math.random() * 5);
+                }
+            }
+            returnMap.put(email,dishIdsWithRatingsByEmailAndRestaurant);
+        }
+
+        return returnMap;
     }
 
     Seq<DishComment> getDishComments(@NotNull String dishID) {

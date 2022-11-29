@@ -1,8 +1,8 @@
 package com.example.mealqr.preferenceAnalysis;
 
-import jakarta.json.Json;
 import org.springframework.stereotype.Component;
 
+import javax.json.Json;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -21,12 +21,14 @@ public class FastTextClient {
         Double value;
         try{
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("127.0.0.1:5000/get-dish-similarity"))
+                    .uri(new URI("http://127.0.0.1:5000/get-dish-similarity"))
+                    .setHeader("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonString))
                     .build();
             HttpResponse response = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString());
             value = Double.parseDouble(response.body().toString());
         }catch(Exception e){ //Gotta catch'em all
+            System.out.println(e);
             value = -1.0;
         }
 

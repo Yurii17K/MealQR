@@ -31,7 +31,11 @@ public class SlopeOne {
 //        System.out.println("Slope One - Before the Prediction\n");
         buildDifferencesMatrix(inputData);
 //        System.out.println("\nSlope One - With Predictions\n");
-        return predict(inputData, userEmail);
+        Map<String, Double> finalOutput = predict(inputData, userEmail);
+        if(finalOutput==null){
+            finalOutput = new HashMap<>();
+        }
+        return finalOutput;
     }
 
     /**
