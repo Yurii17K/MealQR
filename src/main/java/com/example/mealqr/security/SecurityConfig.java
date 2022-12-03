@@ -1,6 +1,7 @@
 package com.example.mealqr.security;
 
 import com.example.mealqr.domain.enums.Roles;
+import com.example.mealqr.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +24,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final FilterJWT filterJWT;
+    private final UserRepository userRepository;
 
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        return new MyUserDetailsService();
+        return new MyUserDetailsService(userRepository);
     }
 
     @Bean
@@ -67,6 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
                 .antMatchers( "/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers( "/api/restaurants").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
                 .antMatchers( "/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name())//
 

@@ -37,9 +37,14 @@ public class JWT {
                 .getBody();
     }
 
+    public static boolean tokenFormValid(String token) {
+        // check if token is not empty and has a form of a jwt token
+        return !token.isBlank() && token.matches(".*\\..*\\..*");
+    }
+
     // validate if token is signed for this username and is not expired
-    public static Boolean validateToken (String token, MyUserDetails myUserDetails) {
-        return (myUserDetails.getUsername().equals(extractAllClaims(token).getSubject())
+    public static boolean tokenSignatureValid(String token, CustomPrincipal customPrincipal) {
+        return (customPrincipal.getUsername().equals(extractAllClaims(token).getSubject())
                 && !extractAllClaims(token).getExpiration().before(new Date(System.currentTimeMillis())));
     }
 }

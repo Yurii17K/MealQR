@@ -12,19 +12,32 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor
-public class MyUserDetails implements UserDetails {
+public class CustomPrincipal implements UserDetails {
 
     private final User subject;
-    private final RestaurantRepository restaurantRepository;
+    private Set<String> restaurantIds;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(subject.getRole().name()));
         authorities.add(new SimpleGrantedAuthority(subject.getEmail()));
+        return authorities;
+    }
+
+    public Collection<SimpleGrantedAuthority> getAuthoritiesAll(RestaurantRepository restaurantRepository) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        restaurantIds = new HashSet<>();
+
+        authorities.add(new SimpleGrantedAuthority(subject.getRole().name()));
+        authorities.add(new SimpleGrantedAuthority(subject.getEmail()));
 
         restaurantRepository.findAllByRestaurantManagerEmail(subject.getEmail())//
-                .map(restaurant -> authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantId())));
+                .map(restaurant -> {
+                    restaurantIds.add(restaurant.getRestaurantId());
+                    authorities.add(new SimpleGrantedAuthority(restaurant.getRestaurantId()));
+                    return restaurant;
+                });
 
         return authorities;
     }
@@ -57,5 +70,9 @@ public class MyUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Set<String> getRestaurantIds() {
+        return this.restaurantIds;
     }
 }

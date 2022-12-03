@@ -1,24 +1,21 @@
 package com.example.mealqr.security;
 
-import com.example.mealqr.repositories.RestaurantRepository;
 import com.example.mealqr.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RestaurantRepository restaurantRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public MyUserDetails loadUserByUsername(String subject) throws UsernameNotFoundException {
+    public CustomPrincipal loadUserByUsername(String subject) throws UsernameNotFoundException {
         return userRepository.findUserByEmail(subject)//
-                .map(user -> new MyUserDetails(user, restaurantRepository))//
+                .map(CustomPrincipal::new)//
                 .getOrElseThrow(() -> new UsernameNotFoundException("Subject not found"));
     }
 }

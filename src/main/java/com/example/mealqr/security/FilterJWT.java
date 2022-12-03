@@ -1,5 +1,6 @@
 package com.example.mealqr.security;
 
+import com.example.mealqr.repositories.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,35 +20,44 @@ import java.io.IOException;
 public class FilterJWT extends OncePerRequestFilter {
 
     private final MyUserDetailsService myUserDetailsService;
+    private final RestaurantRepository restaurantRepository;
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse, @NotNull FilterChain filterChain) throws ServletException, IOException {
-
-        final String jwtTokenHeader = httpServletRequest.getHeader("Authorization");
+    protected void doFilterInternal(@NotNull HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse,
+            @NotNull FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = httpServletRequest.getHeader("Authorization");
         final String jwtToken;
+        final String subject;
+        final CustomPrincipal customPrincipal;
 
-        if (jwtTokenHeader != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (authorizationHeader != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            jwtToken = extractToken(authorizationHeader);
 
-            if (jwtTokenHeader.contains("Bearer")) {
-                jwtToken = jwtTokenHeader.replace("Bearer ", "");
-            } else {
-                jwtToken = jwtTokenHeader;
-            }
+            if (JWT.tokenFormValid(jwtToken)) {
+                subject = JWT.extractAllClaims(jwtToken).getSubject();
+                customPrincipal = myUserDetailsService.loadUserByUsername(subject);
 
-            if (jwtToken.length() != 0 && jwtToken.matches(".*\\..*\\..*")) { // check if token is not empty and has a form of a jwt token
-                final String subject = JWT.extractAllClaims(jwtToken).getSubject();
-                final MyUserDetails myUserDetails = myUserDetailsService.loadUserByUsername(subject);
-
-                if (Boolean.TRUE.equals(JWT.validateToken(jwtToken, myUserDetails))) {
-                    // spring security default bs
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                            new UsernamePasswordAuthenticationToken(myUserDetails, null, myUserDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                if (JWT.tokenSignatureValid(jwtToken, customPrincipal)) {
+                    initializeAuthentication(customPrincipal, httpServletRequest);
                 }
             }
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    private void initializeAuthentication(@NotNull CustomPrincipal customPrincipal, @NotNull HttpServletRequest httpServletRequest) {
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                customPrincipal, null, customPrincipal.getAuthoritiesAll(restaurantRepository));
+        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+    }
+
+    private String extractToken(String authorizationHeader) {
+        if (authorizationHeader.contains("Bearer")) {
+            return authorizationHeader.replace("Bearer ", "");
+        } else {
+            return authorizationHeader;
+        }
     }
 }
