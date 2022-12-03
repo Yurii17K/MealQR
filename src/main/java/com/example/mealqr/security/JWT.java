@@ -2,15 +2,22 @@ package com.example.mealqr.security;
 
 
 import com.example.mealqr.domain.User;
+import com.example.mealqr.exceptions.ApiError;
+import com.example.mealqr.exceptions.ApiException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.vavr.API;
+import io.vavr.control.Try;
+import io.vavr.control.Validation;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -37,14 +44,31 @@ public class JWT {
                 .getBody();
     }
 
-    public static boolean tokenFormValid(String token) {
-        // check if token is not empty and has a form of a jwt token
-        return !token.isBlank() && token.matches(".*\\..*\\..*");
+    public static CustomPrincipal extractCustomPrincipal(String jwtToken, Function<String, CustomPrincipal> loadByUsername) {
+        return tokenFormValid(jwtToken)//
+                .flatMap(JWT::tokenNotExpired)//
+                .flatMap(token -> tokenSignatureValid(token, loadByUsername))//
+                .toEither()//
+                .getOrElseThrow(ApiException::new);
     }
 
-    // validate if token is signed for this username and is not expired
-    public static boolean tokenSignatureValid(String token, CustomPrincipal customPrincipal) {
-        return (customPrincipal.getUsername().equals(extractAllClaims(token).getSubject())
-                && !extractAllClaims(token).getExpiration().before(new Date(System.currentTimeMillis())));
+    private static Validation<ApiError, String> tokenFormValid(String jwtToken) {
+        return API.Some(jwtToken)//
+                .filter(token -> !token.isBlank() && token.matches(".*\\..*\\..*"))//
+                .toValidation(ApiError.buildError("Unauthorized", HttpStatus.FORBIDDEN));
+    }
+
+    private static Validation<ApiError, Claims> tokenNotExpired(String jwtToken) {
+        return Try.of(() -> extractAllClaims(jwtToken))
+                .toValidation(ApiError.buildError("Unauthorized", HttpStatus.FORBIDDEN));
+    }
+
+    private static Validation<ApiError, CustomPrincipal> tokenSignatureValid(Claims claims, Function<String, CustomPrincipal> loadByUsername) {
+        String subject = claims.getSubject();
+        CustomPrincipal customPrincipal = loadByUsername.apply(subject);
+        if (!customPrincipal.getUsername().equals(subject)) {
+            return Validation.invalid(ApiError.buildError("Unauthorized", HttpStatus.FORBIDDEN));
+        }
+        return Validation.valid(customPrincipal);
     }
 }

@@ -5,6 +5,7 @@ import com.example.mealqr.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,6 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final FilterJWT filterJWT;
     private final UserRepository userRepository;
+    private final Environment environment;
 
     @Bean
     @Override
@@ -52,9 +57,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class)//
-                .csrf().disable()//
-                .authorizeRequests()//
+        http.addFilterBefore(filterJWT, UsernamePasswordAuthenticationFilter.class);
+
+        http.cors().and().csrf().disable();
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeRequests()//
                 .antMatchers("/api/users/sign-in", "/api/users/sign-up").permitAll()//
                 .antMatchers("/api/users/update-allergies").authenticated()//
 
@@ -65,15 +74,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.PUT, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-//                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers(HttpMethod.PATCH, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers(HttpMethod.DELETE, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
-                .antMatchers( "/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
-                .antMatchers( "/api/restaurants").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers("/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
+                .antMatchers("/api/restaurants").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
-                .antMatchers( "/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name())//
+                .antMatchers("/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name());
+    }
 
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern(environment.getProperty("security.cors.origins.pattern"));
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 }

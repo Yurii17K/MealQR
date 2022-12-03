@@ -22,25 +22,18 @@ public class FilterJWT extends OncePerRequestFilter {
     private final MyUserDetailsService myUserDetailsService;
     private final RestaurantRepository restaurantRepository;
 
+
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest httpServletRequest, @NotNull HttpServletResponse httpServletResponse,
             @NotNull FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = httpServletRequest.getHeader("Authorization");
         final String jwtToken;
-        final String subject;
         final CustomPrincipal customPrincipal;
 
         if (authorizationHeader != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             jwtToken = extractToken(authorizationHeader);
-
-            if (JWT.tokenFormValid(jwtToken)) {
-                subject = JWT.extractAllClaims(jwtToken).getSubject();
-                customPrincipal = myUserDetailsService.loadUserByUsername(subject);
-
-                if (JWT.tokenSignatureValid(jwtToken, customPrincipal)) {
-                    initializeAuthentication(customPrincipal, httpServletRequest);
-                }
-            }
+            customPrincipal = JWT.extractCustomPrincipal(jwtToken, myUserDetailsService::loadUserByUsername);
+            initializeAuthentication(customPrincipal, httpServletRequest);
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
