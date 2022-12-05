@@ -29,7 +29,7 @@ replay_pid*
 .settings/
 
 # Intellij
-.idea/
+.idea/*
 *.iml
 *.iws
 
