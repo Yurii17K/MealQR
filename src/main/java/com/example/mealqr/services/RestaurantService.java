@@ -8,6 +8,9 @@ import com.example.mealqr.web.rest.request.RestaurantSaveReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class RestaurantService {
@@ -17,5 +20,11 @@ public class RestaurantService {
     public RestaurantRes createRestaurant(String userEmail, RestaurantSaveReq restaurantSaveReq) {
         return RestaurantResMapper.mapToRestaurantRes(restaurantRepository.save(
                 Restaurant.of(restaurantSaveReq, userEmail)));
+    }
+
+    public List<RestaurantRes> getRestaurants(Set<String> restaurantIds) {
+        return restaurantRepository.findAllByRestaurantIdIn(restaurantIds)//
+                .map(RestaurantResMapper::mapToRestaurantRes)//
+                .asJava();
     }
 }

@@ -9,14 +9,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -34,8 +30,8 @@ public class RestaurantController {
 
     @GetMapping("/restaurants")
     @Operation(summary = "Get all restaurants that belong to the current user", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Set<String>> createRestaurant(Authentication authentication) {
+    public ResponseEntity<List<RestaurantRes>> getRestaurants(Authentication authentication) {
         CustomPrincipal customPrincipal = (CustomPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(customPrincipal.getRestaurantIds());
+        return ResponseEntity.ok(restaurantService.getRestaurants(customPrincipal.getRestaurantIds()));
     }
 }
