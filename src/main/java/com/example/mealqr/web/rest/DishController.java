@@ -99,14 +99,14 @@ public class DishController {
                 .getOrElseThrow(ApiException::new);
     }
 
-    @PreAuthorize("hasAuthority({#restaurantId})")
+//    @PreAuthorize("hasAuthority({#restaurantId})") // verification happens in the service
     @DeleteMapping("/dishes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = ""),
-            @ApiResponse(responseCode = "404", description = "Dish with this name does not exists in the restaurant")})
+            @ApiResponse(responseCode = "404", description = "Dish with this id does not exists in the restaurant")})
     @Operation(summary = "removeDishFromRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Boolean> removeDishFromRestaurantOffer(@RequestParam String dishName, @RequestParam String restaurantId) {
-        return dishService.removeDishFromRestaurantOffer(dishName, restaurantId)
+    public ResponseEntity<Boolean> removeDishFromRestaurantOffer(@RequestParam String dishId, Principal principal) {
+        return dishService.removeDishFromRestaurantOffer(dishId, principal)
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }

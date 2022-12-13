@@ -42,3 +42,5 @@ target/
 
 # Heroku
 #Procfile
+
+db_dumps/*

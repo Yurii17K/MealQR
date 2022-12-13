@@ -1,10 +1,16 @@
 package com.example.mealqr.services;
 
+import com.example.mealqr.domain.CartItem;
 import com.example.mealqr.domain.CustomerAllergy;
 import com.example.mealqr.domain.Dish;
+import com.example.mealqr.domain.Restaurant;
 import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
-import com.example.mealqr.repositories.*;
+import com.example.mealqr.repositories.CartItemRepository;
+import com.example.mealqr.repositories.CustomerAllergyRepository;
+import com.example.mealqr.repositories.DishRepository;
+import com.example.mealqr.repositories.RestaurantRepository;
+import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.services.mappers.DishWithOpinionsResMapper;
 import com.example.mealqr.web.rest.reponse.DishRes;
@@ -12,7 +18,7 @@ import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
 import com.example.mealqr.web.rest.request.DishSaveReq;
 import com.example.mealqr.web.rest.request.DishUpdateReq;
 import io.vavr.API;
-import io.vavr.Function2;
+import io.vavr.Function3;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Vector;
 import io.vavr.control.Either;
@@ -25,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
@@ -104,9 +111,10 @@ public class DishService {
     }
 
     @Transactional
-    public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishName, @NotBlank String restaurantId) {
-        return validateDishDelete(dishName, restaurantId)//
-                .peek(dish -> dishRepository.deleteByDishNameAndRestaurantRestaurantId(dishName, restaurantId))//
+    public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishId, Principal principal) {
+        CustomPrincipal customPrincipal = (CustomPrincipal) principal;
+        return validateDishDelete(dishId, customPrincipal.getRestaurantIds())//
+                .peek(dish -> dishRepository.deleteById(dishId))//
                 .toEither();
     }
 
@@ -120,17 +128,29 @@ public class DishService {
         return dishRepository.save(Dish.update(dishUpdateReq, originalDish));
     }
 
-    private Validation<Seq<ApiError>, Boolean> validateDishDelete(String dishName, String restaurantId) {
-        Option<Dish> dishOption = dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId);
+    private Validation<Seq<ApiError>, Boolean> validateDishDelete(String dishId, Set<String> restaurantIds) {
+        Option<Dish> dishOption = dishRepository.findByDishId(dishId);
         return Validation.combine(
                         dishOption.toValidation(ApiError.buildError(
-                                "Dish with this name does not exist in the restaurant", HttpStatus.NOT_FOUND)),
-                        dishOption//
-                                .map(cartItemRepository::findAllByDish)//
-                                .filter(Seq::isEmpty)//
-                                .toValidation(ApiError.buildError("Invalid state! Dish is in someone's cart")))//
-                .ap(Function2.constant(true))//
+                                "Dish with this id does not exist in the restaurant", HttpStatus.NOT_FOUND)),
+                        validateDishIsNotInCart(dishOption),
+                        validateAccessToDeleteDish(restaurantIds, dishOption))//
+                .ap(Function3.constant(true))//
                 .mapError(Function.identity());
+    }
+
+    private Validation<ApiError, String> validateAccessToDeleteDish(Set<String> restaurantIds, Option<Dish> dishOption) {
+        return dishOption.map(Dish::getRestaurant)//
+                .map(Restaurant::getRestaurantId)//
+                .filter(restaurantIds::contains)//
+                .toValidation(ApiError.buildError("You do not have permission to delete this dish", HttpStatus.FORBIDDEN));
+    }
+
+    private Validation<ApiError, Seq<CartItem>> validateDishIsNotInCart(Option<Dish> dishOption) {
+        return dishOption//
+                .map(cartItemRepository::findAllByDish)//
+                .filter(Seq::isEmpty)//
+                .toValidation(ApiError.buildError("Invalid state! Dish is in someone's cart"));
     }
 
     private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {
