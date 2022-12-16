@@ -16,4 +16,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, String> 
     Seq<Restaurant> findAllByRestaurantIdIn(Set<String> restaurantIds);
 
     Seq<Restaurant> findAllByRestaurantManagerEmail(String email);
+
+    Seq<Restaurant> findAllByRestaurantCity(String restaurantCity);
 }

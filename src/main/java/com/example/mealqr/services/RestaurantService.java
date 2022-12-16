@@ -27,4 +27,10 @@ public class RestaurantService {
                 .map(RestaurantResMapper::mapToRestaurantRes)//
                 .asJava();
     }
+
+    public List<RestaurantRes> getRestaurantsByCity(String restaurantCity) {
+        return restaurantRepository.findAllByRestaurantCity(restaurantCity)
+                .map(RestaurantResMapper::mapToRestaurantRes)//
+                .asJava();
+    }
 }
