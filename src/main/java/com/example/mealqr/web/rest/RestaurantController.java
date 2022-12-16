@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.security.Principal;
 import java.util.List;
 
@@ -33,5 +35,11 @@ public class RestaurantController {
     public ResponseEntity<List<RestaurantRes>> getRestaurants(Authentication authentication) {
         CustomPrincipal customPrincipal = (CustomPrincipal) authentication.getPrincipal();
         return ResponseEntity.ok(restaurantService.getRestaurants(customPrincipal.getRestaurantIds()));
+    }
+
+    @GetMapping("/restaurantsByCity")
+    @Operation(summary = "Get all restaurants given a city")
+    public ResponseEntity<List<RestaurantRes>> getRestaurantsByCity( @Valid @NotBlank @RequestParam("restaurantCity") String city) {
+        return ResponseEntity.ok(restaurantService.getRestaurantsByCity(city));
     }
 }
