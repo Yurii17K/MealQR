@@ -1,6 +1,7 @@
 package com.example.mealqr.web.rest;
 
 import com.example.mealqr.exceptions.ApiException;
+import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.DishService;
 import com.example.mealqr.web.rest.reponse.DishRes;
 import com.example.mealqr.web.rest.reponse.DishWithOpinionsRes;
@@ -14,6 +15,7 @@ import io.vavr.collection.Seq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +44,19 @@ public class DishController {
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }
+
+    @GetMapping("/dish/{dishId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = ""),
+            @ApiResponse(responseCode = "400", description = "The given dish does not exist")})
+    @Operation(summary = "Get a specific dish by dishId")
+    public ResponseEntity<DishRes> getDishById(
+            @Valid @NotBlank @PathVariable("dishId") String dishId) {
+        return dishService.getSpecificDish(dishId).map(ResponseEntity::ok)//
+                .getOrElseThrow(ApiException::new);
+    }
+
+
 
     @GetMapping("/dishes/random")
     @ApiResponses(value = {
@@ -105,7 +120,8 @@ public class DishController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish with this id does not exists in the restaurant")})
     @Operation(summary = "removeDishFromRestaurantOffer", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Boolean> removeDishFromRestaurantOffer(@RequestParam String dishId, Principal principal) {
+    public ResponseEntity<Boolean> removeDishFromRestaurantOffer(@RequestParam String dishId, Authentication authentication) {
+        CustomPrincipal principal = (CustomPrincipal) authentication.getPrincipal();
         return dishService.removeDishFromRestaurantOffer(dishId, principal)
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
