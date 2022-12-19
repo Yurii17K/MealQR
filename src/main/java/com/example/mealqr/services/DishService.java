@@ -57,6 +57,17 @@ public class DishService {
                 .toEither(ApiError.buildError("The restaurant is empty or doesn't exist"));
     }
 
+    public Either<ApiError, DishRes> getSpecificDish(@NotBlank String dishId) {
+
+        var optional = dishRepository.findByDishId(dishId);
+        if(optional.isEmpty()){
+            return Either.left(ApiError.buildError("The dish does not exist"));
+        }else{
+            var dishRes = DishResMapper.mapToDishRes(optional.get());
+            return Either.right(dishRes);
+        }
+    }
+
     public List<DishWithOpinionsRes> getAllDishesInRestaurantConfiguredForUser(String userEmail, String restaurantId) {
         if (restaurantRepository.findByRestaurantId(restaurantId).isEmpty()) {
             return new LinkedList<>();
@@ -111,8 +122,7 @@ public class DishService {
     }
 
     @Transactional
-    public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishId, Principal principal) {
-        CustomPrincipal customPrincipal = (CustomPrincipal) principal;
+    public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishId, CustomPrincipal customPrincipal) {
         return validateDishDelete(dishId, customPrincipal.getRestaurantIds())//
                 .peek(dish -> dishRepository.deleteById(dishId))//
                 .toEither();
