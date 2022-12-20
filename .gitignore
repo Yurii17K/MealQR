@@ -41,6 +41,5 @@ log/
 target/
 
 # Heroku
-#Procfile
-
+Procfile
 db_dumps/*

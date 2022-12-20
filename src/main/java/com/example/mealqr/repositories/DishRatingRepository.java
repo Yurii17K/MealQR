@@ -14,6 +14,7 @@ public interface DishRatingRepository extends JpaRepository<DishRating, String> 
     Seq<DishRating> findAllByDishDishId(String dishId);
 
     Option<DishRating> findByDishDishIdAndUserEmail(String dishID, String userEmail);
+    Seq<DishRating> findAllByUserEmail(String userEmail);
 
     @Query(value = "select distinct dr.dish_opinion_id, dr.dish_id, dr.user_email, dr.rating from dish_ratings as dr " +
             "join dishes as d on d.dish_id = dr.dish_id " +

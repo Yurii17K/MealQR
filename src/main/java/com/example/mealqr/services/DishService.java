@@ -20,6 +20,7 @@ import com.example.mealqr.web.rest.request.DishUpdateReq;
 import io.vavr.API;
 import io.vavr.Function3;
 import io.vavr.collection.Seq;
+import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
@@ -46,15 +47,31 @@ public class DishService {
     private final RestaurantRepository restaurantRepository;
     private final CustomerAllergyRepository customerAllergyRepository;
     private final CartItemRepository cartItemRepository;
-    private final SlopeOne slopeOne;
+    private final MasterRecommenderService masterRecommenderService;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
     public Either<ApiError, Seq<DishRes>> getAllDishesInRestaurant(@NotBlank String restaurantId) {
-        return API.Some(dishRepository.findAllByRestaurantRestaurantId(restaurantId))//
+
+
+        try{
+            var dishes = dishRepository.findAllByRestaurantRestaurantId(restaurantId).stream().map(x->DishResMapper.mapToDishRes(x));
+            var vavrList = Vector.ofAll(dishes);
+            return Either.right(vavrList);
+        }catch (Exception e){
+            return Either.left(ApiError.buildError("The restaurant is empty or doesn't exist"));
+        }
+
+
+        //return Either.right(Vector.ofAll(dishes)).orElse(ApiError.buildError("The restaurant is empty or doesn't exist"));
+
+        /*
+        return API.Some(vavrStream//
                 .filter(Seq::nonEmpty)//
-                .map(dishes -> dishes.map(DishResMapper::mapToDishRes))//
-                .toEither(ApiError.buildError("The restaurant is empty or doesn't exist"));
+                .map(dishes -> dishes.map(DishResMapper::mapToDishRes))
+                .toEither(ApiError.buildError("The restaurant is empty or doesn't exist")));
+
+         */
     }
 
     public Either<ApiError, DishRes> getSpecificDish(@NotBlank String dishId) {
@@ -91,23 +108,29 @@ public class DishService {
     }
 
     public Either<ApiError, DishRes> getRandomDishFromRestaurantOffer(@NotBlank String restaurantId) {
-        Seq<Dish> dishes = dishRepository.findAllByRestaurantRestaurantId(restaurantId);
-        return dishes.headOption()//
-                .map(dosh -> dishes.get(RANDOM.nextInt(dishes.size())))//
+        List<Dish> dishes = dishRepository.findAllByRestaurantRestaurantId(restaurantId);
+
+        var vavrStream = Stream.ofAll(dishes.stream());
+        return vavrStream.headOption()
+                .map(dosh -> dishes.get(RANDOM.nextInt(dishes.size())))
                 .map(DishResMapper::mapToDishRes)//
                 .toEither(ApiError.buildError("The restaurant is empty or doesn't exist"));
     }
 
     private LinkedList<Dish> getAllDishesInRestaurantSortedByUserPreference(String userEmail, String restaurantId) {
-        io.vavr.collection.Map<String, Dish> dishesWithIdsInRestaurant = dishRepository
-                .findAllByRestaurantRestaurantId(restaurantId)//
-                .toMap(Dish::getDishId, Function.identity());
+        Map<String, Dish> dishesWithIdsInRestaurant = dishRepository
+                .findAllByRestaurantRestaurantId(restaurantId)
+                .stream()
+                .collect(Collectors.toMap(Dish::getDishId, Function.identity()));
+
 
         // results of user preference analysis
-        return slopeOne.slopeOne(userEmail, dishOpinionService.getDataForPreferenceAnalysis(restaurantId))//
-                .entrySet().stream()//
+
+        var vavrStream = Stream.ofAll(masterRecommenderService.getDishRatingPredictionsForRestaurantAndUser(userEmail,restaurantId)//
+                .entrySet().stream());
+        return vavrStream
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
-                .map(ratingByDishId -> dishesWithIdsInRestaurant.get(ratingByDishId.getKey()).get()) // map dishIds to Dish objects
+                .map(ratingByDishId -> dishesWithIdsInRestaurant.get(ratingByDishId.getKey())) // map dishIds to Dish objects
                 .collect(Collectors.toCollection(LinkedList::new)); // collect to a linked list to preserve sorted order
     }
 

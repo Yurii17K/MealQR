@@ -7,10 +7,12 @@ import io.vavr.control.Option;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface DishRepository extends JpaRepository<Dish, String> {
 
-    Seq<Dish> findAllByRestaurantRestaurantId(String restaurantId);
+    List<Dish> findAllByRestaurantRestaurantId(String restaurantId);
 
     Option<Dish> findByDishNameAndRestaurantRestaurantId(String dishName, String restaurantId);
 
