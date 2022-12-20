@@ -15,6 +15,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -41,5 +42,11 @@ public class RestaurantController {
     @Operation(summary = "Get all restaurants given a city")
     public ResponseEntity<List<RestaurantRes>> getRestaurantsByCity( @Valid @NotBlank @RequestParam("restaurantCity") String city) {
         return ResponseEntity.ok(restaurantService.getRestaurantsByCity(city));
+    }
+
+    @GetMapping("/restaurant-cities")
+    @Operation(summary = "Get all cities with registered restaurants")
+    public ResponseEntity<Set<String>> getRestaurantCities() {
+        return ResponseEntity.ok(restaurantService.getRestaurantCities());
     }
 }

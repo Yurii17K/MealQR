@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +30,15 @@ public class RestaurantService {
     }
 
     public List<RestaurantRes> getRestaurantsByCity(String restaurantCity) {
-        return restaurantRepository.findAllByRestaurantCity(restaurantCity)
+        return restaurantRepository.findAllByRestaurantCity(restaurantCity)//
                 .map(RestaurantResMapper::mapToRestaurantRes)//
                 .asJava();
+    }
+
+    public Set<String> getRestaurantCities() {
+        return restaurantRepository.findAll()//
+                .stream()//
+                .map(Restaurant::getRestaurantCity)//
+                .collect(Collectors.toSet());
     }
 }
