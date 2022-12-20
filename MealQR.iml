@@ -147,6 +147,8 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.13.2.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.2" level="project" />
     <orderEntry type="library" name="Maven: javax.xml.bind:jsr173_api:1.0" level="project" />
+    <orderEntry type="library" name="Maven: javax.json:javax.json-api:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.glassfish:javax.json:1.1" level="project" />
     <orderEntry type="library" name="Maven: io.vavr:vavr:0.10.4" level="project" />
     <orderEntry type="library" name="Maven: io.vavr:vavr-match:0.10.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-actuator:2.6.7" level="project" />
