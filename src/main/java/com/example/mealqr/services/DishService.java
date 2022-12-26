@@ -6,10 +6,7 @@ import com.example.mealqr.domain.Dish;
 import com.example.mealqr.domain.Restaurant;
 import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.preferenceAnalysis.SlopeOne;
-import com.example.mealqr.repositories.CartItemRepository;
-import com.example.mealqr.repositories.CustomerAllergyRepository;
-import com.example.mealqr.repositories.DishRepository;
-import com.example.mealqr.repositories.RestaurantRepository;
+import com.example.mealqr.repositories.*;
 import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.services.mappers.DishWithOpinionsResMapper;
@@ -48,6 +45,9 @@ public class DishService {
     private final CustomerAllergyRepository customerAllergyRepository;
     private final CartItemRepository cartItemRepository;
     private final MasterRecommenderService masterRecommenderService;
+    private final DishRatingRepository dishRatingRepository;
+    private final DishCommentRepository dishCommentRepository;
+
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -148,6 +148,8 @@ public class DishService {
     public Either<Seq<ApiError>, Boolean> removeDishFromRestaurantOffer(@NotBlank String dishId, CustomPrincipal customPrincipal) {
         return validateDishDelete(dishId, customPrincipal.getRestaurantIds())//
                 .peek(dish -> dishRepository.deleteById(dishId))//
+                .peek(dish->dishRatingRepository.deleteByDishId(dishId))
+                .peek(dish->dishCommentRepository.deleteByDishId(dishId))
                 .toEither();
     }
 
