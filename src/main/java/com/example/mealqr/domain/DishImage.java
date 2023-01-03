@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Entity
@@ -35,7 +34,7 @@ public class DishImage {
         return DishImage.builder()//
                 .dishImageId(UUID.randomUUID().toString())//
                 .dish(Dish.builder().dishId(dishId).build())//
-                .data(dishSaveReq.getDishImage().getBase64Data().getBytes(StandardCharsets.UTF_8))//
+                .data(dishSaveReq.getDishImage().getBase64Data())//
                 .contentType(dishSaveReq.getDishImage().getContentType())//
                 .build();
     }
@@ -51,7 +50,7 @@ public class DishImage {
     public static DishImage update(ImageDto newImage, DishImage originalImage) {
         return DishImage.builder()//
                 .dishImageId(originalImage.getDishImageId())//
-                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
+                .data(newImage.getBase64Data())//
                 .contentType(newImage.getContentType())//
                 .build();
     }
