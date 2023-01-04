@@ -8,6 +8,7 @@ import com.example.mealqr.repositories.CustomerAllergyRepository;
 import com.example.mealqr.repositories.UserRepository;
 import com.example.mealqr.security.JWT;
 import com.example.mealqr.web.rest.reponse.TokenRes;
+import com.example.mealqr.web.rest.request.ChangeUserPasswordReq;
 import com.example.mealqr.web.rest.request.CustomerAllergiesUpdateReq;
 import com.example.mealqr.web.rest.request.UserSignInReq;
 import com.example.mealqr.web.rest.request.UserSignUpReq;
@@ -51,22 +52,6 @@ public class UserService {
                 .toEither();
     }
 
-    public Either<ApiError, CustomerAllergy> updateCustomerAllergies(String userEmail,
-            CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
-        return userRepository.findUserByEmail(userEmail)//
-                .map(userPresent -> customerAllergyRepository.save(
-                        CustomerAllergy.of(userEmail, customerAllergiesUpdateReq)))//
-                .toEither(ApiError.buildError("User with this email does not exist", HttpStatus.NOT_FOUND));
-    }
-
-    private void addAllergies(UserSignUpReq userSignUpReq) {
-        userSignUpReq.getAllergies()//
-                .peek(allergiesPresent -> customerAllergyRepository.save(CustomerAllergy.builder()//
-                        .userEmail(userSignUpReq.getEmail())//
-                        .allergies(allergiesPresent)//
-                        .build()));
-    }
-
     private Validation<Seq<ApiError>, UserSignUpReq> validateUserSignUp(UserSignUpReq userSignUpReq) {
         return Validation.combine(
                         validatePassword(userSignUpReq),
@@ -88,5 +73,41 @@ public class UserService {
                 .filter(Option::isEmpty)//
                 .map(userNotPresent -> userSignUpReq)//
                 .toValidation(ApiError.buildError("User with this email already exists"));
+    }
+
+    private void addAllergies(UserSignUpReq userSignUpReq) {
+        userSignUpReq.getAllergies()//
+                .peek(allergiesPresent -> customerAllergyRepository.save(CustomerAllergy.builder()//
+                        .userEmail(userSignUpReq.getEmail())//
+                        .allergies(allergiesPresent)//
+                        .build()));
+    }
+
+    public Either<ApiError, CustomerAllergy> updateCustomerAllergies(String userEmail,
+            CustomerAllergiesUpdateReq customerAllergiesUpdateReq) {
+        return userRepository.findUserByEmail(userEmail)//
+                .map(userPresent -> customerAllergyRepository.save(
+                        CustomerAllergy.of(userEmail, customerAllergiesUpdateReq)))//
+                .toEither(ApiError.buildError("User with this email does not exist", HttpStatus.NOT_FOUND));
+    }
+
+    public Either<ApiError, Boolean> changeUserPassword(String email, ChangeUserPasswordReq changeUserPasswordReq) {
+        Option<User> userOption = userRepository.findUserByEmail(email);
+        if (userOption.isEmpty())//
+            return Either.left(ApiError.buildError("No user found", HttpStatus.NOT_FOUND));
+        return validatePasswordChange(userOption.get(), changeUserPasswordReq)//
+                .map(user -> user.withPass(bCryptPasswordEncoder.encode(
+                        changeUserPasswordReq.getNewPassword())))//
+                .peek(userRepository::save)//
+                .map(user -> true)//
+                .toEither();
+    }
+
+    private Validation<ApiError, User> validatePasswordChange(User user, ChangeUserPasswordReq changeUserPasswordReq) {
+        return API.Some(user.getPass())//
+                .filter(currentPassword -> bCryptPasswordEncoder
+                        .matches(changeUserPasswordReq.getOldPassword(), currentPassword))//
+                .map(p -> user)//
+                .toValidation(ApiError.buildError("Old password is not correct!"));
     }
 }
