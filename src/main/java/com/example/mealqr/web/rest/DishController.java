@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.vavr.collection.Seq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -39,10 +37,7 @@ public class DishController {
     @Operation(summary = "Get all dishes in the restaurant")
     public ResponseEntity<List<DishRes>> getAllDishesInRestaurant(
             @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
-        return dishService.getAllDishesInRestaurant(restaurantId)//
-                .map(Seq::asJava)//
-                .map(ResponseEntity::ok)//
-                .getOrElseThrow(ApiException::new);
+        return ResponseEntity.ok(dishService.getAllDishesInRestaurant(restaurantId));
     }
 
     @GetMapping("/dish/{dishId}")
@@ -84,9 +79,9 @@ public class DishController {
     @GetMapping("/dishes/user")
     @ApiResponse(responseCode = "200", description = "")
     @Operation(summary = "getAllDishesInRestaurantSortedByUserPreference", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<List<DishWithOpinionsRes>> getAllDishesInRestaurantSortedByUserPreference(Principal principal,
+    public ResponseEntity<List<DishWithOpinionsRes>> getAllDishesInRestaurantSortedByUserPreference(Authentication authentication,
             @RequestParam @NotBlank @Valid String restaurantId) {
-        return ResponseEntity.ok(dishService.getAllDishesInRestaurantConfiguredForUser(principal.getName(), restaurantId));
+        return ResponseEntity.ok(dishService.getAllDishesInRestaurantConfiguredForUser(authentication, restaurantId));
     }
 
     @PreAuthorize("hasAuthority({#dishSaveReq.restaurantId})")

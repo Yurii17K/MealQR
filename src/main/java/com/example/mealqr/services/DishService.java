@@ -5,7 +5,6 @@ import com.example.mealqr.domain.CustomerAllergy;
 import com.example.mealqr.domain.Dish;
 import com.example.mealqr.domain.Restaurant;
 import com.example.mealqr.exceptions.ApiError;
-import com.example.mealqr.preferenceAnalysis.SlopeOne;
 import com.example.mealqr.repositories.*;
 import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.mappers.DishResMapper;
@@ -24,14 +23,15 @@ import io.vavr.control.Option;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,27 +51,11 @@ public class DishService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public Either<ApiError, Seq<DishRes>> getAllDishesInRestaurant(@NotBlank String restaurantId) {
-
-
-        try{
-            var dishes = dishRepository.findAllByRestaurantRestaurantId(restaurantId).stream().map(x->DishResMapper.mapToDishRes(x));
-            var vavrList = Vector.ofAll(dishes);
-            return Either.right(vavrList);
-        }catch (Exception e){
-            return Either.left(ApiError.buildError("The restaurant is empty or doesn't exist"));
-        }
-
-
-        //return Either.right(Vector.ofAll(dishes)).orElse(ApiError.buildError("The restaurant is empty or doesn't exist"));
-
-        /*
-        return API.Some(vavrStream//
-                .filter(Seq::nonEmpty)//
-                .map(dishes -> dishes.map(DishResMapper::mapToDishRes))
-                .toEither(ApiError.buildError("The restaurant is empty or doesn't exist")));
-
-         */
+    public List<DishRes> getAllDishesInRestaurant(@NotBlank String restaurantId) {
+        return dishRepository.findAllByRestaurantRestaurantId(restaurantId)//
+                .stream()//
+                .map(DishResMapper::mapToDishRes)//
+                .collect(Collectors.toList());
     }
 
     public Either<ApiError, DishRes> getSpecificDish(@NotBlank String dishId) {
@@ -85,16 +69,17 @@ public class DishService {
         }
     }
 
-    public List<DishWithOpinionsRes> getAllDishesInRestaurantConfiguredForUser(String userEmail, String restaurantId) {
-        if (restaurantRepository.findByRestaurantId(restaurantId).isEmpty()) {
-            return new LinkedList<>();
-        }
-        return getAllDishesInRestaurantSortedByUserPreference(userEmail, restaurantId) // analyse user preferences
-                .stream()//
-                .filter(dish -> !isUserAllergicToDish(userEmail, dish)) // remove allergies
-                .map(dish -> DishWithOpinionsResMapper.mapToDishWithOpinionsRes(
-                        dish,
-                        dishOpinionService.getDishAverageRating(dish.getDishId()),
+    public List<DishWithOpinionsRes> getAllDishesInRestaurantConfiguredForUser(Authentication authentication, String restaurantId) {
+        AtomicReference<String> userEmail = new AtomicReference<>();
+        return Option.of(authentication)//
+                .peek(auth -> userEmail.set(((CustomPrincipal) authentication.getPrincipal()).getUsername()))//
+                .map(userAuthenticated -> getAllDishesInRestaurantSortedByUserPreference(userEmail.get(), restaurantId)//
+                        .stream()//
+                        .filter(dish -> !isUserAllergicToDish(userEmail.get(), dish)))//
+                .getOrElse(() -> dishRepository.findAllByRestaurantRestaurantId(restaurantId).stream())//
+                .map(dish -> DishWithOpinionsResMapper.mapToDishWithOpinionsRes(//
+                        dish,//
+                        dishOpinionService.getDishAverageRating(dish.getDishId()),//
                         dishOpinionService.getDishComments(dish.getDishId())))//
                 .collect(Collectors.toCollection(LinkedList::new));
     }
@@ -118,18 +103,19 @@ public class DishService {
     }
 
     private LinkedList<Dish> getAllDishesInRestaurantSortedByUserPreference(String userEmail, String restaurantId) {
-        Map<String, Dish> dishesWithIdsInRestaurant = dishRepository
-                .findAllByRestaurantRestaurantId(restaurantId)
-                .stream()
+        if (restaurantRepository.findByRestaurantId(restaurantId).isEmpty()) {
+            return new LinkedList<>();
+        }
+
+        Map<String, Dish> dishesWithIdsInRestaurant = dishRepository//
+                .findAllByRestaurantRestaurantId(restaurantId)//
+                .stream()//
                 .collect(Collectors.toMap(Dish::getDishId, Function.identity()));
 
-
         // results of user preference analysis
-
-        var vavrStream = Stream.ofAll(masterRecommenderService.getDishRatingPredictionsForRestaurantAndUser(userEmail,restaurantId)//
-                .entrySet().stream());
-        return vavrStream
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
+        return masterRecommenderService.getDishRatingPredictionsForRestaurantAndUser(userEmail,restaurantId)//
+                .entrySet()//
+                .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // get most preferable at the top
                 .map(ratingByDishId -> dishesWithIdsInRestaurant.get(ratingByDishId.getKey())) // map dishIds to Dish objects
                 .collect(Collectors.toCollection(LinkedList::new)); // collect to a linked list to preserve sorted order
     }
