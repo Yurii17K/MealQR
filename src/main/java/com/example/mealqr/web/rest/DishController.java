@@ -76,11 +76,11 @@ public class DishController {
                 .getOrElseThrow(ApiException::new);
     }
 
-    @GetMapping("/dishes/user")
+    @GetMapping("/dishes/user/{restaurantId}")
     @ApiResponse(responseCode = "200", description = "")
     @Operation(summary = "getAllDishesInRestaurantSortedByUserPreference", security = @SecurityRequirement(name = "JWT AUTH"))
     public ResponseEntity<List<DishWithOpinionsRes>> getAllDishesInRestaurantSortedByUserPreference(Authentication authentication,
-            @RequestParam @NotBlank @Valid String restaurantId) {
+            @Valid @NotBlank @PathVariable("restaurantId") String restaurantId) {
         return ResponseEntity.ok(dishService.getAllDishesInRestaurantConfiguredForUser(authentication, restaurantId));
     }
 
