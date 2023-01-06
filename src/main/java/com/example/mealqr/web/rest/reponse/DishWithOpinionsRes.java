@@ -19,6 +19,7 @@ public class DishWithOpinionsRes {
 
     @Value(staticConstructor = "of")
     public static class DishCommentRes {
+        String commentId;
         String userEmail;
         String comment;
     }

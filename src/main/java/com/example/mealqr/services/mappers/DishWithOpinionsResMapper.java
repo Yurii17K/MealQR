@@ -21,6 +21,7 @@ public class DishWithOpinionsResMapper {
                 rating,//
                 dishComments
                         .map(dishComment -> DishWithOpinionsRes.DishCommentRes.of(
+                                dishComment.getDishOpinionId(),//
                                 dishComment.getUserEmail(),//
                                 dishComment.getComment()))
                         .asJava());
