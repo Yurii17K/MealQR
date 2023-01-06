@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Value
 public class DishSaveReq {
 
-    @NotBlank
+    @NotBlank(message = "Dish name should not be empty")
     @Size(max = 128)
     String dishName;
     @NotBlank
@@ -24,6 +24,6 @@ public class DishSaveReq {
     @NotNull(message = "Dish should have a price")
     BigDecimal dishPrice;
     @NotBlank
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Please shorted the dish description to 1000 symbols")
     String dishDescription;
 }

@@ -7,9 +7,9 @@ import javax.validation.constraints.NotBlank;
 @Value
 public class RestaurantSaveReq {
 
-    @NotBlank
+    @NotBlank(message = "Restaurant name should not be empty")
     String restaurantName;
 
-    @NotBlank
+    @NotBlank(message = "Restaurant city should not be empty")
     String restaurantCity;
 }

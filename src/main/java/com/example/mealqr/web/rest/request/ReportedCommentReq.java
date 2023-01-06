@@ -11,6 +11,6 @@ public class ReportedCommentReq {
     @NotBlank
     String commentId;
 
-    @Size(max = 1000)
+    @Size(max = 1000, message = "Please shorted your report message to 1000 symbols")
     String reasoning;
 }

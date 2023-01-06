@@ -15,15 +15,15 @@ public class UserSignUpReq {
 
     boolean client;
 
-    @NotBlank
+    @NotBlank(message = "User name should not be empty")
     @Size(max = 128)
     String name;
 
-    @NotBlank
+    @NotBlank(message = "User last name should not be empty")
     @Size(max = 128)
     String lastName;
 
-    @NotBlank
+    @NotBlank(message = "User city should not be empty")
     @Size(max = 128)
     String city;
 
