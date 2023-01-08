@@ -1,5 +1,6 @@
 package com.example.mealqr.aspects;
 
+import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.security.CustomPrincipal;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -51,10 +52,18 @@ public class LoggingAspect {
                     joinPoint.getSignature().getName(),//
                     result.getStatusCode());
             return result;
+        } catch (ApiException apiException) {
+            log.error("User: {}. ApiException \"{}\". In {}.{}(). With arguments: {}",
+                    username,//
+                    apiException.getMessage(),//
+                    joinPoint.getSignature().getDeclaringTypeName(),//
+                    joinPoint.getSignature().getName(),//
+                    Arrays.toString(joinPoint.getArgs()));
+            throw apiException;
         } catch (Exception e) {
             log.error("User: {}. Exception \"{}\". In {}.{}(). With arguments: {}",
                     username,//
-                    e.getMessage(),//
+                    e.getCause(),//
                     joinPoint.getSignature().getDeclaringTypeName(),//
                     joinPoint.getSignature().getName(),//
                     Arrays.toString(joinPoint.getArgs()));

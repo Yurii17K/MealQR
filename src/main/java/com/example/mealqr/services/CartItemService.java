@@ -8,7 +8,9 @@ import com.example.mealqr.repositories.CartItemRepository;
 import com.example.mealqr.repositories.DishRepository;
 import com.example.mealqr.repositories.PromoCodeRepository;
 import com.example.mealqr.services.mappers.CartItemResMapper;
+import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
+import com.example.mealqr.web.rest.reponse.DishRes;
 import io.vavr.API;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
@@ -68,7 +70,7 @@ public class CartItemService {
     }
 
     @Transactional
-    public Either<ApiError, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
+    public Either<ApiError, DishRes> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
         return dishRepository.findByDishId(dishId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
                         .map(cartItem -> {
@@ -79,6 +81,7 @@ public class CartItemService {
                             addDishToCustomerCart(userEmail, dish);
                             return dish;
                         }))
+                .map(DishResMapper::mapToDishRes)//
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 

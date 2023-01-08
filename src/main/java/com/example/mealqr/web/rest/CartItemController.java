@@ -1,9 +1,9 @@
 package com.example.mealqr.web.rest;
 
-import com.example.mealqr.domain.Dish;
 import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.services.CartItemService;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
+import com.example.mealqr.web.rest.reponse.DishRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -41,7 +41,7 @@ public class CartItemController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist in the restaurant")})
     @Operation(summary = "Add dish to the customer's cart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Dish> addDishToCustomerCart(Principal principal, @RequestParam String dishId) {
+    public ResponseEntity<DishRes> addDishToCustomerCart(Principal principal, @RequestParam String dishId) {
         return cartItemService.addDishToCustomerCart(principal.getName(), dishId)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
