@@ -67,25 +67,49 @@ public class CartItemService {
         return true;
     }
 
+    @Transactional
     public Either<ApiError, Dish> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
         return dishRepository.findByDishId(dishId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
                         .map(cartItem -> {
-                            cartItemRepository.increaseDishQuantityInCustomerCart(userEmail, dish.getDishId(), 1);
+                            alterDishQuantityInCustomerCart(cartItem, dish, 1);
                             return dish;
                         })
                         .getOrElse(() -> {
-                            String newCartItemId = UUID.randomUUID().toString();
-                            cartItemRepository.addDishToCustomerCart(newCartItemId, userEmail, dish.getDishId(), 1);
+                            addDishToCustomerCart(userEmail, dish);
                             return dish;
                         }))
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<ApiError, Boolean> increaseDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishId,
+    private void alterDishQuantityInCustomerCart(CartItem cartItem, Dish dish, int quantity) {
+        if ((cartItem.getDishQuantity() + quantity) <= 0) {
+            cartItemRepository.deleteById(cartItem.getCartItemId());
+        } else {
+            cartItemRepository.save(cartItem//
+                    .withDishQuantity(cartItem.getDishQuantity() + quantity)//
+                    .withCartItemCost(dish.getDishPrice().multiply(BigDecimal.valueOf(cartItem.getDishQuantity() + quantity))));
+        }
+    }
+
+    private void addDishToCustomerCart(String userEmail, Dish dish) {
+        cartItemRepository.save(CartItem.builder()//
+                .cartItemId(UUID.randomUUID().toString())//
+                .userEmail(userEmail)//
+                .dish(dish)//
+                .dishQuantity(1)//
+                .cartItemCost(dish.getDishPrice())//
+                .build());
+    }
+
+    @Transactional
+    public Either<ApiError, Boolean> alterDishQuantityInCustomerCart(@NotBlank String userEmail, @NotBlank String dishId,
             @NotNull int quantity) {
         return dishRepository.findByDishId(dishId)//
-                .peek(dish -> cartItemRepository.increaseDishQuantityInCustomerCart(userEmail, dish.getDishId(), quantity))//
+                .peek(dish -> alterDishQuantityInCustomerCart(//
+                        cartItemRepository.findByUserEmailAndDishDishId(userEmail, dishId).get(),//
+                        dish,//
+                        quantity))//
                 .map(dish -> true)//
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }

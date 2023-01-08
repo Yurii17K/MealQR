@@ -52,9 +52,9 @@ public class CartItemController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist in the restaurant")})
     @Operation(summary = "Change quantity of the dish in the cart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Boolean> increaseDishQuantityInCustomerCart(Principal principal,
+    public ResponseEntity<Boolean> alterDishQuantityInCustomerCart(Principal principal,
             @RequestParam String dishId, @RequestParam Integer quantity) {
-        return cartItemService.increaseDishQuantityInCustomerCart(principal.getName(), dishId, quantity)//
+        return cartItemService.alterDishQuantityInCustomerCart(principal.getName(), dishId, quantity)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }

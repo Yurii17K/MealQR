@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, String> {
@@ -29,18 +28,4 @@ public interface CartItemRepository extends JpaRepository<CartItem, String> {
 
     void deleteByUserEmailAndDishRestaurantRestaurantId(String userEmail, String restaurantId);
 
-    @Transactional
-    @Query(value = "SELECT count(*) FROM change_dish_quantity_in_customer_cart(:user_email_param, :dish_id_param, :quantity_param)",
-            nativeQuery = true)
-    void increaseDishQuantityInCustomerCart(@Param("user_email_param") String userEmail,
-                                          @Param("dish_id_param") String dishID,
-                                          @Param("quantity_param") int quantity);
-
-    @Transactional
-    @Query(value = "SELECT count(*) FROM add_dish_to_customer_cart(:new_cart_item_id, :user_email_param, :dish_id_param, :quantity_param)",
-            nativeQuery = true)
-    void addDishToCustomerCart(@Param("new_cart_item_id") String cartItemId,
-                                @Param("user_email_param") String userEmail,
-                               @Param("dish_id_param") String dishID,
-                               @Param("quantity_param") int quantity);
 }
