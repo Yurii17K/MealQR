@@ -81,7 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/restaurant").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
                 .antMatchers("/api/restaurants").hasAuthority(Roles.RESTAURANT_MANAGER.name())//
 
-                .antMatchers("/api/cart/**", "/api/cart**").hasAuthority(Roles.CLIENT.name());
+                .antMatchers("/api/cart/**", "/api/cart").hasAuthority(Roles.CLIENT.name());
     }
 
     @Bean
