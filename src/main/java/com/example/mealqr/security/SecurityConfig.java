@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers("/api/report-comment").authenticated()//
                 .antMatchers("/api/opinion/add-comment").authenticated()//
-                .antMatchers("/api/opinion/add-rating").authenticated()//
+                .antMatchers("/api/opinion/add-rating").permitAll()//
                 .antMatchers("/api/generate-qr").authenticated()//
 
                 .antMatchers(HttpMethod.POST, "/api/dishes").hasAuthority(Roles.RESTAURANT_MANAGER.name())//

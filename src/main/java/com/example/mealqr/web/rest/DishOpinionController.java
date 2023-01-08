@@ -3,6 +3,7 @@ package com.example.mealqr.web.rest;
 import com.example.mealqr.domain.DishComment;
 import com.example.mealqr.domain.DishRating;
 import com.example.mealqr.exceptions.ApiException;
+import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.DishOpinionService;
 import com.example.mealqr.web.rest.request.DishCommentReq;
 import com.example.mealqr.web.rest.request.DishRatingReq;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,9 +46,14 @@ public class DishOpinionController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist")})
     @Operation(summary = "addOrUpdateRating", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<DishRating> addOrUpdateRating(Principal principal,
+    public ResponseEntity<DishRating> addOrUpdateRating(
             @RequestBody @Valid DishRatingReq dishRatingReq) {
-        return dishOpinionService.addOrUpdateRating(principal.getName(), dishRatingReq)//
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = "non-loggen-in@user.rating";
+        if (principal instanceof CustomPrincipal) {
+            username = ((CustomPrincipal) principal).getUsername();
+        }
+        return dishOpinionService.addOrUpdateRating(username, dishRatingReq)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }
