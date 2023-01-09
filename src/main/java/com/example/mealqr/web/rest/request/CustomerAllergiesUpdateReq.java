@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Value
 public class CustomerAllergiesUpdateReq {
 
-    @NotBlank
+    @NotBlank(message = "Allergies can not be empty")
     @JsonProperty
     String allergies;
 

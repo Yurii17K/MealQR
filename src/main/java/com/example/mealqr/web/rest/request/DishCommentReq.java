@@ -11,7 +11,7 @@ public class DishCommentReq {
     @NotBlank
     String dishId;
 
-    @NotBlank
-    @Size(max = 1000, message = "Please shorted your comment to 1000 symbols")
+    @NotBlank(message = "Comment can not be empty")
+    @Size(max = 1000, message = "Comment can not exceed 1000 symbols")
     String comment;
 }

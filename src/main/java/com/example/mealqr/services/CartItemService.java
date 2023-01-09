@@ -7,6 +7,7 @@ import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.repositories.CartItemRepository;
 import com.example.mealqr.repositories.DishRepository;
 import com.example.mealqr.repositories.PromoCodeRepository;
+import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.mappers.CartItemResMapper;
 import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
@@ -20,13 +21,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import static com.example.mealqr.security.JWT.generateToken;
 
 @Service
 @RequiredArgsConstructor
@@ -39,22 +40,16 @@ public class CartItemService {
 
     private static final String SUCH_DISH_DOES_NOT_EXIST = "Such dish does not exist";
 
-    public Seq<CartItemRes> getCustomerCart(@NotBlank String userEmail) {
-        Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(userEmail);
-        return Option.of(RequestContextHolder.currentRequestAttributes().getAttribute(PROMOCODE, RequestAttributes.SCOPE_SESSION))//
-                .map(promo -> applyPromoToCartItems((PromoCode) promo, customerCart))//
+    public Seq<CartItemRes> getCustomerCart(@NotBlank CustomPrincipal customPrincipal) {
+        Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(customPrincipal.getUsername());
+        return Option.of(customPrincipal.getPromoCode())//
+                .map(promo -> applyPromoToCartItems(promo, customerCart))//
                 .getOrElse(customerCart)
                 .map(CartItemResMapper::mapToCartItemRes);
     }
 
-    public double getCustomerCartCost(@NotBlank String userEmail) {
-        BigDecimal customerCartCost = cartItemRepository.getCustomerCart(userEmail)//
-                .map(CartItem::getCartItemCost)//
-                .reduce(BigDecimal::add);
-        return Option.of(RequestContextHolder.currentRequestAttributes().getAttribute(PROMOCODE, RequestAttributes.SCOPE_SESSION))//
-                .map(promo -> applyPromoToCartCost((PromoCode) promo, customerCartCost))//
-                .getOrElse(customerCartCost)//
-                .doubleValue();
+    public double getCustomerCartCost(@NotBlank CustomPrincipal customPrincipal) {
+        return getCustomerCart(customPrincipal).map(CartItemRes::getCartItemCost).sum().doubleValue();
     }
 
     @Transactional
@@ -117,23 +112,25 @@ public class CartItemService {
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<ApiError, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishName,
-            @NotBlank String restaurantId) {
-        return dishRepository.findByDishNameAndRestaurantRestaurantId(dishName, restaurantId)//
+    public Either<ApiError, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
+        return dishRepository.findByDishId(dishId)//
                 .peek(dish -> cartItemRepository.deleteByUserEmailAndDishDishId(userEmail, dish.getDishId()))//
                 .map(dish -> true)//
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<ApiError, Boolean> registerPromoInSession(String userEmail, String promoCode) {
-        Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(userEmail);
+    public Either<ApiError, String> registerPromoInSession(CustomPrincipal customPrincipal, String promoCode) {
+        Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(customPrincipal.getUsername());
+        if (customerCart.isEmpty()) {
+            return Either.left(ApiError.buildError("Please add dishes to your cart before applying a promo code"));
+        }
         Option<PromoCode> currentPromo = promoCodeRepository.findByPromoCodeStringAndRestaurantRestaurantId(promoCode,
                 customerCart.headOption().get().getDish().getRestaurant().getRestaurantId());
         return currentPromo
-                .toValidation(ApiError.buildError("Promo code is not valid", HttpStatus.NOT_FOUND))//
+                .toValidation(ApiError.buildError("Promo code can not be used for this restaurant", HttpStatus.NOT_FOUND))//
                 .flatMap(this::canPromoBeUsed)//
-                .peek(validCode -> RequestContextHolder.currentRequestAttributes().setAttribute(PROMOCODE, validCode, RequestAttributes.SCOPE_SESSION))//
-                .map(validCode -> true)//
+                .peek(customPrincipal::setPromoCode)//
+                .map(validCode -> generateToken(customPrincipal))//
                 .toEither();
     }
 
@@ -146,18 +143,26 @@ public class CartItemService {
     private Seq<CartItem> applyPromoToCartItems(PromoCode currentPromo, Seq<CartItem> cartItems) {
         switch (currentPromo.getPromoCodeType()) {
             case DISH_SPECIFIC_PERCENT:
-                return cartItems
-                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))
+                return cartItems//
+                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))//
                         .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().multiply(BigDecimal.valueOf(1.0d - 0.01 * currentPromo.getPriceReduction()))));
             case DISH_SPECIFIC:
-                return cartItems
-                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))
+                return cartItems//
+                        .filter(cartItem -> cartItem.getDish().getDishId().equals(currentPromo.getDish().getDishId()))//
                         .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().subtract(BigDecimal.valueOf(currentPromo.getPriceReduction()))));
+            case CART:
+                return cartItems//
+                        .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().subtract(BigDecimal.valueOf((float) currentPromo.getPriceReduction() / cartItems.size()))));
+            case CART_PERCENT:
+                return cartItems//
+                        .map(cartItem -> cartItem.withCartItemCost(cartItem.getCartItemCost().multiply(BigDecimal.valueOf(1.0d - 0.01 * currentPromo.getPriceReduction()))));
             default:
                 return cartItems;
         }
     }
 
+    // Too costly to compute and replaced with on-place computation from cart items
+    @Deprecated(forRemoval = true)
     private BigDecimal applyPromoToCartCost(PromoCode currentPromo, BigDecimal cartCost) {
         switch (currentPromo.getPromoCodeType()) {
             case CART_PERCENT:

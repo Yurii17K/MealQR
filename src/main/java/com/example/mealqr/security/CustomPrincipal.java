@@ -1,5 +1,6 @@
 package com.example.mealqr.security;
 
+import com.example.mealqr.domain.PromoCode;
 import com.example.mealqr.domain.User;
 import com.example.mealqr.repositories.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class CustomPrincipal implements UserDetails {
 
     private final User subject;
     private Set<String> restaurantIds;
+    private PromoCode promoCode;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,5 +76,13 @@ public class CustomPrincipal implements UserDetails {
 
     public Set<String> getRestaurantIds() {
         return this.restaurantIds;
+    }
+
+    public PromoCode getPromoCode() {
+        return this.promoCode;
+    }
+
+    public void setPromoCode(PromoCode promoCode) {
+        this.promoCode = promoCode;
     }
 }

@@ -32,13 +32,11 @@ public class UserSignUpReq {
     @JsonProperty
     String allergies;
 
-    @NotBlank
-    @Email(message = "Email should be valid", regexp = ".*@.*\\..*")
+    @Email(message = "User email should be valid", regexp = ".*@.*\\..*")
     String email;
 
-    @NotBlank
     // passwords visible in logs at failed validation if below is applied
-    // @Size(min = 8, max = 128, message = "Password lengths can not be less than 8")
+    @Size(min = 12, max = 128, message = "User password lengths can not be less than 12")
     String pass;
 
     @JsonIgnore

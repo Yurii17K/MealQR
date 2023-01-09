@@ -24,6 +24,6 @@ public class DishSaveReq {
     @NotNull(message = "Dish should have a price")
     BigDecimal dishPrice;
     @NotBlank
-    @Size(max = 1000, message = "Please shorted the dish description to 1000 symbols")
+    @Size(max = 1000, message = "Dish description can not exceed 1000 symbols")
     String dishDescription;
 }

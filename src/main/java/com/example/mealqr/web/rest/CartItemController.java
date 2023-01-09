@@ -1,6 +1,7 @@
 package com.example.mealqr.web.rest;
 
 import com.example.mealqr.exceptions.ApiException;
+import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.CartItemService;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
 import com.example.mealqr.web.rest.reponse.DishRes;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,15 +27,15 @@ public class CartItemController {
     @GetMapping("/cart")
     @ApiResponse(responseCode = "200", description = "")
     @Operation(summary = "Gets customer's cart. Considers a promo code if applied", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<List<CartItemRes>> getCustomerCart(Principal principal) {
-        return ResponseEntity.ok(cartItemService.getCustomerCart(principal.getName()).asJava());
+    public ResponseEntity<List<CartItemRes>> getCustomerCart(Authentication authentication) {
+        return ResponseEntity.ok(cartItemService.getCustomerCart((CustomPrincipal) authentication.getPrincipal()).asJava());
     }
 
     @GetMapping("/cart/cost")
     @ApiResponse(responseCode = "200", description = "")
     @Operation(summary = "Gets customer's cart cost. Considers a promo code if applied", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Double> getCustomerCartCost(Principal principal) {
-        return ResponseEntity.ok(cartItemService.getCustomerCartCost(principal.getName()));
+    public ResponseEntity<Double> getCustomerCartCost(Authentication authentication) {
+        return ResponseEntity.ok(cartItemService.getCustomerCartCost((CustomPrincipal) authentication.getPrincipal()));
     }
 
     @PostMapping("/cart/add-dish")
@@ -78,9 +80,8 @@ public class CartItemController {
             @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "404", description = "Dish doesn't exist in the restaurant")})
     @Operation(summary = "deleteDishFromCustomerCart", security = @SecurityRequirement(name = "JWT AUTH"))
-    public ResponseEntity<Boolean> deleteDishFromCustomerCart(Principal principal, @RequestParam String dishName,
-            @RequestParam String restaurantId) {
-        return cartItemService.deleteDishFromCustomerCart(principal.getName(), dishName, restaurantId)//
+    public ResponseEntity<Boolean> deleteDishFromCustomerCart(Principal principal, @RequestParam String dishId) {
+        return cartItemService.deleteDishFromCustomerCart(principal.getName(), dishId)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
     }

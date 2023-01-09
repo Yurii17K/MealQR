@@ -8,10 +8,9 @@ import javax.validation.constraints.NotBlank;
 @Value
 public class UserSignInReq {
 
-    @Email(message = "Email should be valid", regexp = ".*@.*\\..*")
-    @NotBlank
+    @Email(message = "User email should be valid", regexp = ".*@.*\\..*")
     String userEmail;
 
-    @NotBlank
+    @NotBlank(message = "User password can not be empty")
     String userPassword;
 }
