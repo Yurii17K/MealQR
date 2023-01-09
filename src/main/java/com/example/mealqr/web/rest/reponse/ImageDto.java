@@ -12,7 +12,8 @@ import java.util.zip.Deflater;
 
 @Value(staticConstructor = "of")
 public class ImageDto {
-    @Size(max = 50000, message = "Image must be less than 50Kb")
+    // Higher due adjust for conversions (original image will be compressed to 50kb in case of 60kb)
+    @Size(max = 65000, message = "Image must be less than 50Kb")
     String base64Data;
     String contentType;
 
