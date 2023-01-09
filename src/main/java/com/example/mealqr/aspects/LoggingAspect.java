@@ -22,7 +22,7 @@ public class LoggingAspect {
     /**
      * Pointcut that matches all Web REST endpoints.
      */
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
+    @Pointcut("execution(* com.example.mealqr.web.rest..*.*(..))")
     public void endpointPointcut() {
         // Method is empty as this is just a Pointcut, the implementations are in the advices.
     }
