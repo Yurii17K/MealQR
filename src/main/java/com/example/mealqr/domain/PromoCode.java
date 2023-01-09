@@ -35,6 +35,6 @@ public class PromoCode {
 
     int priceReduction;
 
+    @Enumerated(EnumType.STRING)
     PromoCodeType promoCodeType;
-
 }

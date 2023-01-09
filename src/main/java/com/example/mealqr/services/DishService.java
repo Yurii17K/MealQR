@@ -81,6 +81,7 @@ public class DishService {
                         dish,//
                         dishOpinionService.getDishAverageRating(dish.getDishId()),//
                         dishOpinionService.getDishComments(dish.getDishId())))//
+                .limit(7)//
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 

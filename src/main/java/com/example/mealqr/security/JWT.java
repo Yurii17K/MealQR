@@ -1,7 +1,6 @@
 package com.example.mealqr.security;
 
 
-import com.example.mealqr.domain.PromoCode;
 import com.example.mealqr.domain.User;
 import com.example.mealqr.exceptions.ApiError;
 import com.example.mealqr.exceptions.ApiException;
@@ -9,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.vavr.API;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import lombok.AccessLevel;
@@ -31,7 +31,7 @@ public class JWT {
 
     public static String generateToken (CustomPrincipal customPrincipal) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("PROMOCODE", customPrincipal.getPromoCode());
+        claims.put("PROMOCODE", customPrincipal.getPromoCodeId());
         return createToken(claims, customPrincipal.getUsername());
     }
 
@@ -72,14 +72,12 @@ public class JWT {
 
     private static Validation<ApiError, CustomPrincipal> tokenSignatureValid(Claims claims, Function<String, CustomPrincipal> loadByUsername) {
         String subject = claims.getSubject();
-        PromoCode promocode = claims.get("PROMOCODE", PromoCode.class);
         CustomPrincipal customPrincipal = loadByUsername.apply(subject);
         if (!customPrincipal.getUsername().equals(subject)) {
             return Validation.invalid(ApiError.buildError("Unauthorized", HttpStatus.FORBIDDEN));
         }
-        if (promocode != null) {
-            customPrincipal.setPromoCode(claims.get("PROMOCODE", PromoCode.class));
-        }
+        Option.of(claims.get("PROMOCODE", String.class))
+                .peek(customPrincipal::setPromoCodeId);
         return Validation.valid(customPrincipal);
     }
 }

@@ -12,6 +12,7 @@ import com.example.mealqr.services.mappers.CartItemResMapper;
 import com.example.mealqr.services.mappers.DishResMapper;
 import com.example.mealqr.web.rest.reponse.CartItemRes;
 import com.example.mealqr.web.rest.reponse.DishRes;
+import com.example.mealqr.web.rest.reponse.TokenRes;
 import io.vavr.API;
 import io.vavr.collection.Seq;
 import io.vavr.control.Either;
@@ -42,7 +43,8 @@ public class CartItemService {
 
     public Seq<CartItemRes> getCustomerCart(@NotBlank CustomPrincipal customPrincipal) {
         Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(customPrincipal.getUsername());
-        return Option.of(customPrincipal.getPromoCode())//
+        return Option.of(customPrincipal.getPromoCodeId())//
+                .flatMap(promoId -> Option.ofOptional(promoCodeRepository.findById(customPrincipal.getPromoCodeId())))//
                 .map(promo -> applyPromoToCartItems(promo, customerCart))//
                 .getOrElse(customerCart)
                 .map(CartItemResMapper::mapToCartItemRes);
@@ -119,7 +121,7 @@ public class CartItemService {
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
-    public Either<ApiError, String> registerPromoInSession(CustomPrincipal customPrincipal, String promoCode) {
+    public Either<ApiError, TokenRes> registerPromoInSession(CustomPrincipal customPrincipal, String promoCode) {
         Seq<CartItem> customerCart = cartItemRepository.getCustomerCart(customPrincipal.getUsername());
         if (customerCart.isEmpty()) {
             return Either.left(ApiError.buildError("Please add dishes to your cart before applying a promo code"));
@@ -129,8 +131,9 @@ public class CartItemService {
         return currentPromo
                 .toValidation(ApiError.buildError("Promo code can not be used for this restaurant", HttpStatus.NOT_FOUND))//
                 .flatMap(this::canPromoBeUsed)//
-                .peek(customPrincipal::setPromoCode)//
-                .map(validCode -> generateToken(customPrincipal))//
+                .map(PromoCode::getPromoCodeId)//
+                .peek(customPrincipal::setPromoCodeId)//
+                .map(validCode -> TokenRes.of(generateToken(customPrincipal), true))//
                 .toEither();
     }
 

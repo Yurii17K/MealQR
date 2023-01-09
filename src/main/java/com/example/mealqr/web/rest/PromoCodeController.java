@@ -3,6 +3,7 @@ package com.example.mealqr.web.rest;
 import com.example.mealqr.exceptions.ApiException;
 import com.example.mealqr.security.CustomPrincipal;
 import com.example.mealqr.services.CartItemService;
+import com.example.mealqr.web.rest.reponse.TokenRes;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class PromoCodeController {
             @ApiResponse(responseCode = "200", description = "JWT token with a promo code attached to it"),
             @ApiResponse(responseCode = "404", description = "Promo code doesn't exist"),
             @ApiResponse(responseCode = "400", description = "Promo code exceeded the amount of uses")})
-    public ResponseEntity<String> registerPromoInSession(Authentication authentication, @PathVariable @Valid String promoCode) {
+    public ResponseEntity<TokenRes> registerPromoInSession(Authentication authentication, @PathVariable @Valid String promoCode) {
         return cartItemService.registerPromoInSession((CustomPrincipal) authentication.getPrincipal(), promoCode)//
                 .map(ResponseEntity::ok)//
                 .getOrElseThrow(ApiException::new);
