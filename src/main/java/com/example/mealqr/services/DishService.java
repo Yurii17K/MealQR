@@ -140,6 +140,7 @@ public class DishService {
                 .toEither();
     }
 
+    @Transactional
     public Either<ApiError, DishRes> updateDishInRestaurantOffer(DishUpdateReq dishUpdateReq) {
         return validateDishUpdate(dishUpdateReq)//
                 .map(originalDish -> DishResMapper.mapToDishRes(updateDish(dishUpdateReq, originalDish)))//

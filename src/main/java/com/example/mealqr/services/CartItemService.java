@@ -130,6 +130,7 @@ public class CartItemService {
                 .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
     }
 
+    @Transactional
     public Either<ApiError, Boolean> deleteDishFromCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
         return dishRepository.findByDishId(dishId)//
                 .peek(dish -> cartItemRepository.deleteByUserEmailAndDishDishId(userEmail, dish.getDishId()))//
