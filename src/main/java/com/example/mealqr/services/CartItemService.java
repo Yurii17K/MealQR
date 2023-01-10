@@ -68,7 +68,7 @@ public class CartItemService {
 
     @Transactional
     public Either<ApiError, DishRes> addDishToCustomerCart(@NotBlank String userEmail, @NotBlank String dishId) {
-        return dishRepository.findByDishId(dishId)//
+        return validateDishAdd(userEmail, dishId)//
                 .peek(dish -> cartItemRepository.findByUserEmailAndDishDishId(userEmail, dish.getDishId())//
                         .map(cartItem -> {
                             alterDishQuantityInCustomerCart(cartItem, dish, 1);
@@ -79,7 +79,23 @@ public class CartItemService {
                             return dish;
                         }))
                 .map(DishResMapper::mapToDishRes)//
-                .toEither(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
+                .toEither();
+    }
+
+    private Validation<ApiError, Dish> validateDishAdd(String userEmail, String dishId) {
+        Option<Dish> dishOption = dishRepository.findByDishId(dishId);
+        if (dishOption.isEmpty()) {
+            return Validation.invalid(ApiError.buildError(SUCH_DISH_DOES_NOT_EXIST, HttpStatus.NOT_FOUND));
+        }
+        Option<CartItem> cartItemOption = cartItemRepository.getCustomerCart(userEmail).headOption();
+        if (cartItemOption.isEmpty()) {
+            return Validation.valid(dishOption.get());
+        } else {
+            return cartItemOption//
+                    .filter(cartItem -> cartItem.getDish().getRestaurant().getRestaurantId().equals(dishOption.get().getRestaurant().getRestaurantId()))//
+                    .map(cartItem -> dishOption.get())//
+                    .toValidation(ApiError.buildError("Dishes from different restaurants can not be added to the cart simultaneously"));
+        }
     }
 
     private void alterDishQuantityInCustomerCart(CartItem cartItem, Dish dish, int quantity) {
