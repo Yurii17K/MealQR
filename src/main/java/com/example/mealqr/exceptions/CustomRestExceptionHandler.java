@@ -1,6 +1,7 @@
 package com.example.mealqr.exceptions;
 
 import com.example.mealqr.web.rest.reponse.ErrorRes;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,4 +41,18 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleCustomException(final ApiException apiException) {
         return new ResponseEntity<>(ErrorRes.of(apiException.getMessage()), apiException.getHttpStatus());
     }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Object> handleCustomException(final SQLException sqlException) {
+        return new ResponseEntity<>(ErrorRes.of("Our database is experiencing a high load, please try again in 10m"),
+                HttpStatus.BANDWIDTH_LIMIT_EXCEEDED);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Object> handleCustomException(final DataAccessException dataAccessException) {
+        return new ResponseEntity<>(ErrorRes.of("Our databases are under maintenance by a provider, please try again in 15m"),
+                HttpStatus.REQUEST_TIMEOUT);
+    }
+
+
 }

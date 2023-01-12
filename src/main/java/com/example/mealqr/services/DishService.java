@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -47,8 +48,6 @@ public class DishService {
     private final MasterRecommenderService masterRecommenderService;
     private final DishRatingRepository dishRatingRepository;
     private final DishCommentRepository dishCommentRepository;
-
-
     private static final SecureRandom RANDOM = new SecureRandom();
 
     public List<DishRes> getAllDishesInRestaurant(@NotBlank String restaurantId) {
@@ -71,7 +70,7 @@ public class DishService {
 
     public List<DishWithOpinionsRes> getAllDishesInRestaurantConfiguredForUser(Authentication authentication, String restaurantId) {
         AtomicReference<String> userEmail = new AtomicReference<>();
-        return Option.of(authentication)//
+        LinkedList<DishWithOpinionsRes> dishWithOpinionsResLinkedList = Option.of(authentication)//
                 .peek(auth -> userEmail.set(((CustomPrincipal) authentication.getPrincipal()).getUsername()))//
                 .map(userAuthenticated -> getAllDishesInRestaurantSortedByUserPreference(userEmail.get(), restaurantId)//
                         .stream()//
@@ -81,8 +80,18 @@ public class DishService {
                         dish,//
                         dishOpinionService.getDishAverageRating(dish.getDishId()),//
                         dishOpinionService.getDishComments(dish.getDishId())))//
+                .filter(d -> LocalDateTime.now().getSecond() % 2 == 0)//
                 .limit(7)//
                 .collect(Collectors.toCollection(LinkedList::new));
+        List<DishWithOpinionsRes> mixed = dishWithOpinionsResLinkedList
+                .stream()//
+                .filter(d -> LocalDateTime.now().getSecond() % 2 == 0)//
+                .limit(7)//
+                .collect(Collectors.toList());
+        while (mixed.size() < 7) {
+            mixed.add(dishWithOpinionsResLinkedList.get((RANDOM.nextInt(dishWithOpinionsResLinkedList.size()))));
+        }
+        return mixed;
     }
 
     public Either<ApiError, DishRes> getRandomDish() {
