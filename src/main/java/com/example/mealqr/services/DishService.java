@@ -83,9 +83,10 @@ public class DishService {
                         dish,//
                         dishOpinionService.getDishAverageRating(dish.getDishId()),//
                         dishOpinionService.getDishComments(dish.getDishId())))//
-                .filter(d -> LocalDateTime.now().getSecond() % 2 == 0)//
-                .limit(7)//
                 .collect(Collectors.toCollection(LinkedList::new));
+
+        if (dishWithOpinionsResLinkedList.isEmpty()) return dishWithOpinionsResLinkedList;
+
         List<DishWithOpinionsRes> mixed = dishWithOpinionsResLinkedList
                 .stream()//
                 .filter(d -> LocalDateTime.now().getSecond() % 2 == 0)//

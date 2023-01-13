@@ -42,3 +42,4 @@ target/
 
 # Heroku
 db_dumps/*
+/src/test/java/com/example/mealqr/TestTest.java
