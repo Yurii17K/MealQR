@@ -1,61 +1,14 @@
 ![example workflow](https://github.com/Yurii17K/MealQR/actions/workflows/maven.yml/badge.svg)
 
-# MealQR
- 
+![MealQR Logo](images/logo.png)
+
+## MealQR - business purpose
+We think that some of the most successful and popular apps nowadays are connected to food, and most likely to ordering food from restaurants directly to your door. We analyzed already existing apps and found a great field for upgrading them. We want to make choosing food even more convenient for users, especially the people who can never decide on one dish or who are bored of ordering the same thing over and over again. We want to make these choices easier for them and enclose everything in a user-friendly mobile-oriented web app that will make ordering food fun! 
+
+The main feature is swiping left and right on a picture of a suggested dish. We believe that in this way we will make it easier for the client to make a choice and encourage him to try new items from various restaurants. 
+
+As for our target groups, we are aiming for people between the ages of around 18 to even 40. We think that this age group uses food ordering apps the most, and we know that people in this age range are the most open to modern applications and innovative solutions. We plan to reach our target user using advertisements on social media platforms, as well as some leaflets in the restaurants cooperating with us
+
+
 ## Git flow
 For each feature create a new branch from **dev** branch with a name **feature-{feature-name}**
-
-## 🛠 Backend Endpoints (THIS LIST IS NOT UPDATED)
-
-**To view and try out all the UP TO DATE endpoints navigate to `{host}/swagger-ui/index.html`**
-
-# -- NOT UP TO DATE --
-### 🔐 Users:
-- Create a customer:
-  - **POST** `{host}/users/customer?userName={value}&userLastName={value}&userCity={value}&allergies={value}&userEmail={value}&userPass={value}`
-- Create a restaurant employee:
-  - **POST** `{host}/users/rest-emp?userName={value}&userLastName={value}&userCity={value}&restaurantName={value}&userEmail={value}&userPass={value}`
-- Sign in:
-  - **POST** `{host}/users/login?userEmail={value}&userPass={value}`
-- Update customer allergies:
-  - **PATCH** `{host}/users/customer/allergies?userEmail={value}&allergies={value}`
-
-### 🛒 Cart items:
-- Get the list of cart items in customer cart: 
-  - **GET** `{host}/cart-items?userEmail={value}`
-- Get the cost of cart items in customer cart: 
-  - **GET** `{host}/cart-items/cost?userEmail={value}`
-- Add dish to customer cart: 
-  - **POST** `{host}/cart-items?userEmail={value}&dishName={value}&restaurantName={value}`
-- Change dish quantity in customer cart: 
-  - **PATCH** `{host}/cart-items?userEmail={value}&dishName={value}&restaurantName={value}&quantity={value}`
-- Delete dish from customer cart: 
-  - **DELETE**`{host}/cart-items?userEmail={value}&dishName={value}&restaurantName={value}`
-- Clear customer cart: 
-  - **DELETE**`{host}/cart-items/clear?userEmail={value}`
-
-### 🍲 Dishes:
-- Get all dishes in restaurant:
-  - **GET** `{host}/dishes?restaurantName={value}`
-- Get all dishes in restaurant with comments and average ratings for each dish + suitable for the user (no allergies and preferences included):
-  - **GET** `{host}/dishes/preferences?userEmail={value}&restaurantName={value}`
-- Get random dish:
-  - **GET** `{host}/dishes/random`
-- Get random dish in restaurant:
-  - **GET** `{host}/dishes/random/{restaurantName}`
-- Add dish to restaurant offer:
-  - **POST** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}&dishImg={value}&dishPrice={value}&dishDescription={value}`
-- Update dish in restaurant offer:
-  - **PUT** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}&dishImg={value}&dishPrice={value}&dishDescription={value}`
-- Remove dish from restaurant offer:
-  - **DELETE** `{host}/dishes/restaurant?dishName={value}&restaurantName={value}`
-
-### 💬 Comments and ratings:
-- Add or update comment to dish:
-  - **POST** `{host}/opinions/comments?userEmail={value}&dishName={value}&restaurantName={value}&comment={value}`
-- Add or update rating to dish:
-  - **POST** `{host}/opinions/ratings?userEmail={value}&dishName={value}&restaurantName={value}&rating={value}`
-
-### 📓 QR:
-- Generate data for QR code from customer cart:
-  - **GET** `{host}/qr?userEmail={value}`

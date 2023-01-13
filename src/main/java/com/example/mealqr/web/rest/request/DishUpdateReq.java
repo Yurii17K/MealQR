@@ -7,6 +7,7 @@ import io.vavr.control.Option;
 import lombok.Value;
 import org.springframework.lang.Nullable;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;

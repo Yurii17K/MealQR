@@ -40,14 +40,6 @@ public class DishImage {
                 .build();
     }
 
-//    public static DishImage of(ImageDto newImage) {
-//        return DishImage.builder()//
-//                .dishImageId(UUID.randomUUID().toString())//
-//                .data(newImage.getBase64Data().getBytes(StandardCharsets.UTF_8))//
-//                .contentType(newImage.getContentType())//
-//                .build();
-//    }
-
     public static DishImage update(ImageDto newImage, DishImage originalImage) {
         return DishImage.builder()//
                 .dishImageId(originalImage.getDishImageId())//

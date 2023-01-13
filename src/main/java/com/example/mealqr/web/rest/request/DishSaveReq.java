@@ -19,7 +19,6 @@ public class DishSaveReq {
     @Size(max = 128)
     String restaurantId;
     @NotNull(message = "Dish should have an image")
-    @Valid
     ImageDto dishImage;
     @NotNull(message = "Dish should have a price")
     BigDecimal dishPrice;

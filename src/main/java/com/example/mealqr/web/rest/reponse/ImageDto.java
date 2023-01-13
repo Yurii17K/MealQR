@@ -1,19 +1,19 @@
 package com.example.mealqr.web.rest.reponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Value;
+
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 
+import lombok.Value;
+
 @Value(staticConstructor = "of")
 public class ImageDto {
-    // Higher due adjust for conversions (original image will be compressed to 50kb in case of 60kb)
-    @Size(max = 65000, message = "Image must be less than 50Kb")
+
     String base64Data;
     String contentType;
 

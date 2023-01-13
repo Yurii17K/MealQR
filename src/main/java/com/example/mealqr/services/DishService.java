@@ -22,6 +22,8 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,7 @@ public class DishService {
     private final DishRatingRepository dishRatingRepository;
     private final DishCommentRepository dishCommentRepository;
     private static final SecureRandom RANDOM = new SecureRandom();
+    private final Environment environment;
 
     public List<DishRes> getAllDishesInRestaurant(@NotBlank String restaurantId) {
         return dishRepository.findAllByRestaurantRestaurantId(restaurantId)//
@@ -131,6 +134,11 @@ public class DishService {
     }
 
     public Either<ApiError, DishRes> addDishToRestaurantMenu(DishSaveReq dishSaveReq) {
+        if (dishSaveReq.getDishImage().getCompressedImage().length >
+                environment.getProperty("image.size.limit", Integer.class)) {
+            return Either.left(ApiError.buildError(
+                    "Image must be less than " + environment.getProperty("image.size.message")));
+        }
         return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishSaveReq.getDishName(),
                         dishSaveReq.getRestaurantId()))//
                 .filter(Option::isEmpty)//
@@ -154,6 +162,28 @@ public class DishService {
         return validateDishUpdate(dishUpdateReq)//
                 .map(originalDish -> DishResMapper.mapToDishRes(updateDish(dishUpdateReq, originalDish)))//
                 .toEither();
+    }
+
+    private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {
+        if (dishUpdateReq.getDishImage().isDefined() && dishUpdateReq.getDishImage().get().getCompressedImage().length >
+                environment.getProperty("image.size.limit", Integer.class)) {
+            return Validation.invalid(ApiError.buildError(
+                    "Image must be less than " + environment.getProperty("image.size.message")));
+        }
+        Option<Dish> dishById = dishRepository.findByDishId(dishUpdateReq.getDishId());
+        if (dishById.isEmpty()){
+            return Validation.invalid(ApiError.buildError("Dish does not exist", HttpStatus.NOT_FOUND));
+        }
+
+        if (dishUpdateReq.getDishName().isEmpty() || dishUpdateReq.getDishName().get().equals(dishById.get().getDishName())) {
+            return Validation.valid(dishById.get());
+        } else {
+            return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishUpdateReq.getDishName().get(),
+                            dishById.get().getRestaurant().getRestaurantId()))
+                    .filter(Option::isEmpty)//
+                    .flatMap(dishNotPresent -> dishById)//
+                    .toValidation(ApiError.buildError("Dish with this name already exists in the restaurant"));
+        }
     }
 
     private Dish updateDish(DishUpdateReq dishUpdateReq, Dish originalDish) {
@@ -183,23 +213,6 @@ public class DishService {
                 .map(cartItemRepository::findAllByDish)//
                 .filter(Seq::isEmpty)//
                 .toValidation(ApiError.buildError("Invalid state! Dish is in someone's cart"));
-    }
-
-    private Validation<ApiError, Dish> validateDishUpdate(DishUpdateReq dishUpdateReq) {
-        Option<Dish> dishById = dishRepository.findByDishId(dishUpdateReq.getDishId());
-        if (dishById.isEmpty()){
-            return Validation.invalid(ApiError.buildError("Dish does not exist", HttpStatus.NOT_FOUND));
-        }
-
-        if (dishUpdateReq.getDishName().isEmpty() || dishUpdateReq.getDishName().get().equals(dishById.get().getDishName())) {
-            return Validation.valid(dishById.get());
-        } else {
-            return API.Some(dishRepository.findByDishNameAndRestaurantRestaurantId(dishUpdateReq.getDishName().get(),
-                                                            dishById.get().getRestaurant().getRestaurantId()))
-                                                    .filter(Option::isEmpty)//
-                                                    .flatMap(dishNotPresent -> dishById)//
-                                                    .toValidation(ApiError.buildError("Dish with this name already exists in the restaurant"));
-        }
     }
 
     private boolean isUserAllergicToDish(@NotBlank String userEmail, @NotNull Dish dish){
