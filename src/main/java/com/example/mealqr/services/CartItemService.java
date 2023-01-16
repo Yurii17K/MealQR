@@ -148,6 +148,7 @@ public class CartItemService {
         return currentPromo
                 .toValidation(ApiError.buildError("Promo code can not be used for this restaurant", HttpStatus.NOT_FOUND))//
                 .flatMap(this::canPromoBeUsed)//
+                .peek(promo -> promoCodeRepository.save(promo.withUsesLeft(promo.getUsesLeft() - 1)))//
                 .map(PromoCode::getPromoCodeId)//
                 .peek(customPrincipal::setPromoCodeId)//
                 .map(validCode -> TokenRes.of(generateToken(customPrincipal), true))//
